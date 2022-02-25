@@ -34,8 +34,15 @@ Tous les events situés entre le tick et le suivant sont exécutés :
 
 Dans une story, un tableau d'association entre un label et un temps en millisecondes
 
-### les events d'une story
+```js
 
+{
+  500: {channel: 'anim', action: 'enter'},
+  900: [{channel: 'anim', action: 'move01'},{channel: 'strap', action: 'move'} ],
+}
+```
+
+### les actions
 ```js
 {
  element01:
@@ -125,7 +132,64 @@ exemple :
   - A "pause", tous les autres tracks sont désactivés.
   - a "play" le track lié à à la langue est activé, le track "pause" est arrété.
 
-```js
-class Timeline
-add(inputs, eventimes)
-```
+
+
+### les données d'entrées dans Timeline
+- eventimes : {time : {event, channel}[] }
+- états :
+  - actions : {id_perso: { id_action: action }[] }[] 
+  - listens : *map events to actions* {channel : {event: id_action}}
+
+Listens sert à dispatcher plusieurs actions à partir d'un seul event
+En l'absence de listens, event === id_action
+Les actions qui ne sont pas reliés à un event sont suspendus, sauf si le libellé est un nombre (id_action === time)
+A chaque ajout d'eventime, les actions suspendues sont à nouveau evaluées
+
+Un input recoit une propriété time pour une execution immédiate et une consignation dans le cache de la timeline.
+
+Dans quel ordre recevoir ces objets ?
+listens et actions doivent etre traités en meme temps, pour résoudre les manques.
+il peuvent meme etre résolus avant recéption. Ne pas en tenir compte.
+definir des clés internes pour découpler eventimes et actions; 
+- si de nouveaux objets sont ajoutés, les propriétés communes viennent remplacer les précédentes.
+-> cependant, ce sont des evenements qui ne seront pas tracés par la timeline.
+On pourrait sceller la timeline avec un start() et ne permettre que des input par la suite ? 
+exemple : comment gérer les events d'un jeu que l'on peut recommencer sans rejouer la scene ?
+
+
+### Store
+Regrouper pour une scène tout les éléments que la timeline doit gérer:
+par composant :
+- la fonction de création
+- node 
+- les états : 
+  - actions
+    - actions spéciales : 
+      - move
+      - transition : passage d'un état à l'autre
+      - animations : suite de  transitions enchainées
+      - états : transition ramenant à l'état de départ
+  - listens
+- portée des transformations : toutes les propriétés de l'objet qui vont évoluer 
+- état courant : résultat des transformations, avant le render
+- rendered : attributs appliqué au node
+- parent ref au composant parent
+- transformation : matrice appliquée au composant
+- position : position réelle relative à la fenêtre / la scene
+
+transformation sert à calculer la position réelle d'un élément sur la scene, en remontant la chaine des parents pour cumuler les transformations
+
+
+## Store et timeline :
+La timeline reçoit à tout moment de nouveaux events et le store ajoute ou retire de nouveaux composants.
+les associations entre events et actions doivent se faire en temps réel, ou bien etre révisés à chaque modification
+
+
+## Fonctionnement
+Timeline peut se contenter de classer les event entrant et de les renvoyer ensuite sur la partie traitement
+
+Comment faire fonctionner :
+- le mode seek
+  tester ce mode en utilisant un réducer 
+- les events dérivés (transition, move...)
+les events générés ne sont pas envoyés dans la timeline. Ces events s'abonnent à Clock qui fournira un tick.

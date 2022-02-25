@@ -1,5 +1,5 @@
-type Cb = (status?: Status) => void;
-type Guard = (status?: Status) => boolean;
+export type Cb = (status?: Status) => void;
+export type Guard = (status?: Status) => boolean;
 
 export interface Status {
 	elapsed: number;
@@ -15,10 +15,11 @@ interface Props {
 	audioContext: { currentTime: number };
 }
 
+const MAX_ENDS = 10000;
 class Clock {
 	AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
-	time = 0;
+	time = -1;
 	elapsed = 0;
 	pauseTime = 0;
 	isPlaying = true;
@@ -37,10 +38,11 @@ class Clock {
 	}
 
 	endLoop =
-		(endsAt: number) =>
+		(endsAt: number = MAX_ENDS) =>
 		({ currentTime }: Status) => {
-			if (currentTime > endsAt) this.hasAborted = true;
-			console.log('endLOOP', currentTime, endsAt, this.hasAborted);
+			if (currentTime >= endsAt) this.hasAborted = true;
+			this.hasAborted &&
+				console.log('endLOOP', currentTime, endsAt, this.hasAborted);
 		};
 
 	subscribe = (subcriptions: Cb | Cb[], track: string = 'default') => {
@@ -64,27 +66,29 @@ class Clock {
 		const start = this.AC.currentTime - initial;
 
 		const _loop = () => {
+			if (this.hasAborted) return cancelAnimationFrame(this.raf);
+
 			const elapsed = this._milliseconds(this.AC.currentTime - start);
 			!this.isPlaying && (this.pauseTime = elapsed - this.time);
 			const currentTime = elapsed - this.pauseTime;
 
 			if (currentTime !== this.time) {
 				this.time = currentTime;
-			}
-			const status = {
-				currentTime,
-				elapsed,
-				isPlaying: this.isPlaying,
-				pauseTime: this.pauseTime,
-				hasAborted: this.hasAborted,
-			};
 
-			setTimeout(() =>
-				this.subscribers.forEach(
-					({ guard, cb }) => guard(status) && cb.forEach((c) => c(status))
-				)
-			);
-			if (this.hasAborted) return cancelAnimationFrame(this.raf);
+				const status = {
+					currentTime,
+					elapsed,
+					isPlaying: this.isPlaying,
+					pauseTime: this.pauseTime,
+					hasAborted: this.hasAborted,
+				};
+
+				setTimeout(() =>
+					this.subscribers.forEach(
+						({ guard, cb }) => guard(status) && cb.forEach((c) => c(status))
+					)
+				);
+			}
 			this.raf = requestAnimationFrame(_loop);
 		};
 		_loop();
