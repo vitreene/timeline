@@ -43,4 +43,11 @@ Tm.addChannel(Main);
 Tm.addEvent(events);
 Clock.subscribe(Tm.run);
 
+const seconds = ({ elapsed }: Status) => console.log('secondes', elapsed);
+Clock.subscribe(seconds, 'seconds');
+
 Clock.start(0);
+
+setTimeout(() => {
+	Clock.stop();
+}, 1500);

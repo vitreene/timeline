@@ -1,18 +1,15 @@
-
 import * as CSS from 'csstype';
 
 export interface Style
 	extends CSS.Properties<string | number>,
 		CSS.PropertiesHyphen<string | number> {}
 
-
-export interface Eventime{
-  name?: string
-  startAt: number;
-  channel?: string
-  events?: Eventime[]
+export interface Eventime {
+	name?: string;
+	startAt: number;
+	channel?: string;
+	events?: Eventime[];
 }
-
 
 export interface Initial {
 	id?: string;
@@ -27,7 +24,7 @@ export interface Initial {
 export interface Action extends Initial {
 	name: string;
 	move?: string | Move;
-  transition?: Transition;
+	transition?: Transition;
 	// order?: number;
 	// exit?: boolean;
 	// leave?: boolean;
@@ -43,7 +40,6 @@ export interface Perso {
 	// extends?: string;
 	// src?: string;
 }
-
 
 export type Emit = {
 	readonly [key in keyof GlobalEventHandlersEventMap]?:
@@ -70,14 +66,12 @@ interface Transition {
 	oncomplete?: any;
 }
 
-
 export type Content =
-  | Lang
+	| Lang
 	| string
 	| HTMLElement
 	| Array<Initial>
-	| CollectionImages
-  ;
+	| CollectionImages;
 
 export interface CollectionImages {
 	src: string;
@@ -88,8 +82,6 @@ export interface CollectionImages {
 
 export type ImagesCollection = Map<string, CollectionImages>;
 
-
-
 // ENUM
 
 export enum ChannelName {
@@ -97,7 +89,7 @@ export enum ChannelName {
 	TELCO = 'telco',
 	PLAY = 'play',
 	STRAP = 'strap',
-	DEFAULT_NS = MAIN,
+	DEFAULT = MAIN,
 }
 
 export enum Lang {
@@ -126,4 +118,3 @@ export enum PersoElement {
 	BUTTON = 'button',
 	POLYGON = 'polygon',
 }
-

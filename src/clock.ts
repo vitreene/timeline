@@ -1,4 +1,4 @@
-export type Cb = (status?: Status) => void;
+export type Cb = (status?: CbStatus) => void;
 export type Guard = (status?: Status) => boolean;
 
 export interface Status {
@@ -7,6 +7,9 @@ export interface Status {
 	currentTime: number;
 	isPlaying: boolean;
 	hasAborted: boolean;
+}
+export interface CbStatus extends Partial<Status> {
+	endClock?: boolean;
 }
 
 interface Props {
@@ -30,20 +33,26 @@ class Clock {
 		this.AC = props.audioContext || new AudioContext();
 		this.addTrack('default', () => true);
 		this.addTrack('seconds', ({ elapsed }: Status) => elapsed % 1000 === 0);
-		this.subscribers.get('default').cb.add(this.endLoop(props.endsAt));
+		this.subscribers.get('default').cb.add(this.onEndLoop(props.endsAt));
 	}
 
 	addTrack(track: string, guard: Guard) {
 		this.subscribers.set(track, { guard, cb: new Set<Cb>() });
 	}
 
-	endLoop =
-		(endsAt: number = MAX_ENDS) =>
-		({ currentTime }: Status) => {
-			if (currentTime >= endsAt) this.hasAborted = true;
-			this.hasAborted &&
-				console.log('endLOOP', currentTime, endsAt, this.hasAborted);
+	onEndLoop =
+		(endClock: number = MAX_ENDS) =>
+		({ currentTime }: CbStatus) => {
+			if (currentTime >= endClock) {
+				this.hasAborted = true;
+				console.log('endLOOP', currentTime, endClock, this.hasAborted);
+			}
 		};
+	onComplete = () => {
+		this.subscribers.forEach(({ cb }) =>
+			cb.forEach((c) => c({ endClock: true }))
+		);
+	};
 
 	subscribe = (subcriptions: Cb | Cb[], track: string = 'default') => {
 		if (!this.subscribers.has(track))
@@ -66,9 +75,13 @@ class Clock {
 		const start = this.AC.currentTime - initial;
 
 		const _loop = () => {
-			if (this.hasAborted) return cancelAnimationFrame(this.raf);
+			if (this.hasAborted) {
+				this.onComplete();
+				return cancelAnimationFrame(this.raf);
+			}
 
 			const elapsed = this._milliseconds(this.AC.currentTime - start);
+
 			!this.isPlaying && (this.pauseTime = elapsed - this.time);
 			const currentTime = elapsed - this.pauseTime;
 
