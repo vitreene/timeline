@@ -1,13 +1,5 @@
 import { CbStatus, Status } from './clock';
-import { Action, ChannelName, Eventime } from './types';
-
-interface Store {
-	actions: Action[];
-}
-
-// interface Channel {
-
-// }
+import { ChannelName, Eventime, Store } from './types';
 
 /**
  * @param events Events
@@ -46,8 +38,7 @@ export class Timeline {
 			const _events = channelEvent.get(event.startAt);
 			_events.add(event.name);
 			channelEvent.set(event.startAt, _events);
-		}
-		channelEvent.set(event.startAt, new Set<string>([event.name]));
+		} else channelEvent.set(event.startAt, new Set<string>([event.name]));
 		!this.times.includes(event.startAt) && this.times.push(event.startAt);
 	};
 
@@ -56,7 +47,10 @@ export class Timeline {
 		this.events.set(channel.name, new Map());
 	}
 
-	run({ currentTime, endClock }: CbStatus) {
+	run(status: CbStatus) {
+		const { currentTime, endClock } = status;
+		console.log('currentTime', currentTime);
+
 		/* 
 recoit un time
 - cherche dans les events les correspondances
@@ -64,15 +58,12 @@ recoit un time
  */
 		this.channels.forEach(({ name: channel }) => {
 			if (!this.events.has(channel)) return;
-
 			const events = this.events.get(channel);
-			if (events.has(currentTime))
-				events
-					.get(currentTime)
-					.forEach((name) => this.channels.get(channel).run(name, { currentTime }));
+			if (events.has(currentTime)) events.get(currentTime).forEach((name) => this.channels.get(channel).run(name, status));
 		});
 
 		if (endClock) {
+			this.channels.forEach((channel) => channel.run(null, status));
 			console.log('END', currentTime);
 			console.log(this.events);
 			console.log(this.times);
@@ -86,6 +77,25 @@ export class Channel {
 		this.name = name;
 	}
 	run(name: string, event: Status) {
-		console.log('Channel', name, event.currentTime);
+		console.log('Channel', this.name.toUpperCase(), name, event.currentTime);
+	}
+}
+
+export class PersoChannel extends Channel {
+	store: Store;
+	constructor(props) {
+		super(props);
+	}
+	addStore(store: Store) {
+		this.store = store;
+	}
+	run(name: string, status: CbStatus) {
+		// console.log('PersoChannel', this.name.toUpperCase(), name, status.currentTime);
+		// status.endClock && console.log('STORE PersoChannel', this.store);
+
+		for (const perso in this.store) {
+			const action = this.store[perso][name];
+			action && console.log(perso.toUpperCase(), name, action);
+		}
 	}
 }

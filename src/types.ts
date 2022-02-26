@@ -1,8 +1,6 @@
 import * as CSS from 'csstype';
 
-export interface Style
-	extends CSS.Properties<string | number>,
-		CSS.PropertiesHyphen<string | number> {}
+export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
 export interface Eventime {
 	name?: string;
@@ -12,22 +10,25 @@ export interface Eventime {
 }
 
 export interface Initial {
-	id?: string;
-	attr?: any;
-	fit?: string;
-	style?: Style;
-	content?: Content;
-	classStyle?: Style;
-	className?: string | [string];
+	id: string;
+	attr: any;
+	fit: string;
+	style: Style;
+	content: Content;
+	classStyle: Style;
+	className: string | [string];
 }
 
-export interface Action extends Initial {
-	name: string;
+export interface Action extends Partial<Initial> {
 	move?: string | Move;
 	transition?: Transition;
 	// order?: number;
 	// exit?: boolean;
 	// leave?: boolean;
+}
+
+export interface Store {
+	[perso: string]: { [action: string]: Action };
 }
 
 export interface Perso {
@@ -42,9 +43,7 @@ export interface Perso {
 }
 
 export type Emit = {
-	readonly [key in keyof GlobalEventHandlersEventMap]?:
-		| EmitEvent
-		| Array<EmitEvent>;
+	readonly [key in keyof GlobalEventHandlersEventMap]?: EmitEvent | Array<EmitEvent>;
 };
 
 interface EmitEvent {
@@ -53,9 +52,7 @@ interface EmitEvent {
 }
 
 interface Move {
-	layer?: string;
-	story?: string;
-	slot: string;
+	to: string;
 	rescale?: boolean;
 }
 
@@ -66,12 +63,7 @@ interface Transition {
 	oncomplete?: any;
 }
 
-export type Content =
-	| Lang
-	| string
-	| HTMLElement
-	| Array<Initial>
-	| CollectionImages;
+export type Content = Lang | string | HTMLElement | Array<Initial> | CollectionImages;
 
 export interface CollectionImages {
 	src: string;
