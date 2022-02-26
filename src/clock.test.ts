@@ -7,7 +7,7 @@ const AC = {
 	get currentTime() {
 		const t = this._secondes;
 		this._secondes += 1;
-		console.log('currentTime', t);
+		// console.log('currentTime', t);
 
 		return t;
 	},
@@ -19,6 +19,6 @@ describe('Timer starts', () => {
 
 	clock.start(0);
 	it('play', () => {
-		expect(clock.isPlaying).toBeTruthy();
+		expect(clock.status.isPlaying).toBeTruthy();
 	});
 });

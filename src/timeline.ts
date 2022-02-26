@@ -1,5 +1,6 @@
-import { CbStatus, Status } from './clock';
-import { ChannelName, Eventime, Store } from './types';
+import { Channel } from './channel';
+import { CbStatus } from './clock';
+import { ChannelName, Eventime } from './types';
 
 /**
  * @param events Events
@@ -67,35 +68,6 @@ recoit un time
 			console.log('END', currentTime);
 			console.log(this.events);
 			console.log(this.times);
-		}
-	}
-}
-
-export class Channel {
-	name: ChannelName;
-	constructor(name: ChannelName) {
-		this.name = name;
-	}
-	run(name: string, event: Status) {
-		console.log('Channel', this.name.toUpperCase(), name, event.currentTime);
-	}
-}
-
-export class PersoChannel extends Channel {
-	store: Store;
-	constructor(props) {
-		super(props);
-	}
-	addStore(store: Store) {
-		this.store = store;
-	}
-	run(name: string, status: CbStatus) {
-		// console.log('PersoChannel', this.name.toUpperCase(), name, status.currentTime);
-		// status.endClock && console.log('STORE PersoChannel', this.store);
-
-		for (const perso in this.store) {
-			const action = this.store[perso][name];
-			action && console.log(perso.toUpperCase(), name, action);
 		}
 	}
 }
