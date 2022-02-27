@@ -13,16 +13,23 @@ export class Channel {
 
 export class PersoChannel extends Channel {
 	store: Store;
+	queue: QueueActions;
 	constructor(props) {
 		super(props);
 	}
 	addStore(store: Store) {
 		this.store = store;
 	}
+	addQueue(queue: QueueActions) {
+		this.queue = queue;
+	}
 	run(name: string, status: CbStatus) {
 		for (const perso in this.store) {
 			const action = this.store[perso][name];
-			action && console.log(perso.toUpperCase(), name, action);
+			if (action) {
+				this.queue && this.queue.add(perso, action);
+				console.log(perso.toUpperCase(), name, action);
+			}
 		}
 	}
 }
@@ -43,21 +50,15 @@ une queue par perso, ou bien globale ?
 
 */
 
-/**
- * @property queue Map <persoId, properties[]>
- */
-
 type QueueActionProp = Pick<Action, 'style' | 'className' | 'content' | 'attr'>;
-
 type Attribute = {
 	[attribute in QueueActionProp as string]: Partial<Action>[];
 };
-
-// type Attribute =  Partial<Action>[];
-
 type Render = (update) => void;
+
 export class QueueActions {
 	queue = new Map<string, Partial<Attribute>>();
+	state = new Map<string, Partial<Attribute>>();
 	callback: Render;
 	constructor(callback: Render) {
 		this.callback = callback;
@@ -74,23 +75,26 @@ export class QueueActions {
 	// des particularités de chaque propriété
 	// un reducer par propriété
 
-	render() {
+	render = () => {
 		const update = {};
 		this.queue.forEach((actions, id) => {
+			const state = this.state.get(id) || {};
 			const reduces = {};
 			for (const action in actions) {
 				reduces[action] = actions[action].reduce((prec: any, curr) => {
 					if (typeof curr === 'string') return prec + ' ' + curr;
 					return { ...prec, ...curr };
-				});
+				}, state[action]);
 			}
 			update[id] = reduces;
+			this.state.set(id, reduces);
 		});
-		return update;
-	}
 
-	flush() {
+		return update;
+	};
+
+	flush = () => {
 		this.callback(this.render());
 		this.queue = new Map<string, Partial<Attribute>>();
-	}
+	};
 }

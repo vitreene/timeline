@@ -50,7 +50,7 @@ export class Timeline {
 
 	run(status: CbStatus) {
 		const { currentTime, endClock } = status;
-		console.log('currentTime', currentTime);
+		// console.log('currentTime', currentTime);
 
 		/* 
 recoit un time

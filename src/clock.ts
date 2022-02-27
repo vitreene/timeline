@@ -19,6 +19,8 @@ interface Props {
 }
 
 const MAX_ENDS = 10000;
+const DEFAULT = '1/10';
+
 class Clock {
 	time = -1;
 	raf: number;
@@ -29,15 +31,16 @@ class Clock {
 		isPlaying: false,
 		hasAborted: false,
 	};
+	tick = new Set<Cb>();
 	AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
 
 	constructor(props: Partial<Props>) {
 		this.AC = props.audioContext || new AudioContext();
-		this.addTrack('default', ({ elapsed }: Status) => elapsed % 100 === 0);
 		this.addTrack('1/100', ({ elapsed }: Status) => elapsed % 10 === 0);
+		this.addTrack(DEFAULT, ({ elapsed }: Status) => elapsed % 100 === 0);
 		this.addTrack('seconds', ({ elapsed }: Status) => elapsed % 1000 === 0);
-		this.subscribers.get('default').cb.add(this.onEndLoop(props.endsAt));
+		this.subscribers.get(DEFAULT).cb.add(this.onEndLoop(props.endsAt));
 	}
 
 	addTrack(track: string, guard: Guard) {
@@ -57,10 +60,12 @@ class Clock {
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
-	subscribe = (subcriptions: Cb | Cb[], track: string = 'default') => {
+	subscribe = (subcriptions: Cb | Cb[], track: string = DEFAULT) => {
+		if (track === 'tick') return this.subscribeTick(subcriptions);
+
 		if (!this.subscribers.has(track)) return console.error(`Can't subscribe to ${track} : unknown track.`);
 		const { cb } = this.subscribers.get(track);
-		(Array.isArray(subcriptions) ? subcriptions : [subcriptions]).map((fn: Cb) => {
+		return (Array.isArray(subcriptions) ? subcriptions : [subcriptions]).map((fn: Cb) => {
 			if (!cb.has(fn)) {
 				cb.add(fn);
 				return this.unSubscribe(fn, track);
@@ -69,6 +74,15 @@ class Clock {
 	};
 
 	unSubscribe = (fn: Cb, track: string) => () => this.subscribers.get(track).cb.delete(fn);
+
+	subscribeTick = (subcriptions: Cb | Cb[]) => {
+		return (Array.isArray(subcriptions) ? subcriptions : [subcriptions]).map((fn: Cb) => {
+			this.tick.add(fn);
+			return this.unSubscribeTick(fn);
+		});
+	};
+
+	unSubscribeTick = (fn: Cb) => () => this.tick.delete(fn);
 
 	loop = (initial: number) => {
 		const start = this.AC.currentTime - initial;
@@ -79,9 +93,11 @@ class Clock {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
-			const elapsed = _milliseconds(this.AC.currentTime - start);
+			const startTime = this.AC.currentTime - start;
+			const elapsed = _milliseconds(startTime);
 			!this.status.isPlaying && (this.status.pauseTime = elapsed - this.time);
 			const currentTime = elapsed - this.status.pauseTime;
+
 			if (currentTime !== this.time) {
 				this.time = currentTime;
 				this.status = {
@@ -93,6 +109,10 @@ class Clock {
 					this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)))
 				);
 			}
+
+			const tickStatus = { ...this.status, currentTime: startTime };
+			this.tick.forEach((fn) => fn(tickStatus));
+
 			this.raf = requestAnimationFrame(_loop);
 		};
 		_loop();
