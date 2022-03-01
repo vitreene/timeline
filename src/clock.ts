@@ -20,6 +20,7 @@ interface Props {
 
 const MAX_ENDS = 10000;
 const DEFAULT = '1/10';
+export const TIME_INTERVAL = 100;
 
 class Clock {
 	time = -1;
@@ -38,7 +39,7 @@ class Clock {
 	constructor(props: Partial<Props>) {
 		this.AC = props.audioContext || new AudioContext();
 		this.addTrack('1/100', ({ elapsed }: Status) => elapsed % 10 === 0);
-		this.addTrack(DEFAULT, ({ elapsed }: Status) => elapsed % 100 === 0);
+		this.addTrack(DEFAULT, ({ elapsed }: Status) => elapsed % TIME_INTERVAL === 0);
 		this.addTrack('seconds', ({ elapsed }: Status) => elapsed % 1000 === 0);
 		this.subscribers.get(DEFAULT).cb.add(this.onEndLoop(props.endsAt));
 	}

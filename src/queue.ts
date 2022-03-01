@@ -4,8 +4,7 @@ type QueueActionProp = Pick<Action, 'style' | 'className' | 'content' | 'attr'>;
 type Attribute = {
 	[attribute in QueueActionProp as string]: Partial<Action>[];
 };
-type Render = (update) => void;
-
+export type Render = (update: Partial<Action>) => void;
 export class QueueActions {
 	stack = new Map<string, Partial<Attribute>>();
 	state = new Map<string, Partial<Attribute>>();

@@ -1,9 +1,9 @@
 import { Timer } from './clock';
 import { Timeline } from './timeline';
 import { PersoChannel } from './channel';
-import { QueueActions } from './queue';
+import { QueueActions, Render } from './queue';
 
-import { ChannelName, Eventime, Store } from './types';
+import { Action, ChannelName, Eventime, Store } from './types';
 import { objectToString } from './utils';
 
 const ID = 'hello';
@@ -63,7 +63,7 @@ Clock.subscribe(Tm.run);
 
 Clock.start(0);
 
-function render(update) {
+function render(update: Partial<Action>) {
 	const element = update[ID];
 	if (element) {
 		const style = objectToString(element.style);

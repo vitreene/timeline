@@ -1,14 +1,19 @@
 import { Status, CbStatus, Timer } from './clock';
 import { QueueActions } from './queue';
-import { ChannelName, Store, Style, Transition } from './types';
+import { ChannelName, Store, Transition } from './types';
 
+interface ChannelProps {
+	name: string;
+	time: number;
+	status: CbStatus;
+}
 export class Channel {
 	name: ChannelName;
 	constructor(name: ChannelName) {
 		this.name = name;
 	}
-	run(name: string, event: Status) {
-		console.log('Channel', this.name.toUpperCase(), name, event.currentTime);
+	run({ name, time, status }: ChannelProps): void {
+		console.log('Channel', this.name.toUpperCase(), name, time, status);
 	}
 }
 
@@ -30,7 +35,7 @@ export class PersoChannel extends Channel {
 		this.queue = queue;
 	}
 
-	run(name: string, status: CbStatus) {
+	run({ name, time, status }: ChannelProps): void {
 		for (const perso in this.store) {
 			const action = this.store[perso].actions[name];
 

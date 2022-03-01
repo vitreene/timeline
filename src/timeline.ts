@@ -1,5 +1,5 @@
 import { Channel } from './channel';
-import { CbStatus } from './clock';
+import { CbStatus, TIME_INTERVAL } from './clock';
 import { ChannelName, Eventime } from './types';
 
 /**
@@ -17,13 +17,17 @@ export class Timeline {
 
 	constructor() {
 		this.run = this.run.bind(this);
+		this.seek = this.seek.bind(this);
 	}
 
 	addEvent = (event: Eventime) => {
 		this._addE(event);
 		if (event.events) event.events.map(this.addEvent);
 		else {
+			// trier, puis ref unique
 			this.times.sort((a, b) => a - b);
+			const times = new Set(this.times);
+			this.times = Array.from(times);
 		}
 	};
 	_addE = (event: Eventime) => {
@@ -49,26 +53,44 @@ export class Timeline {
 	}
 
 	run(status: CbStatus) {
-		const { currentTime, endClock } = status;
-		// console.log('currentTime', currentTime);
-
 		/* 
 			recoit un time
 			- cherche dans les events les correspondances
 			- dispatche les events selon le channel
+			- recherche du time jusqu'au pointeur suivant : time = 500, chercher 501, 502,..510..599
+			- indexer les times + un pointeur 
 		*/
 
+		const ti = timeIndexes(this.times, status.currentTime);
 		this.channels.forEach(({ name: channel }) => {
 			if (!this.events.has(channel)) return;
 			const events = this.events.get(channel);
-			if (events.has(currentTime)) events.get(currentTime).forEach((name) => this.channels.get(channel).run(name, status));
+			for (const currentTime of ti) {
+				if (events.has(currentTime))
+					events.get(currentTime).forEach((name) => this.channels.get(channel).run({ name, time: currentTime, status }));
+			}
 		});
 
-		if (endClock) {
-			this.channels.forEach((channel) => channel.run(null, status));
-			console.log('END', currentTime);
+		if (status.endClock) {
+			this.channels.forEach((channel) => channel.run({ time: status.currentTime }, status));
+			console.log('END', status.currentTime);
 			console.log(this.events);
 			console.log(this.times);
 		}
 	}
+
+	seek(currentTime: number) {
+		//TODO recupérer les events de 0 jusqu'à currentTime
+	}
+}
+
+function timeIndexes(times: number[], currentTime: number) {
+	const timeIndexes = [];
+	let i = times.findIndex((t) => t === currentTime);
+	if (i > 0)
+		while (times[i] < currentTime + TIME_INTERVAL) {
+			times[i] && timeIndexes.push(times[i]);
+			i++;
+		}
+	return timeIndexes;
 }
