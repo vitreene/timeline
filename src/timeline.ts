@@ -53,10 +53,11 @@ export class Timeline {
 		// console.log('currentTime', currentTime);
 
 		/* 
-recoit un time
-- cherche dans les events les correspondances
-- dispatche les events selon le channel
- */
+			recoit un time
+			- cherche dans les events les correspondances
+			- dispatche les events selon le channel
+		*/
+
 		this.channels.forEach(({ name: channel }) => {
 			if (!this.events.has(channel)) return;
 			const events = this.events.get(channel);

@@ -1,7 +1,7 @@
 import { Status, Timer } from './clock';
 import { Timeline } from './timeline';
 import { Channel, PersoChannel } from './channel';
-import { QueueActions } from './channel';
+import { QueueActions } from './queue';
 
 import { ChannelName, Eventime, Store, Style } from './types';
 import { objectToString } from './utils';

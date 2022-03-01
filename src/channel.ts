@@ -1,5 +1,6 @@
-import { Status, CbStatus } from './clock';
-import { Action, ChannelName, Store } from './types';
+import { Status, CbStatus, Timer } from './clock';
+import { QueueActions } from './queue';
+import { ChannelName, Store, Style, Transition } from './types';
 
 export class Channel {
 	name: ChannelName;
@@ -13,9 +14,14 @@ export class Channel {
 
 export class PersoChannel extends Channel {
 	store: Store;
+	timer: Timer;
 	queue: QueueActions;
-	constructor(props) {
-		super(props);
+
+	constructor(name: ChannelName, options) {
+		super(name);
+		this.queue = options.queue;
+		this.timer = options.timer;
+		this.timer.subscribeTick(this.queue.flush);
 	}
 	addStore(store: Store) {
 		this.store = store;
@@ -23,16 +29,39 @@ export class PersoChannel extends Channel {
 	addQueue(queue: QueueActions) {
 		this.queue = queue;
 	}
+
 	run(name: string, status: CbStatus) {
 		for (const perso in this.store) {
-			const action = this.store[perso][name];
+			const action = this.store[perso].actions[name];
+
 			if (action) {
-				this.queue && this.queue.add(perso, action);
-				console.log(perso.toUpperCase(), name, action);
+				const { move, transition, ..._action } = action;
+				transition && this.transition({ perso, status, transition });
+				this.queue.add(perso, _action);
+				console.log(perso.toUpperCase(), name, _action);
 			}
 		}
 	}
+
+	transition = (props: { perso: string; transition: Transition; status: CbStatus }) => {
+		const { perso, transition, status } = props;
+		const state = this.queue.stack.get(perso) || this.store[perso].initial;
+		const from = (transition.from || state.style) as FromTo;
+		const to = transition.to as FromTo;
+		const duration = transition.duration;
+		const start = status.currentTime;
+		const end = start + duration;
+		const t = interpolate({ from, to, start, end });
+		console.log('transition', t);
+
+		//init
+		// preparer from et to
+		// lerp
+		// push
+		// boucle avec start et end
+	};
 }
+
 /* 
 Todo 
 dispatch les propriétés trouvées :
@@ -50,51 +79,23 @@ une queue par perso, ou bien globale ?
 
 */
 
-type QueueActionProp = Pick<Action, 'style' | 'className' | 'content' | 'attr'>;
-type Attribute = {
-	[attribute in QueueActionProp as string]: Partial<Action>[];
-};
-type Render = (update) => void;
+type FromTo = { [x: string]: number };
+interface InterpolateProps {
+	from: FromTo;
+	to: FromTo;
+	start: number;
+	end: number;
+}
 
-export class QueueActions {
-	queue = new Map<string, Partial<Attribute>>();
-	state = new Map<string, Partial<Attribute>>();
-	callback: Render;
-	constructor(callback: Render) {
-		this.callback = callback;
-	}
-	add(id: string, action: Action) {
-		const attributes = this.queue.has(id) ? this.queue.get(id) : {};
-		for (const attr in action) {
-			attr in attributes ? attributes[attr].push(action[attr]) : (attributes[attr] = [action[attr]]);
-		}
-		this.queue.set(id, attributes);
-	}
-
-	// TODO etoffer le rendu pour tenir compte
-	// des particularités de chaque propriété
-	// un reducer par propriété
-
-	render = () => {
-		const update = {};
-		this.queue.forEach((actions, id) => {
-			const state = this.state.get(id) || {};
-			const reduces = {};
-			for (const action in actions) {
-				reduces[action] = actions[action].reduce((prec: any, curr) => {
-					if (typeof curr === 'string') return prec + ' ' + curr;
-					return { ...prec, ...curr };
-				}, state[action]);
-			}
-			update[id] = reduces;
-			this.state.set(id, reduces);
-		});
-
-		return update;
+export const interpolate =
+	({ from, to, start, end }: InterpolateProps) =>
+	(time: number) => {
+		const progress = (time - start) / end;
+		const result = {};
+		for (const p in from) result[p] = lerp(from[p], to[p], progress);
+		return result;
 	};
 
-	flush = () => {
-		this.callback(this.render());
-		this.queue = new Map<string, Partial<Attribute>>();
-	};
+function lerp(start: number, end: number, amt: number) {
+	return (1 - amt) * start + amt * end;
 }

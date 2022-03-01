@@ -1,7 +1,7 @@
 import { Timer } from './clock';
 import { Timeline } from './timeline';
 import { PersoChannel } from './channel';
-import { QueueActions } from './channel';
+import { QueueActions } from './queue';
 
 import { ChannelName, Eventime, Store } from './types';
 import { objectToString } from './utils';
@@ -27,34 +27,39 @@ const events: Eventime = {
 
 const actions: Store = {
 	[ID]: {
-		action01: {
-			style: { fontWeight: 'bold' },
-			className: 'action01',
-		},
-		action02: {
-			style: { color: 'red', position: 'relative', top: 50 },
-			className: 'action02',
-		},
-		action03: {
-			style: { left: 100, fontSize: 32 },
-			className: 'action03',
+		initial: { style: { top: 0, left: 0 } },
+		actions: {
+			action01: {
+				style: { fontWeight: 'bold', position: 'relative' },
+				className: 'action01',
+				transition: {
+					from: { x: 50 },
+					to: { x: 0 },
+					duration: 500,
+				},
+			},
+			action02: {
+				style: { color: 'red', top: 50 },
+				className: 'action02',
+			},
+			action03: {
+				style: { left: 100, fontSize: 32 },
+				className: 'action03',
+			},
 		},
 	},
 };
 
 const Tm = new Timeline();
-const Main = new PersoChannel(MAIN);
 const Clock = new Timer({ endsAt: 2500 });
 const Queue = new QueueActions(render);
+const Main = new PersoChannel(MAIN, { queue: Queue, timer: Clock });
 
 Main.addStore(actions);
-Main.addQueue(Queue);
 
 Tm.addChannel(Main);
 Tm.addEvent(events);
-
 Clock.subscribe(Tm.run);
-Clock.subscribeTick(Queue.flush);
 
 Clock.start(0);
 
@@ -62,7 +67,7 @@ function render(update) {
 	const element = update[ID];
 	if (element) {
 		const style = objectToString(element.style);
-		console.log('RENDER', style);
+		console.log('RENDER', element);
 
 		div.setAttribute('style', style);
 		div.classList.add(element.className.split(' '));

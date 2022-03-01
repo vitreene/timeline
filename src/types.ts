@@ -17,10 +17,10 @@ export interface Initial {
 	content: Content;
 	classStyle: Style;
 	className: string | [string];
+	move: string | Move;
 }
 
 export interface Action extends Partial<Initial> {
-	move?: string | Move;
 	transition?: Transition;
 	// order?: number;
 	// exit?: boolean;
@@ -28,9 +28,13 @@ export interface Action extends Partial<Initial> {
 }
 
 export interface Store {
-	[perso: string]: { [action: string]: Action };
+	[perso: string]: PersoNode;
 }
 
+export interface PersoNode {
+	actions: { [action: string]: Action };
+	initial: Partial<Initial>;
+}
 export interface Perso {
 	readonly id: string;
 	readonly element: PersoElement;
@@ -56,7 +60,7 @@ interface Move {
 	rescale?: boolean;
 }
 
-interface Transition {
+export interface Transition {
 	from?: string | Style;
 	to: string | Style;
 	duration?: number;
