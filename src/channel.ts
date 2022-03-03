@@ -57,7 +57,23 @@ export class PersoChannel extends Channel {
 		const start = status.currentTime;
 		const end = start + duration;
 		const t = interpolate({ from, to, start, end });
-		console.log('transition', t);
+
+		console.log('transition', from, to, start, end, status.currentTime);
+
+		const render = (currentTime) => {
+			const result: any = t(currentTime);
+			const style = {};
+			for (const prop in result) style[prop] = Math.round(result[prop]) + 'px';
+			this.queue.add(perso, { style });
+		};
+
+		const transtitionComplete = this.timer.subscribeTick((status) => {
+			console.log(status.currentTime);
+			if (status.currentTime >= end) transtitionComplete();
+			render(status.currentTime);
+		});
+
+		render(status.currentTime);
 
 		//init
 		// preparer from et to
@@ -94,8 +110,9 @@ interface InterpolateProps {
 
 export const interpolate =
 	({ from, to, start, end }: InterpolateProps) =>
-	(time: number) => {
-		const progress = (time - start) / end;
+	(time: number): { [x: string]: number } => {
+		const progress = (time - start) / (end - start);
+
 		const result = {};
 		for (const p in from) result[p] = lerp(from[p], to[p], progress);
 		return result;

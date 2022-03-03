@@ -61,29 +61,26 @@ class Clock {
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
-	subscribe = (subcriptions: Cb | Cb[], track: string = DEFAULT) => {
-		if (track === 'tick') return this.subscribeTick(subcriptions);
+	subscribe = (subcription: Cb, track: string = DEFAULT) => {
+		if (track === 'tick') return this.subscribeTick(subcription);
 
 		if (!this.subscribers.has(track)) return console.error(`Can't subscribe to ${track} : unknown track.`);
 		const { cb } = this.subscribers.get(track);
-		return (Array.isArray(subcriptions) ? subcriptions : [subcriptions]).map((fn: Cb) => {
-			if (!cb.has(fn)) {
-				cb.add(fn);
-				return this.unSubscribe(fn, track);
-			} else console.warn('this subcription already exist', fn);
-		});
+
+		if (!cb.has(subcription)) {
+			cb.add(subcription);
+			return this.unSubscribe(subcription, track);
+		} else console.warn('this subcription already exist', subcription);
 	};
 
 	unSubscribe = (fn: Cb, track: string) => () => this.subscribers.get(track).cb.delete(fn);
 
-	subscribeTick = (subcriptions: Cb | Cb[]) => {
-		return (Array.isArray(subcriptions) ? subcriptions : [subcriptions]).map((fn: Cb) => {
-			this.tick.add(fn);
-			return this.unSubscribeTick(fn);
-		});
+	subscribeTick = (subcription: Cb) => {
+		this.tick.add(subcription);
+		return this.unSubscribeTick(subcription);
 	};
 
-	unSubscribeTick = (fn: Cb) => () => this.tick.delete(fn);
+	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
 	loop = (initial: number) => {
 		const start = this.AC.currentTime - initial;
@@ -106,12 +103,13 @@ class Clock {
 					elapsed,
 					currentTime,
 				};
-				setTimeout(() =>
+
+				Promise.resolve().then(() =>
 					this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)))
 				);
 			}
 
-			const tickStatus = { ...this.status, currentTime: startTime };
+			const tickStatus = { ...this.status, currentTime };
 			this.tick.forEach((fn) => fn(tickStatus));
 
 			this.raf = requestAnimationFrame(_loop);

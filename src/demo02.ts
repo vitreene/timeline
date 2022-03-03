@@ -19,7 +19,7 @@ const events: Eventime = {
 	name: 'first',
 	channel: MAIN,
 	events: [
-		{ startAt: 500, name: 'action01', channel: MAIN },
+		{ startAt: 1000, name: 'action01', channel: MAIN },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
 		{ startAt: 2000, name: 'action03', channel: MAIN },
 	],
@@ -33,13 +33,13 @@ const actions: Store = {
 				style: { fontWeight: 'bold', position: 'relative' },
 				className: 'action01',
 				transition: {
-					from: { x: 50 },
-					to: { x: 0 },
-					duration: 500,
+					from: { top: 0, left: 0 },
+					to: { top: 100, left: 200 },
+					duration: 800,
 				},
 			},
 			action02: {
-				style: { color: 'red', top: 50 },
+				style: { color: 'red' },
 				className: 'action02',
 			},
 			action03: {
@@ -70,6 +70,6 @@ function render(update: Partial<Action>) {
 		console.log('RENDER', element);
 
 		div.setAttribute('style', style);
-		div.classList.add(element.className.split(' '));
+		// div.classList.add(element.className.split(' '));
 	}
 }
