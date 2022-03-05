@@ -63,6 +63,16 @@ Clock.subscribe(Tm.run);
 
 Clock.start(0);
 
+// NOTE pause devrait etre invoqué dans Timeline , pas dans Clock
+// setTimeout(() => {
+// 	Clock.pause();
+// }, 1400);
+
+Clock.seek(1700);
+// setTimeout(() => {
+// 	debugger;
+// }, 2000);
+
 function render(update: Partial<Action>) {
 	const element = update[ID];
 	if (element) {
@@ -70,6 +80,6 @@ function render(update: Partial<Action>) {
 		console.log('RENDER', element);
 
 		div.setAttribute('style', style);
-		// div.classList.add(element.className.split(' '));
+		element.className && div.classList.add(element.className.split(' '));
 	}
 }

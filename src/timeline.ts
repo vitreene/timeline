@@ -13,7 +13,7 @@ export class Timeline {
 	defaultChannelName = ChannelName.DEFAULT;
 	events = new Map<string, EventChannel>();
 	channels = new Map();
-	times = [];
+	times: number[] = [];
 
 	constructor() {
 		this.run = this.run.bind(this);
@@ -53,6 +53,7 @@ export class Timeline {
 	}
 
 	run(status: CbStatus) {
+		if (status.action === 'seek') return this.seek(status);
 		/* 
 			recoit un time
 			- cherche dans les events les correspondances
@@ -79,8 +80,25 @@ export class Timeline {
 		}
 	}
 
-	seek(currentTime: number) {
+	seek(status) {
+		console.log('SEEK');
+
 		//TODO recupérer les events de 0 jusqu'à currentTime
+		const pastTimes: number[] = [];
+		for (const time of this.times) {
+			if (time > status.currentTime) break;
+			pastTimes.push(time);
+		}
+		this.channels.forEach(({ name: channelName }) => {
+			if (!this.events.has(channelName)) return;
+			const events = this.events.get(channelName);
+			const channel = this.channels.get(channelName);
+			for (const time of pastTimes) {
+				if (events.has(time)) {
+					events.get(time).forEach((name) => channel.run({ name, time, status }));
+				}
+			}
+		});
 	}
 }
 

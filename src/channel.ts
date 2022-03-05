@@ -41,38 +41,45 @@ export class PersoChannel extends Channel {
 
 			if (action) {
 				const { move, transition, ..._action } = action;
-				transition && this.transition({ perso, status, transition });
+				transition && this.transition({ perso, time, status, transition });
 				this.queue.add(perso, _action);
 				console.log(perso.toUpperCase(), name, _action);
 			}
 		}
 	}
 
-	transition = (props: { perso: string; transition: Transition; status: CbStatus }) => {
-		const { perso, transition, status } = props;
+	transition = (props: { perso: string; time: number; transition: Transition; status: CbStatus }) => {
+		const { perso, time, transition, status } = props;
+
 		const state = this.queue.stack.get(perso) || this.store[perso].initial;
 		const from = (transition.from || state.style) as FromTo;
 		const to = transition.to as FromTo;
 		const duration = transition.duration;
-		const start = status.currentTime;
+		const start = time; /*  status.currentTime */
 		const end = start + duration;
+
+		if (status.currentTime >= end) return to;
+
 		const t = interpolate({ from, to, start, end });
 
 		console.log('transition', from, to, start, end, status.currentTime);
 
-		const render = (currentTime) => {
+		const render = (currentTime: number) => {
 			const result: any = t(currentTime);
 			const style = {};
 			for (const prop in result) style[prop] = Math.round(result[prop]) + 'px';
 			this.queue.add(perso, { style });
 		};
 
-		const transtitionComplete = this.timer.subscribeTick((status) => {
-			console.log(status.currentTime);
-			if (status.currentTime >= end) transtitionComplete();
-			render(status.currentTime);
-		});
+		console.log(status);
 
+		if (status.action !== 'seek') {
+			const transtitionComplete = this.timer.subscribeTick((status) => {
+				console.log(status.currentTime);
+				if (status.currentTime >= end) transtitionComplete();
+				render(status.currentTime);
+			});
+		}
 		render(status.currentTime);
 
 		//init

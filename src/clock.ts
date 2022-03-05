@@ -5,7 +5,7 @@ export interface Status {
 	elapsed: number;
 	pauseTime: number;
 	currentTime: number;
-	isPlaying: boolean;
+	action: string;
 	hasAborted: boolean;
 }
 export interface CbStatus extends Partial<Status> {
@@ -29,7 +29,7 @@ class Clock {
 		elapsed: 0,
 		pauseTime: 0,
 		currentTime: 0,
-		isPlaying: false,
+		action: 'pause',
 		hasAborted: false,
 	};
 	tick = new Set<Cb>();
@@ -91,26 +91,30 @@ class Clock {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
+
 			const startTime = this.AC.currentTime - start;
 			const elapsed = _milliseconds(startTime);
-			!this.status.isPlaying && (this.status.pauseTime = elapsed - this.time);
-			const currentTime = elapsed - this.status.pauseTime;
 
-			if (currentTime !== this.time) {
-				this.time = currentTime;
-				this.status = {
-					...this.status,
-					elapsed,
-					currentTime,
-				};
+			if (this.status.action === 'play') {
+				const currentTime = elapsed - this.status.pauseTime;
 
-				Promise.resolve().then(() =>
-					this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)))
-				);
+				if (currentTime !== this.time) {
+					this.time = currentTime;
+					this.status = {
+						...this.status,
+						elapsed,
+						currentTime,
+					};
+					Promise.resolve().then(() =>
+						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)))
+					);
+				}
+				const tickStatus = { ...this.status, currentTime };
+				this.tick.forEach((fn) => fn(tickStatus));
+			} else {
+				this.status.pauseTime = elapsed - this.time;
+				this.tick.forEach((fn) => fn(this.status));
 			}
-
-			const tickStatus = { ...this.status, currentTime };
-			this.tick.forEach((fn) => fn(tickStatus));
 
 			this.raf = requestAnimationFrame(_loop);
 		};
@@ -124,17 +128,21 @@ export class Timer extends Clock {
 	}
 
 	play() {
-		this.status.isPlaying = true;
+		this.status.action = 'play';
 	}
 	pause() {
-		this.status.isPlaying = false;
+		this.status.action = 'pause';
 	}
 	start(initial = 0) {
 		this.play();
 		this.loop(initial);
 	}
 	rewind() {}
-	seek() {}
+	seek(time: number) {
+		this.pause();
+		const status = { ...this.status, action: 'seek', currentTime: time };
+		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
+	}
 	stop() {
 		this.status.hasAborted = true;
 	}

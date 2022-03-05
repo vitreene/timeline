@@ -19,6 +19,6 @@ describe('Timer starts', () => {
 
 	clock.start(0);
 	it('play', () => {
-		expect(clock.status.isPlaying).toBeTruthy();
+		expect(clock.status.action).toBeTruthy();
 	});
 });

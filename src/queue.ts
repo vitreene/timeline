@@ -31,7 +31,7 @@ export class QueueActions {
 			const reduces = {};
 			for (const action in actions) {
 				reduces[action] = actions[action].reduce((prec: any, curr) => {
-					if (typeof curr === 'string') return prec + ' ' + curr;
+					if (typeof curr === 'string') return (prec || '' + ' ' + curr || '').trim();
 					return { ...prec, ...curr };
 				}, state[action]);
 			}
@@ -43,7 +43,9 @@ export class QueueActions {
 	};
 
 	flush = () => {
-		this.callback(this.render());
-		this.stack = new Map<string, Partial<Attribute>>();
+		if (this.stack.size) {
+			this.callback(this.render());
+			this.stack = new Map<string, Partial<Attribute>>();
+		}
 	};
 }
