@@ -21,17 +21,18 @@ interface Props {
 const MAX_ENDS = 10000;
 const DEFAULT = '1/10';
 export const TIME_INTERVAL = 100;
+const defaultStatus: Status = {
+	elapsed: 0,
+	pauseTime: 0,
+	currentTime: 0,
+	action: 'pause',
+	hasAborted: false,
+};
 
 class Clock {
 	time = -1;
 	raf: number;
-	status: Status = {
-		elapsed: 0,
-		pauseTime: 0,
-		currentTime: 0,
-		action: 'pause',
-		hasAborted: false,
-	};
+	status: Status = defaultStatus;
 	tick = new Set<Cb>();
 	AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
@@ -58,6 +59,7 @@ class Clock {
 		};
 	onComplete = () => {
 		const status = { ...this.status, endClock: true };
+
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
@@ -134,6 +136,7 @@ export class Timer extends Clock {
 		this.status.action = 'pause';
 	}
 	start(initial = 0) {
+		this.status = defaultStatus;
 		this.play();
 		this.loop(initial);
 	}

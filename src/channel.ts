@@ -7,6 +7,8 @@ interface ChannelProps {
 	time: number;
 	status: CbStatus;
 }
+type ProgressInterpolation = (time: number) => FromTo;
+
 export class Channel {
 	name: ChannelName;
 	constructor(name: ChannelName) {
@@ -36,6 +38,8 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status }: ChannelProps): void {
+		if (status.action === 'seek') this.queue.resetState();
+
 		for (const perso in this.store) {
 			const action = this.store[perso].actions[name];
 
@@ -43,7 +47,7 @@ export class PersoChannel extends Channel {
 				const { move, transition, ..._action } = action;
 				transition && this.transition({ perso, time, status, transition });
 				this.queue.add(perso, _action);
-				console.log(perso.toUpperCase(), name, _action);
+				// console.log(perso.toUpperCase(), name, _action);
 			}
 		}
 	}
@@ -57,36 +61,29 @@ export class PersoChannel extends Channel {
 		const duration = transition.duration;
 		const start = time; /*  status.currentTime */
 		const end = start + duration;
+		const progress: ProgressInterpolation = interpolate({ from, to, start, end });
 
-		if (status.currentTime >= end) return to;
-
-		const t = interpolate({ from, to, start, end });
-
-		console.log('transition', from, to, start, end, status.currentTime);
-
-		const render = (currentTime: number) => {
-			const result: any = t(currentTime);
-			const style = {};
-			for (const prop in result) style[prop] = Math.round(result[prop]) + 'px';
-			this.queue.add(perso, { style });
-		};
-
-		console.log(status);
+		// console.log('transition', from, to, start, end, status.currentTime);
 
 		if (status.action !== 'seek') {
 			const transtitionComplete = this.timer.subscribeTick((status) => {
-				console.log(status.currentTime);
 				if (status.currentTime >= end) transtitionComplete();
-				render(status.currentTime);
+				this.render(perso, progress(status.currentTime));
 			});
 		}
-		render(status.currentTime);
+
+		this.render(perso, progress(status.currentTime));
 
 		//init
 		// preparer from et to
 		// lerp
 		// push
 		// boucle avec start et end
+	};
+	render = (perso: string, result: FromTo) => {
+		const style = {};
+		for (const prop in result) style[prop] = Math.round(result[prop]) + 'px';
+		this.queue.add(perso, { style });
 	};
 }
 
@@ -117,7 +114,8 @@ interface InterpolateProps {
 
 export const interpolate =
 	({ from, to, start, end }: InterpolateProps) =>
-	(time: number): { [x: string]: number } => {
+	(time: number): FromTo => {
+		if (time >= end) return to;
 		const progress = (time - start) / (end - start);
 
 		const result = {};

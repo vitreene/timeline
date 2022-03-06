@@ -5,13 +5,16 @@ type Attribute = {
 	[attribute in QueueActionProp as string]: Partial<Action>[];
 };
 export type Render = (update: Partial<Action>) => void;
+
 export class QueueActions {
 	stack = new Map<string, Partial<Attribute>>();
 	state = new Map<string, Partial<Attribute>>();
 	callback: Render;
+
 	constructor(callback: Render) {
 		this.callback = callback;
 	}
+
 	add(id: string, action: Action) {
 		const attributes = this.stack.has(id) ? this.stack.get(id) : {};
 		for (const attr in action) {
@@ -28,7 +31,7 @@ export class QueueActions {
 		const update = {};
 		this.stack.forEach((actions, id) => {
 			const state = this.state.get(id) || {};
-			const reduces = {};
+			const reduces = state;
 			for (const action in actions) {
 				reduces[action] = actions[action].reduce((prec: any, curr) => {
 					if (typeof curr === 'string') return (prec || '' + ' ' + curr || '').trim();
@@ -48,4 +51,6 @@ export class QueueActions {
 			this.stack = new Map<string, Partial<Attribute>>();
 		}
 	};
+
+	resetState = () => (this.state = new Map<string, Partial<Attribute>>());
 }

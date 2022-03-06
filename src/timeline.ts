@@ -1,5 +1,5 @@
 import { Channel } from './channel';
-import { CbStatus, TIME_INTERVAL } from './clock';
+import { CbStatus, Status, TIME_INTERVAL } from './clock';
 import { ChannelName, Eventime } from './types';
 
 /**
@@ -73,17 +73,14 @@ export class Timeline {
 		});
 
 		if (status.endClock) {
-			this.channels.forEach((channel) => channel.run({ time: status.currentTime }, status));
+			this.channels.forEach((channel) => channel.run({ time: status.currentTime, status }));
 			console.log('END', status.currentTime);
 			console.log(this.events);
 			console.log(this.times);
 		}
 	}
 
-	seek(status) {
-		console.log('SEEK');
-
-		//TODO recupérer les events de 0 jusqu'à currentTime
+	seek(status: CbStatus) {
 		const pastTimes: number[] = [];
 		for (const time of this.times) {
 			if (time > status.currentTime) break;
