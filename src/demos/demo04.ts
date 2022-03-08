@@ -1,10 +1,11 @@
-import { Timer } from './clock';
-import { Timeline } from './timeline';
-import { PersoChannel } from './channel';
-import { QueueActions, Render } from './queue';
+import { Timer } from '../clock';
+import { Timeline } from '../timeline';
+import { PersoChannel } from '../channel-perso';
+import { StrapChannel } from '../channel-strap';
+import { QueueActions, Render } from '../queue';
 
-import { Action, ChannelName, Eventime, Store } from './types';
-import { objectToString } from './utils';
+import { Action, ChannelName, Eventime, Store } from '../types';
+import { objectToString } from '../utils';
 
 const slider = document.createElement('input');
 slider.setAttribute('type', 'range');
@@ -25,6 +26,7 @@ const events: Eventime = {
 	name: 'first',
 	channel: MAIN,
 	events: [
+		{ startAt: 400, name: 'simpleStrap', channel: STRAP },
 		{ startAt: 500, name: 'action01', channel: MAIN },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
 		{ startAt: END_SEQUENCE, name: 'action03', channel: MAIN },
@@ -64,11 +66,13 @@ const actions: Store = {
 const Tm = new Timeline();
 const Clock = new Timer({ endsAt: 2500 });
 const Queue = new QueueActions(render);
-const Main = new PersoChannel(MAIN, { queue: Queue, timer: Clock });
+const Main = new PersoChannel({ queue: Queue, timer: Clock });
+const Strap = new StrapChannel({ queue: Queue, timer: Clock });
 
 Main.addStore(actions);
 
 Tm.addChannel(Main);
+Tm.addChannel(Strap);
 Tm.addEvent(events);
 Clock.subscribe(Tm.run);
 
@@ -85,7 +89,7 @@ function render(update: Partial<Action>) {
 	const element = update[ID];
 	if (element) {
 		const style = objectToString(element.style);
-		console.log('RENDER', style);
+		// console.log('RENDER', style);
 
 		div.setAttribute('style', style);
 		element.className && div.classList.add(element.className.split(' '));

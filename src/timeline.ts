@@ -62,6 +62,8 @@ export class Timeline {
 			- indexer les times + un pointeur 
 		*/
 
+		console.log(status.currentTime);
+
 		const ti = timeIndexes(this.times, status.currentTime);
 		this.channels.forEach(({ name: channel }) => {
 			if (!this.events.has(channel)) return;

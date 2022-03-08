@@ -3,6 +3,7 @@ export type Guard = (status?: Status) => boolean;
 
 export interface Status {
 	elapsed: number;
+	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 	pauseTime: number;
 	currentTime: number;
 	action: string;
@@ -20,7 +21,7 @@ interface Props {
 
 const MAX_ENDS = 10000;
 const DEFAULT = '1/10';
-export const TIME_INTERVAL = 100;
+export const TIME_INTERVAL = 10;
 const defaultStatus: Status = {
 	elapsed: 0,
 	pauseTime: 0,
@@ -29,6 +30,14 @@ const defaultStatus: Status = {
 	hasAborted: false,
 };
 
+/* 
+FIXME : 
+RAF n'as pas la fréquence suffisante pour obtenir un passage tous les 1/10, il loupe certains passages
+des valeurs ne passent pas parfois, 
+		la durée d'execution entre deux comptages fait sauter une étape, le guard ne fonctione plus.
+
+
+*/
 class Clock {
 	time = -1;
 	raf: number;
@@ -39,9 +48,11 @@ class Clock {
 
 	constructor(props: Partial<Props>) {
 		this.AC = props.audioContext || new AudioContext();
-		this.addTrack('1/100', ({ elapsed }: Status) => elapsed % 10 === 0);
-		this.addTrack(DEFAULT, ({ elapsed }: Status) => elapsed % TIME_INTERVAL === 0);
-		this.addTrack('seconds', ({ elapsed }: Status) => elapsed % 1000 === 0);
+
+		this.addTrack('1/100', ({ timers }: Status) => timers.milliemes % 100 === 0);
+		this.addTrack(DEFAULT, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
+		this.addTrack('seconds', ({ timers }: Status) => timers.diziemes === timers.seconds * 10);
+
 		this.subscribers.get(DEFAULT).cb.add(this.onEndLoop(props.endsAt));
 	}
 
@@ -86,7 +97,7 @@ class Clock {
 
 	loop = (initial: number) => {
 		const start = this.AC.currentTime - initial;
-		const _milliseconds = (time: number) => Math.round(time * 100) * 10;
+		const _milliseconds = (time: number) => Math.floor(time * 100) * 10;
 
 		const _loop = () => {
 			if (this.status.hasAborted) {
@@ -96,6 +107,12 @@ class Clock {
 
 			const startTime = this.AC.currentTime - start;
 			const elapsed = _milliseconds(startTime);
+			const timers = {
+				milliemes: elapsed,
+				centiemes: Math.floor(elapsed / 100) * 10,
+				diziemes: Math.floor(elapsed / 100),
+				seconds: Math.floor(elapsed / 1000),
+			};
 
 			if (this.status.action === 'play') {
 				const currentTime = elapsed - this.status.pauseTime;
@@ -106,10 +123,11 @@ class Clock {
 						...this.status,
 						elapsed,
 						currentTime,
+						timers,
 					};
-					Promise.resolve().then(() =>
-						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)))
-					);
+					setTimeout(() => {
+						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
+					});
 				}
 				const tickStatus = { ...this.status, currentTime };
 				this.tick.forEach((fn) => fn(tickStatus));
@@ -120,6 +138,7 @@ class Clock {
 
 			this.raf = requestAnimationFrame(_loop);
 		};
+
 		_loop();
 	};
 }

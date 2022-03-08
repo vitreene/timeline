@@ -1,10 +1,10 @@
-import { Timer } from './clock';
-import { Timeline } from './timeline';
-import { PersoChannel } from './channel';
-import { QueueActions, Render } from './queue';
+import { Timer } from '../clock';
+import { Timeline } from '../timeline';
+import { PersoChannel } from '../channel-perso';
+import { QueueActions, Render } from '../queue';
 
-import { Action, ChannelName, Eventime, Store } from './types';
-import { objectToString } from './utils';
+import { Action, ChannelName, Eventime, Store } from '../types';
+import { objectToString } from '../utils';
 
 const ID = 'hello';
 const div = document.createElement('div');
@@ -53,7 +53,7 @@ const actions: Store = {
 const Tm = new Timeline();
 const Clock = new Timer({ endsAt: 2500 });
 const Queue = new QueueActions(render);
-const Main = new PersoChannel(MAIN, { queue: Queue, timer: Clock });
+const Main = new PersoChannel({ queue: Queue, timer: Clock });
 
 Main.addStore(actions);
 

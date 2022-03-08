@@ -1,13 +1,15 @@
-import { Status, Timer } from './clock';
-import { Timeline } from './timeline';
-import { Channel, PersoChannel } from './channel';
-import { QueueActions } from './queue';
+import { Status, Timer } from '../clock';
+import { Timeline } from '../timeline';
+import { Channel } from '../channel';
+import { PersoChannel } from '../channel-perso';
+import { QueueActions } from '../queue';
 
-import { ChannelName, Eventime, Store, Style } from './types';
-import { objectToString } from './utils';
+import { Action, ChannelName, Eventime, Store, Style } from '../types';
+import { objectToString } from '../utils';
 
+const ID = 'hello';
 const div = document.createElement('div');
-div.id = 'hello';
+div.id = ID;
 div.textContent = 'heelo, Weu deux';
 document.body.appendChild(div);
 
@@ -40,40 +42,48 @@ const events: Eventime = {
 };
 
 const actions: Store = {
-	perso_01: {
-		enter: {
-			move: { to: 'id01' },
-			transition: {
-				from: { x: 50 },
-				to: { x: 0 },
-				duration: 500,
+	[ID]: {
+		initial: { style: { top: 0, left: 0 } },
+		actions: {
+			enter: {
+				move: { to: 'id01' },
+				transition: {
+					from: { x: 50 },
+					to: { x: 0 },
+					duration: 500,
+				},
+				style: { y: 500, color: 'red' },
 			},
-			style: { y: 500, color: 'red' },
-		},
-		action02: {
-			transition: {
-				from: { x: 0 },
-				to: { x: 50 },
-				duration: 1000,
+			action02: {
+				transition: {
+					from: { x: 0 },
+					to: { x: 50 },
+					duration: 1000,
+				},
 			},
 		},
 	},
+
 	perso_02: {
-		move01: {
-			move: { to: 'id02' },
-			style: { y: 0, color: 'blue' },
+		initial: { style: { top: 0, left: 0 } },
+		actions: {
+			move01: {
+				move: { to: 'id02' },
+				style: { y: 0, color: 'blue' },
+			},
 		},
 	},
 };
 // usage
-const Main = new PersoChannel(MAIN);
-Main.addStore(actions);
-const Strap = new Channel(STRAP);
+
 const Clock = new Timer({ endsAt: 4000 });
 const Tm = new Timeline();
+const Queue = new QueueActions(render);
+
+const Main = new PersoChannel(MAIN, { queue: Queue, timer: Clock });
+Main.addStore(actions);
 
 Tm.addChannel(Main);
-Tm.addChannel(Strap);
 Tm.addEvent(events);
 Clock.subscribe(Tm.run);
 
@@ -98,13 +108,13 @@ setTimeout(() => {
 	Clock.stop();
 }, 3000);
 
-const callback = ({ element }) => {
+function render(update: Partial<Action>) {
+	const element = update[ID];
 	console.log('RENDER', element);
 	div.setAttribute('style', objectToString(element.style));
 	div.classList.add(element.className.split(' '));
-};
+}
 
-const Queue = new QueueActions(callback);
 const style: Style = { position: 'relative' };
 
 const action01 = { style: { fontWeight: 'bold' }, className: 'toto' };
