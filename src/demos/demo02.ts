@@ -19,8 +19,8 @@ const events: Eventime = {
 	name: 'first',
 	channel: MAIN,
 	events: [
-		{ startAt: 1000, name: 'action01', channel: MAIN },
-		{ startAt: 1200, name: 'action02', channel: MAIN },
+		{ startAt: 1100, name: 'action01', channel: MAIN },
+		{ startAt: 1400, name: 'action02', channel: MAIN },
 		{ startAt: 2000, name: 'action03', channel: MAIN },
 	],
 };
@@ -34,8 +34,8 @@ const actions: Store = {
 				className: 'action01',
 				transition: {
 					from: { top: 0, left: 0 },
-					to: { top: 100, left: 200 },
-					duration: 800,
+					to: { top: 300, left: 200 },
+					duration: 500,
 				},
 			},
 			action02: {
@@ -67,7 +67,15 @@ Clock.start(0);
 
 setTimeout(() => {
 	Clock.pause();
-}, 1400);
+}, 1200);
+
+setTimeout(() => {
+	Clock.play();
+}, 1600);
+
+// setTimeout(() => {
+// 	Clock.stop();
+// }, 2600);
 
 // setTimeout(() => {
 // 	debugger;

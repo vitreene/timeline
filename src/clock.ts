@@ -30,16 +30,8 @@ const defaultStatus: Status = {
 	hasAborted: false,
 };
 
-/* 
-FIXME : 
-RAF n'as pas la fréquence suffisante pour obtenir un passage tous les 1/10, il loupe certains passages
-des valeurs ne passent pas parfois, 
-		la durée d'execution entre deux comptages fait sauter une étape, le guard ne fonctione plus.
-
-
-*/
 class Clock {
-	time = -1;
+	oldTime = 0;
 	raf: number;
 	status: Status = defaultStatus;
 	tick = new Set<Cb>();
@@ -96,8 +88,15 @@ class Clock {
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
 	loop = (initial: number) => {
+		let oldTime = -10; // pour démarrer à 0
 		const start = this.AC.currentTime - initial;
 		const _milliseconds = (time: number) => Math.floor(time * 100) * 10;
+		const _timers = (elapsed: number) => ({
+			milliemes: elapsed,
+			centiemes: Math.floor(elapsed / 100) * 10,
+			diziemes: Math.floor(elapsed / 100),
+			seconds: Math.floor(elapsed / 1000),
+		});
 
 		const _loop = () => {
 			if (this.status.hasAborted) {
@@ -107,32 +106,37 @@ class Clock {
 
 			const startTime = this.AC.currentTime - start;
 			const elapsed = _milliseconds(startTime);
-			const timers = {
-				milliemes: elapsed,
-				centiemes: Math.floor(elapsed / 100) * 10,
-				diziemes: Math.floor(elapsed / 100),
-				seconds: Math.floor(elapsed / 1000),
-			};
+			const timers = _timers(elapsed);
 
 			if (this.status.action === 'play') {
 				const currentTime = elapsed - this.status.pauseTime;
 
-				if (currentTime !== this.time) {
-					this.time = currentTime;
-					this.status = {
-						...this.status,
-						elapsed,
-						currentTime,
-						timers,
-					};
+				/* 
+				A cause de la différence de fréquence, des trames peuvent etre perdues ;
+				cette boucle force l'exécution de chacune.
+				Si la différence entre _currentTime et oldTime n'est pas suffisante,
+				il n'y a pas d'actualisation.
+				*/
+
+				const cents = (currentTime - oldTime) / 10;
+				for (let c = 1; c <= cents; c++) {
 					setTimeout(() => {
+						this.status = {
+							...this.status,
+							elapsed,
+							currentTime: currentTime - (cents - c) * 10,
+							timers,
+						};
+
+						oldTime = this.status.currentTime;
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 					});
 				}
-				const tickStatus = { ...this.status, currentTime };
+
+				const tickStatus = { ...this.status, currentTime: currentTime };
 				this.tick.forEach((fn) => fn(tickStatus));
 			} else {
-				this.status.pauseTime = elapsed - this.time;
+				this.status.pauseTime = elapsed - oldTime;
 				this.tick.forEach((fn) => fn(this.status));
 			}
 

@@ -37,7 +37,7 @@ export class PersoChannel extends Channel {
 		if (status.action !== 'seek') {
 			const transtitionComplete = this.timer.subscribeTick((status) => {
 				if (status.currentTime >= end) transtitionComplete();
-				this.renderTransition(perso, progress(status.currentTime));
+				status.action === 'play' && this.renderTransition(perso, progress(status.currentTime));
 			});
 		}
 

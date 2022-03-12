@@ -33,9 +33,11 @@ export class QueueActions {
 			const state = this.state.get(id) || {};
 			const reduces = state;
 			for (const action in actions) {
-				reduces[action] = actions[action].reduce((prec: any, curr) => {
-					if (typeof curr === 'string') return (prec || '' + ' ' + curr || '').trim();
-					return { ...prec, ...curr };
+				reduces[action] = actions[action].reduce((prec: any, current) => {
+					if (typeof current === 'string') {
+						return ((prec || '') + ' ' + (current || '')).trim();
+					}
+					return { ...prec, ...current };
 				}, state[action]);
 			}
 			update[id] = reduces;
