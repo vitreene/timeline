@@ -15,11 +15,6 @@ export class Timeline {
 	channels = new Map();
 	times: number[] = [];
 
-	constructor() {
-		this.run = this.run.bind(this);
-		this.seek = this.seek.bind(this);
-	}
-
 	addEvent = (event: Eventime) => {
 		this._addE(event);
 		if (event.events) event.events.map(this.addEvent);
@@ -52,7 +47,7 @@ export class Timeline {
 		this.events.set(channel.name, new Map());
 	}
 
-	run(status: CbStatus) {
+	run = (status: CbStatus) => {
 		if (status.action === 'seek') return this.seek(status);
 		/* 
 			recoit un time
@@ -62,7 +57,7 @@ export class Timeline {
 			- indexer les times + un pointeur 
 		*/
 
-		console.log(status.currentTime);
+		// console.log(status.currentTime);
 
 		const ti = timeIndexes(this.times, status.currentTime);
 		this.channels.forEach(({ name: channel }) => {
@@ -80,9 +75,9 @@ export class Timeline {
 			console.log(this.events);
 			console.log(this.times);
 		}
-	}
+	};
 
-	seek(status: CbStatus) {
+	seek = (status: CbStatus) => {
 		const pastTimes: number[] = [];
 		for (const time of this.times) {
 			if (time > status.currentTime) break;
@@ -98,7 +93,7 @@ export class Timeline {
 				}
 			}
 		});
-	}
+	};
 }
 
 function timeIndexes(times: number[], currentTime: number) {

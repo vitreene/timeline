@@ -6,6 +6,7 @@ export interface Eventime {
 	name?: string;
 	startAt: number;
 	channel?: string;
+	data?: any;
 	events?: Eventime[];
 }
 

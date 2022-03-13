@@ -2,7 +2,7 @@ import { Timer } from '../clock';
 import { Timeline } from '../timeline';
 import { PersoChannel } from '../channel-perso';
 import { StrapChannel } from '../channel-strap';
-import { QueueActions, Render } from '../queue';
+import { QueueActions } from '../queue';
 
 import { Action, ChannelName, Eventime, Store } from '../types';
 import { objectToString } from '../utils';
@@ -26,7 +26,12 @@ const events: Eventime = {
 	name: 'first',
 	channel: MAIN,
 	events: [
-		{ startAt: 400, name: 'simpleStrap', channel: STRAP },
+		{
+			startAt: 400,
+			name: 'counter',
+			channel: STRAP,
+			data: { duration: 2000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
+		},
 		{ startAt: 600, name: 'timeStrap', channel: STRAP },
 		{ startAt: 500, name: 'action01', channel: MAIN },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
@@ -63,19 +68,19 @@ const actions: Store = {
 		},
 	},
 };
-
 const Tm = new Timeline();
-const Clock = new Timer({ endsAt: 2500 });
+const Clock = new Timer({ endsAt: 5000 });
 const Queue = new QueueActions(render);
 const Main = new PersoChannel({ queue: Queue, timer: Clock });
-const Strap = new StrapChannel({ queue: Queue, timer: Clock });
+const Straps = new StrapChannel({ queue: Queue, timer: Clock });
 
 Main.addStore(actions);
+Straps.addStore(actions);
 
 Tm.addChannel(Main);
-Tm.addChannel(Strap);
+Tm.addChannel(Straps);
 Tm.addEvent(events);
-Clock.subscribe(Tm.run);
+Clock.on(Tm.run);
 
 Clock.start(0);
 

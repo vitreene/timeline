@@ -66,7 +66,7 @@ class Clock {
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
-	subscribe = (subcription: Cb, track: string = DEFAULT) => {
+	subscribe = (track: string = DEFAULT, subcription: Cb) => {
 		if (track === 'tick') return this.subscribeTick(subcription);
 
 		if (!this.subscribers.has(track)) return console.error(`Can't subscribe to ${track} : unknown track.`);
@@ -74,11 +74,11 @@ class Clock {
 
 		if (!cb.has(subcription)) {
 			cb.add(subcription);
-			return this.unSubscribe(subcription, track);
+			return this.unSubscribe(track, subcription);
 		} else console.warn('this subcription already exist', subcription);
 	};
 
-	unSubscribe = (fn: Cb, track: string) => () => this.subscribers.get(track).cb.delete(fn);
+	unSubscribe = (track: string, fct: Cb) => () => this.subscribers.get(track).cb.delete(fct);
 
 	subscribeTick = (subcription: Cb) => {
 		this.tick.add(subcription);
@@ -172,4 +172,10 @@ export class Timer extends Clock {
 	stop() {
 		this.status.hasAborted = true;
 	}
+
+	on = (fct: Cb) => this.subscribe(DEFAULT, fct);
+	off = (fct: Cb) => this.unSubscribe(DEFAULT, fct);
+
+	onTick = this.subscribeTick;
+	offTick = this.unSubscribeTick;
 }
