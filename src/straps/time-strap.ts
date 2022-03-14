@@ -1,4 +1,5 @@
-import { Status } from 'src/clock';
+import { Status } from '../clock';
+import { ChannelName } from '../types';
 import { Strap } from './strap';
 
 // export function timeStrap({ time, status }) {
@@ -17,6 +18,7 @@ Minuteur
 */
 
 const DEFAULT = '1/10';
+const { MAIN } = ChannelName;
 
 const props = { duration: 5, reaction: { lost: 'PERDU', win: 'GAGNE' } };
 interface StrapMinuteurProps {
@@ -25,7 +27,7 @@ interface StrapMinuteurProps {
 		[status: string]: string;
 	};
 }
-export class Minuteur extends Strap {
+export class Counter extends Strap {
 	name = 'counter';
 	start: number = null;
 	duration: number;
@@ -45,7 +47,16 @@ export class Minuteur extends Strap {
 		if (this.start === null) this.start = this.secondes;
 		const elapsed = this.duration + (this.start - this.secondes);
 		const content = Math.round(elapsed);
-		console.log(content);
+		console.log(status.currentTime, content);
+
+		this.addEvent(
+			{
+				name: 'counter',
+				channel: MAIN,
+				data: { content },
+			},
+			status
+		);
 
 		// this.emitter.emit([DEFAULT_NS, 'update-counter'], {	content});
 

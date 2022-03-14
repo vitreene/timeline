@@ -15,8 +15,12 @@ export class Timeline {
 	channels = new Map();
 	times: number[] = [];
 
+	// in = (event: Omit<Eventime, 'startAt'>)=>{
+	// }
+
 	addEvent = (event: Eventime) => {
 		this._addE(event);
+		// TODO ajouter la valeur start relative
 		if (event.events) event.events.map(this.addEvent);
 		else {
 			// trier, puis ref unique
@@ -43,6 +47,8 @@ export class Timeline {
 	};
 
 	addChannel(channel: Channel) {
+		channel.addEvent = this.addEvent;
+		channel.init();
 		this.channels.set(channel.name, channel);
 		this.events.set(channel.name, new Map());
 	}

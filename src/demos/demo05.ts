@@ -65,6 +65,9 @@ const actions: Store = {
 				// style: { left: 100, fontSize: 32 },
 				className: 'action03',
 			},
+			counter: {
+				style: { backgroundColor: 'cyan' },
+			},
 		},
 	},
 };
@@ -80,6 +83,7 @@ Straps.addStore(actions);
 Tm.addChannel(Main);
 Tm.addChannel(Straps);
 Tm.addEvent(events);
+
 Clock.on(Tm.run);
 
 Clock.start(0);

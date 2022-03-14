@@ -1,6 +1,6 @@
 import { Status, CbStatus, Timer } from './clock';
 import { QueueActions } from './queue';
-import { ChannelName, Store } from './types';
+import { ChannelName, Eventime, Store } from './types';
 
 export interface ChannelProps {
 	name: string;
@@ -18,6 +18,7 @@ export class Channel {
 	store: Store;
 	timer: Timer;
 	queue: QueueActions;
+	addEvent: (event: Eventime) => void;
 
 	constructor(options: ChannelOptions) {
 		this.queue = options.queue;
@@ -33,4 +34,5 @@ export class Channel {
 	run({ name, time, status }: ChannelProps): void {
 		console.log('Channel', this.name.toUpperCase(), name, time, status);
 	}
+	init() {}
 }
