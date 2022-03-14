@@ -8,6 +8,7 @@ export interface Status {
 	currentTime: number;
 	action: string;
 	hasAborted: boolean;
+	nextTime: number;
 }
 export interface CbStatus extends Partial<Status> {
 	endClock?: boolean;
@@ -28,6 +29,7 @@ const defaultStatus: Status = {
 	currentTime: 0,
 	action: 'pause',
 	hasAborted: false,
+	nextTime: TIME_INTERVAL,
 };
 
 class Clock {
@@ -121,11 +123,13 @@ class Clock {
 				const cents = (currentTime - oldTime) / 10;
 				for (let c = 1; c <= cents; c++) {
 					setTimeout(() => {
+						const _currentTime = currentTime - (cents - c) * 10;
 						this.status = {
 							...this.status,
 							elapsed,
-							currentTime: currentTime - (cents - c) * 10,
+							currentTime: _currentTime,
 							timers,
+							nextTime: _currentTime + TIME_INTERVAL,
 						};
 
 						oldTime = this.status.currentTime;
