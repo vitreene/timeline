@@ -8,6 +8,8 @@ export class PersoChannel extends Channel {
 	name: ChannelName = ChannelName.MAIN;
 
 	run({ name, time, status }: ChannelProps): void {
+		console.log({ time, name });
+
 		if (status.action === 'seek') this.queue.resetState();
 
 		for (const perso in this.store) {

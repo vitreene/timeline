@@ -19,7 +19,7 @@ div.textContent = 'test demo 002';
 document.body.appendChild(div);
 
 const { MAIN, STRAP } = ChannelName;
-const END_SEQUENCE = 2000;
+const END_SEQUENCE = 4000;
 
 const events: Eventime = {
 	startAt: 0,

@@ -40,6 +40,7 @@ export class Counter extends Strap {
 		this.timer.on(this.count);
 	}
 
+	//FIXME caler sur le temps de départ
 	count = (status: Status) => {
 		if (this.secondes === status.timers.seconds) return;
 
@@ -47,7 +48,7 @@ export class Counter extends Strap {
 		if (this.start === null) this.start = this.secondes;
 		const elapsed = this.duration + (this.start - this.secondes);
 		const content = Math.round(elapsed);
-		console.log(status.currentTime, content);
+		// console.log(status.currentTime, content);
 
 		this.addEvent(
 			{

@@ -78,8 +78,8 @@ export class Timeline {
 		if (status.endClock) {
 			this.channels.forEach((channel) => channel.run({ time: status.currentTime, status }));
 			console.log('END', status.currentTime);
-			console.log(this.events);
-			console.log(this.times);
+			// console.log(this.events);
+			// console.log(this.times);
 		}
 	};
 

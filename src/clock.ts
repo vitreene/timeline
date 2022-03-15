@@ -30,6 +30,7 @@ const defaultStatus: Status = {
 	action: 'pause',
 	hasAborted: false,
 	nextTime: TIME_INTERVAL,
+	timers: _timers(0),
 };
 
 class Clock {
@@ -77,7 +78,7 @@ class Clock {
 		if (!cb.has(subcription)) {
 			cb.add(subcription);
 			return this.unSubscribe(track, subcription);
-		} else console.warn('this subcription already exist', subcription);
+		} else console.warn('this subcription already exist', subcription.name);
 	};
 
 	unSubscribe = (track: string, fct: Cb) => () => this.subscribers.get(track).cb.delete(fct);
@@ -92,13 +93,6 @@ class Clock {
 	loop = (initial: number) => {
 		let oldTime = -10; // pour démarrer à 0
 		const start = this.AC.currentTime - initial;
-		const _milliseconds = (time: number) => Math.floor(time * 100) * 10;
-		const _timers = (elapsed: number) => ({
-			milliemes: elapsed,
-			centiemes: Math.floor(elapsed / 100) * 10,
-			diziemes: Math.floor(elapsed / 100),
-			seconds: Math.floor(elapsed / 1000),
-		});
 
 		const _loop = () => {
 			if (this.status.hasAborted) {
@@ -182,4 +176,16 @@ export class Timer extends Clock {
 
 	onTick = this.subscribeTick;
 	offTick = this.unSubscribeTick;
+}
+
+function _milliseconds(time: number) {
+	return Math.floor(time * 100) * 10;
+}
+function _timers(elapsed: number) {
+	return {
+		milliemes: elapsed,
+		centiemes: Math.floor(elapsed / 100) * 10,
+		diziemes: Math.floor(elapsed / 100),
+		seconds: Math.floor(elapsed / 1000),
+	};
 }

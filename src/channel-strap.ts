@@ -7,7 +7,7 @@ type Fct = (args: any) => any;
 
 export class StrapChannel extends Channel {
 	name: ChannelName = ChannelName.STRAP;
-	strap = new Map<string, any>();
+	strap = new Map<string, { Strap: any; invalid: boolean }>();
 
 	init = () => {
 		const options = {
@@ -24,7 +24,7 @@ export class StrapChannel extends Channel {
 	registerStrap = (_Strap, options) => {
 		const Strap = new _Strap({ ...options, addEvent: this._addEvent });
 		console.log('Strap registered :', Strap.name);
-		this.strap.set(Strap.name, Strap);
+		this.strap.set(Strap.name, { Strap, invalid: false });
 	};
 
 	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
@@ -38,11 +38,13 @@ export class StrapChannel extends Channel {
 	};
 
 	run({ name, time, status }: ChannelProps): void {
-		// ne fonctionne pas si c'est un emetteur ?
-
+		// invalider avec time, pour employer plusieurs instances
 		if (this.strap.has(name)) {
-			const Strap = this.strap.get(name);
-			Strap.init();
+			const { invalid, Strap } = this.strap.get(name);
+			if (!invalid) {
+				Strap.init();
+				this.strap.set(name, { Strap, invalid: true });
+			}
 		}
 	}
 }
