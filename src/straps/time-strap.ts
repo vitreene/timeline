@@ -20,9 +20,10 @@ Minuteur
 const DEFAULT = '1/10';
 const { MAIN } = ChannelName;
 
-const props = { duration: 5, reaction: { lost: 'PERDU', win: 'GAGNE' } };
+const props = { duration: 2000, frequency: 1, reaction: { lost: 'PERDU', win: 'GAGNE' } };
 interface StrapMinuteurProps {
 	duration: number;
+	frequency: number;
 	reaction: {
 		[status: string]: string;
 	};
@@ -30,43 +31,47 @@ interface StrapMinuteurProps {
 export class Counter extends Strap {
 	static publicName = 'counter';
 	start: number = null;
-	duration: number;
-	secondes: number;
+	duration = 0;
+	counter = 0;
 	reactions: StrapMinuteurProps['reaction'];
-
+	freq = 1000;
 	init(data: StrapMinuteurProps = props) {
 		console.log('INIT', data);
-
+		data.frequency && (this.freq = 1000 / data.frequency);
 		this.duration = data.duration || 10e3;
 		this.reactions = data.reaction;
 		this.timer.on(this.count);
 	}
 
-	//FIXME caler sur le temps de départ
 	count = (status: Status) => {
-		if (this.secondes === status.timers.seconds) return;
+		if (this.start === null) this.start = status.currentTime;
+		if (this.counter * this.freq + this.start >= status.currentTime - 1000) return;
 
-		this.secondes = status.timers.seconds;
-		if (this.start === null) this.start = this.secondes;
-		const elapsed = this.duration + (this.start - this.secondes);
-		const content = Math.round(elapsed);
-		// console.log(status.currentTime, content);
+		this.counter = Math.round((status.currentTime - this.start) / this.freq);
+		const elapsed = this.duration - this.counter * this.freq;
+		console.log(this.counter, elapsed);
 
 		this.addEvent(
 			{
 				name: 'counter',
 				channel: MAIN,
-				data: { content },
+				data: { content: this.counter },
 			},
 			status
 		);
 
-		// this.emitter.emit([DEFAULT_NS, 'update-counter'], {	content});
-
 		if (elapsed <= 0) {
-			this.stop();
+			console.log('END');
 
-			// this.emitter.emit([STRAP, this.reactions.lost]);
+			this.stop();
+			this.addEvent(
+				{
+					name: 'end-counter',
+					channel: MAIN,
+					data: { content: this.reactions.lost },
+				},
+				status
+			);
 		}
 	};
 
