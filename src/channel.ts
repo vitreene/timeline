@@ -6,6 +6,7 @@ export interface ChannelProps {
 	name: string;
 	time: number;
 	status: CbStatus;
+	data?: any;
 }
 
 export interface ChannelOptions {

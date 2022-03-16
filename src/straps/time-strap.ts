@@ -28,13 +28,15 @@ interface StrapMinuteurProps {
 	};
 }
 export class Counter extends Strap {
-	name = 'counter';
+	static publicName = 'counter';
 	start: number = null;
 	duration: number;
 	secondes: number;
 	reactions: StrapMinuteurProps['reaction'];
 
 	init(data: StrapMinuteurProps = props) {
+		console.log('INIT', data);
+
 		this.duration = data.duration || 10e3;
 		this.reactions = data.reaction;
 		this.timer.on(this.count);
