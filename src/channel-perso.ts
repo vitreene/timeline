@@ -7,8 +7,8 @@ export type ProgressInterpolation = (time: number) => FromTo;
 export class PersoChannel extends Channel {
 	name: ChannelName = ChannelName.MAIN;
 
-	run({ name, time, status }: ChannelProps): void {
-		console.log({ time, name });
+	run({ name, time, status, data }: ChannelProps): void {
+		// console.log({ time, name, data });
 
 		if (status.action === 'seek') this.queue.resetState();
 
@@ -18,8 +18,9 @@ export class PersoChannel extends Channel {
 			if (action) {
 				const { move, transition, ..._action } = action;
 				transition && this.transition({ perso, time, status, transition });
-				this.queue.add(perso, _action);
-				// console.log(perso.toUpperCase(), name, _action);
+				this.queue.add(perso, { ..._action, ...data });
+			} else if (data) {
+				this.queue.add(perso, data);
 			}
 		}
 	}
@@ -35,7 +36,6 @@ export class PersoChannel extends Channel {
 		const end = start + duration;
 		const progress: ProgressInterpolation = interpolate({ from, to, start, end });
 
-		// console.log('transition', from, to, start, end, status.currentTime);
 		if (status.action !== 'seek') {
 			const transtitionComplete = this.timer.subscribeTick((status) => {
 				if (status.currentTime >= end) transtitionComplete();

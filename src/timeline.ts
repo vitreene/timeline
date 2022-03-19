@@ -8,18 +8,24 @@ import { ChannelName, Eventime } from './types';
  */
 
 type EventChannel = Map<number, Set<string>>;
+type EventData = Map<number, Map<number, any>>;
 
 export class Timeline {
 	defaultChannelName = ChannelName.DEFAULT;
 	events = new Map<string, EventChannel>();
 	channels = new Map();
 	times: number[] = [];
+	data = new Map<string, EventData>();
 
-	// in = (event: Omit<Eventime, 'startAt'>)=>{
-	// }
+	addChannel(channel: Channel) {
+		channel.addEvent = this.addEvent;
+		channel.init();
+		this.channels.set(channel.name, channel);
+		this.events.set(channel.name, new Map());
+	}
 
 	addEvent = (event: Eventime) => {
-		this._addE(event);
+		this._registerEvent(event);
 		// TODO ajouter la valeur start relative
 		if (event.events) event.events.map(this.addEvent);
 		else {
@@ -29,7 +35,7 @@ export class Timeline {
 			this.times = Array.from(times);
 		}
 	};
-	_addE = (event: Eventime) => {
+	_registerEvent = (event: Eventime) => {
 		const channel = event.channel || this.defaultChannelName;
 
 		if (!this.events.has(channel)) {
@@ -44,14 +50,15 @@ export class Timeline {
 			channelEvent.set(event.startAt, _events);
 		} else channelEvent.set(event.startAt, new Set<string>([event.name]));
 		!this.times.includes(event.startAt) && this.times.push(event.startAt);
+
+		if (event.data) this.addData(event);
 	};
 
-	addChannel(channel: Channel) {
-		channel.addEvent = this.addEvent;
-		channel.init();
-		this.channels.set(channel.name, channel);
-		this.events.set(channel.name, new Map());
-	}
+	addData = (event: Eventime) => {
+		!this.data.has(event.name) && this.data.set(event.name, new Map());
+		const eventData = this.data.get(event.name);
+		eventData.set(event.startAt, event.data);
+	};
 
 	run = (status: CbStatus) => {
 		if (status.action === 'seek') return this.seek(status);
@@ -71,7 +78,10 @@ export class Timeline {
 			const events = this.events.get(channel);
 			for (const currentTime of ti) {
 				if (events.has(currentTime))
-					events.get(currentTime).forEach((name) => this.channels.get(channel).run({ name, time: currentTime, status }));
+					events.get(currentTime).forEach((name) => {
+						const data = this.data.has(name) && this.data.get(name).has(currentTime) && this.data.get(name).get(currentTime);
+						this.channels.get(channel).run({ name, time: currentTime, status, data });
+					});
 			}
 		});
 
@@ -80,6 +90,7 @@ export class Timeline {
 			console.log('END', status.currentTime);
 			console.log(this.events);
 			console.log(this.times);
+			console.log(this.data);
 		}
 	};
 
@@ -95,7 +106,10 @@ export class Timeline {
 			const channel = this.channels.get(channelName);
 			for (const time of pastTimes) {
 				if (events.has(time)) {
-					events.get(time).forEach((name) => channel.run({ name, time, status }));
+					events.get(time).forEach((name) => {
+						const data = this.data.has(name) && this.data.get(name).has(time) && this.data.get(name).get(time);
+						channel.run({ name, time, status, data });
+					});
 				}
 			}
 		});

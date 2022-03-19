@@ -19,23 +19,23 @@ div.textContent = 'test demo 002';
 document.body.appendChild(div);
 
 const { MAIN, STRAP } = ChannelName;
-const END_SEQUENCE = 4000;
+const END_SEQUENCE = 5000;
 
 const events: Eventime = {
 	startAt: 0,
 	name: 'first',
 	channel: MAIN,
 	events: [
+		{ startAt: 400, name: 'action01', channel: MAIN },
 		{
 			startAt: 400,
 			name: 'counter',
 			channel: STRAP,
-			data: { duration: 2000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
+			data: { duration: 4000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
 		},
 		{ startAt: 600, name: 'timeStrap', channel: STRAP },
-		{ startAt: 500, name: 'action01', channel: MAIN },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
-		{ startAt: END_SEQUENCE, name: 'action03', channel: MAIN },
+		{ startAt: END_SEQUENCE - 200, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
 	],
 };
 
@@ -72,10 +72,12 @@ const actions: Store = {
 	},
 };
 const Tm = new Timeline();
-const Clock = new Timer({ endsAt: 5000 });
+const Clock = new Timer({ endsAt: END_SEQUENCE });
 const Queue = new QueueActions(render);
 const Main = new PersoChannel({ queue: Queue, timer: Clock });
 const Straps = new StrapChannel({ queue: Queue, timer: Clock });
+
+console.log(Tm);
 
 Main.addStore(actions);
 Straps.addStore(actions);
@@ -90,7 +92,7 @@ Clock.start(0);
 
 slider.addEventListener('mousemove', (e: Event): void => {
 	const el = e.target as HTMLInputElement;
-	const progress = (Number(el.value) * END_SEQUENCE) / 100;
+	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
 	Clock.start(0);
 	Clock.seek(progress);
 });
@@ -99,9 +101,9 @@ function render(update: Partial<Action>) {
 	const element = update[ID];
 	if (element) {
 		const style = objectToString(element.style);
-		// console.log('RENDER', style);
 
 		div.setAttribute('style', style);
-		element.className && div.classList.add(element.className.split(' '));
+		if (element.className) div.classList.add(...element.className.split(' '));
+		if (element.content) div.textContent = element.content;
 	}
 }
