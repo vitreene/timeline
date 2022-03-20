@@ -1,1 +1,1 @@
-import './demos/demo05';
+import './demos/demo06';

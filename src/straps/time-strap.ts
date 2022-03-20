@@ -35,13 +35,14 @@ export class Counter extends Strap {
 	counter = 0;
 	reactions: StrapMinuteurProps['reaction'];
 	freq = 1000;
-	init(data: StrapMinuteurProps = props) {
+
+	init = (data: StrapMinuteurProps = props) => {
 		console.log('INIT', data);
 		data.frequency && (this.freq = 1000 / data.frequency);
 		this.duration = data.duration || 10e3;
 		this.reactions = data.reaction;
 		this.timer.on(this.count);
-	}
+	};
 
 	count = (status: Status) => {
 		if (this.start === null) this.start = status.currentTime;

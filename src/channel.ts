@@ -20,6 +20,7 @@ export class Channel {
 	timer: Timer;
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
+	next: (event: Eventime, name: string) => void;
 
 	constructor(options: ChannelOptions) {
 		this.queue = options.queue;
@@ -32,8 +33,9 @@ export class Channel {
 		this.store = store;
 	}
 
-	run({ name, time, status }: ChannelProps): void {
-		console.log('Channel', this.name.toUpperCase(), name, time, status);
+	run(_props: ChannelProps): void {
+		console.warn(`\x1b[34m Channel \x1b[35m${this.constructor['name']} \x1b[34m  must define a "run" property`);
 	}
+
 	init() {}
 }

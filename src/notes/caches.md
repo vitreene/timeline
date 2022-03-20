@@ -49,6 +49,12 @@ dans le cas d'un enregistrement d'un mouvement :
 - c'est un contexte ou la timeline pourrait-etre suspendue (des animations de suspens peuvent exister, ce ne serait pas une pause du Timer)
 - l'event final peut contenir une version simplifiée de la trajectoire, conçue comme une interpolation de trajet
 
-En résumé :
-
-- la fonction
+- comment faire :
+- un strap est commencé;
+- pause en cours d'exécution;
+- retour en arrière, mais, après que le strap ait commencé;
+- play. Que se passe-t-il ?
+  -> on repasse les dernières fonctions du strap appelé, et on les relance avec des parametres actualisés ? lesquels ?
+  -> on garde les valeurs déjà rencontrées qui ne sont pas invalidées, jusqu'à la reprise de la fonction en attente.
+  -> si une intéraction annule la fonction en-cours ?
+- ilest censé dans ce cas y avoir une procédure pour interrompre et relancer le strap.

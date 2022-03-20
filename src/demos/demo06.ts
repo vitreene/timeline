@@ -19,7 +19,7 @@ div.textContent = 'test demo 002';
 document.body.appendChild(div);
 
 const { MAIN, STRAP } = ChannelName;
-const END_SEQUENCE = 6000;
+const END_SEQUENCE = 3000;
 
 const events: Eventime = {
 	startAt: 0,
@@ -87,6 +87,7 @@ Tm.addChannel(Straps);
 Tm.addEvent(events);
 
 Clock.on(Tm.run);
+Clock.on(Tm.runNext);
 
 Clock.start(0);
 
