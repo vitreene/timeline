@@ -7,4 +7,5 @@ export default defineConfig({
 		globals: true,
 		environment: 'happy-dom',
 	},
+	server: { port: 3003 },
 });

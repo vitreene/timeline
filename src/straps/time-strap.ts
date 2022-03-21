@@ -1,80 +1,70 @@
-import { Status } from '../clock';
+import { CbStatus, Status } from '../clock';
 import { ChannelName } from '../types';
 import { Strap } from './strap';
 
-// export function timeStrap({ time, status }) {
-// 	console.log('timeStrap', this);
-
-// 	return time;
-// }
-
-/* 
-Minuteur
-- s'abonner a timer/secondes
-- count(secondes)
-- stop
-- emit count
-- emit lost
-*/
-
-const DEFAULT = '1/10';
-const { MAIN } = ChannelName;
-
-const props = { duration: 2000, frequency: 1, reaction: { lost: 'PERDU', win: 'GAGNE' } };
 interface StrapMinuteurProps {
+	start: number;
 	duration: number;
 	frequency: number;
+	counter: number;
 	reaction: {
 		[status: string]: string;
 	};
 }
+
+const { MAIN, STRAP } = ChannelName;
+
+const defaultState = { duration: 2000, counter: 0, frequency: 100, reaction: { lost: 'PERDU', win: 'GAGNÉ' } };
+
 export class Counter extends Strap {
 	static publicName = 'counter';
-	start: number = null;
-	duration = 0;
-	counter = 0;
-	reactions: StrapMinuteurProps['reaction'];
-	freq = 1000;
 
-	init = (data: StrapMinuteurProps = props) => {
-		console.log('INIT', data);
-		data.frequency && (this.freq = 1000 / data.frequency);
-		this.duration = data.duration || 10e3;
-		this.reactions = data.reaction;
-		this.timer.on(this.count);
+	init = (status: CbStatus, state: Partial<StrapMinuteurProps>): StrapMinuteurProps => {
+		const start = status.currentTime;
+		return { ...defaultState, ...state, start };
 	};
 
-	count = (status: Status) => {
-		if (this.start === null) this.start = status.currentTime;
-		if (this.counter * this.freq + this.start >= status.currentTime - 1000) return;
+	run = (status: CbStatus, _state: Partial<StrapMinuteurProps>) => {
+		const state = !_state?.start ? this.init(status, _state) : (_state as StrapMinuteurProps);
+		this.count(status, state);
+	};
 
-		this.counter = Math.round((status.currentTime - this.start) / this.freq);
-		const elapsed = this.duration - this.counter * this.freq;
-		console.log(this.counter, elapsed);
+	count = (status: CbStatus, state: StrapMinuteurProps) => {
+		const counter = Math.round((status.currentTime - state.start) / state.frequency);
+		const elapsed = state.duration - counter * state.frequency;
+		const canEvent = counter !== state.counter;
+		const canEnd = elapsed <= 0;
 
-		this.addEvent(
-			{
-				name: 'counter',
-				channel: MAIN,
-				data: { content: this.counter },
-			},
-			status
-		);
-
-		if (elapsed <= 0) {
+		if (canEnd) {
 			console.log('END');
-
-			this.stop();
 			this.addEvent(
 				{
 					name: 'end-counter',
 					channel: MAIN,
-					data: { content: this.reactions.lost },
+					data: { content: state.reaction.win },
+				},
+				status
+			);
+		} else {
+			if (canEnd) console.log(console.log('NEXT->END'));
+
+			canEvent &&
+				this.addEvent(
+					{
+						name: 'show_counter',
+						channel: MAIN,
+						data: { content: counter },
+					},
+					status
+				);
+			this.next(
+				{
+					name: 'counter',
+					channel: STRAP,
+					data: { ...state, counter },
 				},
 				status
 			);
 		}
 	};
-
-	stop = () => this.timer.off(this.count);
 }

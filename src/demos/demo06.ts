@@ -91,6 +91,13 @@ Clock.on(Tm.runNext);
 
 Clock.start(0);
 
+setTimeout(() => {
+	Clock.seek(1000);
+}, 1600);
+setTimeout(() => {
+	Clock.play();
+}, 2600);
+
 slider.addEventListener('mousemove', (e: Event): void => {
 	const el = e.target as HTMLInputElement;
 	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
