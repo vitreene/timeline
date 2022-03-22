@@ -4,7 +4,7 @@ Se focaliser en priorité sur les fonctions de la Timeline
 
 Prochaines étapes :
 
-[ ] channel Straps synchrones
+[x] channel Straps synchrones
 
 - comment les invoquer
 - mise en cache du résultat
@@ -16,7 +16,7 @@ Prochaines étapes :
 - Pause est une permutation de tracks
 - Timer.stop devient Timer.end
 
-[ ] inputs
+[x] inputs
 
 - evenements enregistrés ou non
 - passer des datas supplémentaires
@@ -35,4 +35,10 @@ Prochaines étapes :
 [ ] valeurs relatives
 Accepter et résoudre des valeurs relatives au précédent eventTime - formes "+=", "-=", ">=" (voir gsap)
 
-[ ] straps tester les cas : - seek au milieu de l'execution d'un strap - mettre en cache les résultats pour ne pas surcharger les event deja créés - tester sur le couple nom_instance/time
+[-] straps tester les cas :
+
+- seek au milieu de l'execution d'un strap
+- mettre en cache les résultats pour ne pas surcharger les event deja créés
+- tester sur le couple nom_instance/time
+
+[ ] distinguer l'id d'un state d'un strap du strap lui-meme : permettre d'avoir plusieurs exécutions simultanément

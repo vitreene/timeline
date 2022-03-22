@@ -21,6 +21,14 @@ document.body.appendChild(div);
 const { MAIN, STRAP } = ChannelName;
 const END_SEQUENCE = 3000;
 
+const counter01 = {
+	id: 'counter01',
+	duration: 4000,
+	start: 0,
+	end: 50,
+	complete: { lost: 'PERDU', win: 'GAGNE' },
+};
+
 const events: Eventime = {
 	startAt: 0,
 	name: 'first',
@@ -31,7 +39,8 @@ const events: Eventime = {
 			startAt: 400,
 			name: 'counter',
 			channel: STRAP,
-			data: { duration: 4000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
+			// data: { duration: 4000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
+			data: counter01,
 		},
 		{ startAt: 600, name: 'timeStrap', channel: STRAP },
 		{ startAt: 1200, name: 'action02', channel: MAIN },

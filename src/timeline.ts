@@ -19,7 +19,7 @@ export class Timeline {
 	channels = new Map();
 	times: number[] = [];
 	data = new Map<string, EventData>();
-	casualEvents = new Map<number, CasualEvent>();
+	nextEvent = new Map<number, CasualEvent>();
 
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
@@ -69,18 +69,19 @@ export class Timeline {
 
 	next = (event: Eventime, name) => {
 		const time = event.startAt;
-		if (!this.casualEvents.has(time)) this.casualEvents.set(time, new Map());
-		const casual = this.casualEvents.get(time);
+		if (!this.nextEvent.has(time)) this.nextEvent.set(time, new Map());
+		const casual = this.nextEvent.get(time);
 		casual.set(name, event);
 	};
 
-	runNext = (status) => {
+	runNext = (status: CbStatus) => {
 		const { currentTime } = status;
-		if (this.casualEvents.has(currentTime)) {
-			const casual = this.casualEvents.get(currentTime);
+		if (this.nextEvent.has(currentTime)) {
+			const casual = this.nextEvent.get(currentTime);
 			casual.forEach((event, name) => {
 				this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
 				casual.delete(name);
+				casual.size === 0 && this.nextEvent.delete(currentTime);
 			});
 		}
 	};
@@ -117,7 +118,7 @@ export class Timeline {
 			console.log('events:', this.events);
 			// console.log(this.times);
 			console.log(this.data);
-			console.log(this.casualEvents);
+			console.log(this.nextEvent);
 		}
 	};
 

@@ -7,14 +7,22 @@ interface StrapMinuteurProps {
 	duration: number;
 	frequency: number;
 	counter: number;
-	reaction: {
+	complete: {
 		[status: string]: string;
 	};
 }
 
 const { MAIN, STRAP } = ChannelName;
 
-const defaultState = { duration: 2000, counter: 0, frequency: 100, reaction: { lost: 'PERDU', win: 'GAGNÉ' } };
+const defaultState = {
+	id: 'counter00',
+	duration: 4000,
+	start: 0,
+	end: 100,
+	counter: 0,
+	frequency: 100,
+	complete: { lost: 'PERDU', win: 'GAGNE' }, // mettre des events
+};
 
 export class Counter extends Strap {
 	static publicName = 'counter';
@@ -41,7 +49,7 @@ export class Counter extends Strap {
 				{
 					name: 'end-counter',
 					channel: MAIN,
-					data: { content: state.reaction.win },
+					data: { content: state.complete.win },
 				},
 				status
 			);
