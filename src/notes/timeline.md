@@ -399,3 +399,26 @@ Note : plusieurs chronometres possibles ?
 
 - A quoi ca sert : soit une classe par chrono, soit une classe unique pour générer un ensemble de chronometres.
 - emplois : un chrono pour le temps passé depuis le début de la lecture, un pour la page courante, un pour le temps total ecoulé depuis l'ouverture du projet (pauses comprises), etc.
+
+## Tracks
+
+Tracks va intercepter Status venant de clock et utiliser son propre Status
+Timer(TimerStatus) -> Tracks(TimerStatus -> TrackStatus) -> actions(TrackStatus)
+play() et pause() sont transférés vers Tracks
+seek aussi
+
+Clock ne gere que startTime, et timers
+
+Chaque Track génère currentTime, pauseTime, nextTime, oldTime
+
+Les subscriptions restent sur Timer ! des actions peuvent etre déclenchées à partir de plusieurs tracks.
+Seuls les eventimes sont orientés vers un track.
+
+Tracks manage :
+
+- ajoute un track
+- active/désactive une piste
+- play | pause | stop (Track.name, {start: number, active:(filterTracks)})
+  ou des parametres :
+  - start: 'pause' | 'restart'
+  - active: 'none' | 'all' | [ list ]

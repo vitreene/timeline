@@ -126,11 +126,11 @@ class Clock {
 							nextTime: _currentTime + TIME_INTERVAL,
 						};
 
-						oldTime = this.status.currentTime;
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 					});
 				}
 
+				oldTime = this.status.currentTime;
 				const tickStatus = { ...this.status, currentTime: currentTime };
 				this.tick.forEach((fn) => fn(tickStatus));
 			} else {
