@@ -44,14 +44,14 @@ class Clock {
 	constructor(props: Partial<Props>) {
 		this.AC = props.audioContext || new AudioContext();
 
-		this.addTrack('1/100', ({ timers }: Status) => timers.milliemes % 100 === 0);
-		this.addTrack(DEFAULT, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
-		this.addTrack('seconds', ({ timers }: Status) => timers.diziemes === timers.seconds * 10);
+		this.addTimer('1/100', ({ timers }: Status) => timers.milliemes % 100 === 0);
+		this.addTimer(DEFAULT, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
+		this.addTimer('seconds', ({ timers }: Status) => timers.diziemes === timers.seconds * 10);
 
 		this.subscribers.get(DEFAULT).cb.add(this.onEndLoop(props.endsAt));
 	}
 
-	addTrack(track: string, guard: Guard) {
+	addTimer(track: string, guard: Guard) {
 		this.subscribers.set(track, { guard, cb: new Set<Cb>() });
 	}
 
