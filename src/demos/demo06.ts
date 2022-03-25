@@ -19,11 +19,11 @@ div.textContent = 'test demo 002';
 document.body.appendChild(div);
 
 const { MAIN, STRAP } = ChannelName;
-const END_SEQUENCE = 3000;
+const END_SEQUENCE = 3600;
 
 const counter01 = {
 	id: 'counter01',
-	duration: 4000,
+	duration: 2000,
 	start: 0,
 	end: 50,
 	complete: { lost: 'PERDU', win: 'GAGNE' },
@@ -107,12 +107,19 @@ setTimeout(() => {
 	Clock.play();
 }, 2600);
 
-slider.addEventListener('mousemove', (e: Event): void => {
+slider.addEventListener('mouseenter', () => {
+	Clock.start(0);
+	slider.addEventListener('mousemove', mousemove);
+});
+slider.addEventListener('mouseleave', () => {
+	slider.removeEventListener('mousemove', mousemove);
+});
+
+function mousemove(e: Event): void {
 	const el = e.target as HTMLInputElement;
 	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
-	Clock.start(0);
 	Clock.seek(progress);
-});
+}
 
 function render(update: Partial<Action>) {
 	const element = update[ID];
