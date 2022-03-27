@@ -62,7 +62,7 @@ export class StrapChannel extends Channel {
 	};
 
 	_next = (name: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		if (status.action === 'play') {
+		if (status.action === 'play' || status.action === 'seeking') {
 			const event: Eventime = {
 				startAt: status.nextTime,
 				..._event,
@@ -83,8 +83,11 @@ revoir strap :
 	run({ name, time, status, data }: ChannelProps): void {
 		//TODO cache
 		// if ((this.strap.has(name) && this.strap.get(name).has(time)) || !this.strap.has(name)) return;
+		console.log('run', name, time, status, data);
+		// FIXME quand on passe en mode seek, il faut invalider les events qui initialisent le strap, mais laisser disponible les nextevents
+		//  - soit passer de l'état 'seek' à 'seeking'
 
-		if (status.action === 'play' && this.strap.has(name)) {
+		if ((status.action === 'play' || status.action === 'seeking') && this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 			Strap.run(status, data);
 		}

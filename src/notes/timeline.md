@@ -1,5 +1,7 @@
 # Timeline
 
+https://excalidraw.com/#json=1FeIOSBkZOTvRaDngoGwc,hpb13FbGh1q-B5CU1-7BaQ
+
 au lancement de la scene, consigner les états-clés de chaque perso:
 etat-clé : tous les parametres actifs du perso
 
@@ -422,3 +424,11 @@ Tracks manage :
   ou des parametres :
   - start: 'pause' | 'restart'
   - active: 'none' | 'all' | [ list ]
+
+Timer est employé par les channels :
+
+- tick pour les animations
+- tous pour les straps
+  Avec les tracks, il y a mélange de lignes temporelles, avec le risque de tout mélanger...
+  Il faudrait que chaque strap connaisse son contexte d'exécution pour choisir le bon Status.
+  Si un strap doit envoyer un event à un autre trck, celadevra passer par une api pour garantir le bon enregistrement et les effets de bord.

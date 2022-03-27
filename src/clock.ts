@@ -5,6 +5,7 @@ export interface Status {
 	elapsed: number;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 	pauseTime: number;
+	headTime: number;
 	currentTime: number;
 	action: string;
 	hasAborted: boolean;
@@ -26,12 +27,18 @@ export const TIME_INTERVAL = 10;
 const defaultStatus: Status = {
 	elapsed: 0,
 	pauseTime: 0,
+	headTime: 0,
 	currentTime: 0,
 	action: 'pause',
 	hasAborted: false,
 	nextTime: TIME_INTERVAL,
 	timers: _timers(0),
 };
+
+const PLAY = 'play';
+const PAUSE = 'pause';
+const SEEK = 'seek';
+const SEEKING = 'seeking';
 
 class Clock {
 	oldTime = 0;
@@ -104,38 +111,60 @@ class Clock {
 			const elapsed = _milliseconds(startTime);
 			const timers = _timers(elapsed);
 
-			if (this.status.action === 'play') {
-				const currentTime = elapsed - this.status.pauseTime;
-
-				/* 
+			switch (this.status.action) {
+				case PLAY:
+					{
+						/* 
 				A cause de la différence de fréquence, des trames peuvent etre perdues ;
 				cette boucle force l'exécution de chacune.
 				Si la différence entre _currentTime et oldTime n'est pas suffisante,
 				il n'y a pas d'actualisation.
 				*/
+						const currentTime = elapsed - this.status.pauseTime;
+						const cents = (currentTime - oldTime) / 10;
+						for (let c = 1; c <= cents; c++) {
+							setTimeout(() => {
+								const _currentTime = currentTime - (cents - c) * 10;
+								this.status = {
+									...this.status,
+									timers,
+									elapsed,
+									headTime: _currentTime,
+									currentTime: _currentTime,
+									nextTime: _currentTime + TIME_INTERVAL,
+								};
 
-				const cents = (currentTime - oldTime) / 10;
-				for (let c = 1; c <= cents; c++) {
-					setTimeout(() => {
-						const _currentTime = currentTime - (cents - c) * 10;
-						this.status = {
-							...this.status,
-							elapsed,
-							currentTime: _currentTime,
-							timers,
-							nextTime: _currentTime + TIME_INTERVAL,
-						};
+								this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
+							});
+						}
+
+						oldTime = this.status.currentTime;
+						const tickStatus = { ...this.status, currentTime };
+						this.tick.forEach((fn) => fn(tickStatus));
+					}
+					break;
+
+				case SEEK:
+					{
+						console.log('SEEK', this.status.currentTime);
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
-					});
-				}
+						this.tick.forEach((fn) => fn(this.status));
+						this.status.action = SEEKING;
+						oldTime = this.status.currentTime;
+					}
+					break;
 
-				oldTime = this.status.currentTime;
-				const tickStatus = { ...this.status, currentTime: currentTime };
-				this.tick.forEach((fn) => fn(tickStatus));
-			} else {
-				this.status.pauseTime = elapsed - oldTime;
-				this.tick.forEach((fn) => fn(this.status));
+				default:
+				case SEEKING: {
+					this.status.action = PAUSE;
+				}
+				case PAUSE:
+					{
+						this.status.pauseTime = elapsed - oldTime;
+						this.tick.forEach((fn) => fn(this.status));
+					}
+					break;
 			}
 
 			this.raf = requestAnimationFrame(_loop);
@@ -150,23 +179,23 @@ export class Timer extends Clock {
 		super(props);
 	}
 
-	play() {
-		this.status.action = 'play';
+	[PLAY]() {
+		this.status.action = PLAY;
 	}
-	pause() {
-		this.status.action = 'pause';
+	[PAUSE]() {
+		this.status.action = PAUSE;
 	}
+	[SEEK](currentTime: number) {
+		this.status = { ...this.status, action: SEEK, currentTime };
+	}
+
 	start(initial = 0) {
 		this.status = defaultStatus;
 		this.play();
 		this.loop(initial);
 	}
+
 	rewind() {}
-	seek(time: number) {
-		this.pause();
-		const status = { ...this.status, action: 'seek', currentTime: time };
-		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
-	}
 	stop() {
 		this.status.hasAborted = true;
 	}

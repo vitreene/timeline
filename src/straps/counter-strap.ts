@@ -36,6 +36,8 @@ export class Counter extends Strap {
 		const startTime = status.currentTime;
 		const endTime = startTime + state.duration;
 		const initState = { ...defaultState, ...state, frequency, startTime, endTime };
+		console.log('initState', initState);
+
 		return initState;
 	};
 
@@ -62,6 +64,8 @@ export class Counter extends Strap {
 		} else {
 			if (canEnd) console.log(console.log('NEXT->END'));
 
+			console.log('COUNTER', canEvent, counter, state);
+
 			canEvent &&
 				this.addEvent(
 					{
@@ -71,6 +75,7 @@ export class Counter extends Strap {
 					},
 					status
 				);
+
 			this.next(
 				{
 					name: 'counter',

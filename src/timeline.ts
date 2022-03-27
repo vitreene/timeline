@@ -30,7 +30,7 @@ export class Timeline {
 	}
 
 	addEvent = (event: Eventime) => {
-		event.name !== 'counter' && console.log('addEvent', event.name);
+		console.log('addEvent', event.name);
 
 		this._registerEvent(event);
 		// TODO ajouter la valeur start relative
@@ -67,7 +67,7 @@ export class Timeline {
 		eventData.set(event.startAt, event.data);
 	};
 
-	next = (event: Eventime, name) => {
+	next = (event: Eventime, name: string) => {
 		const time = event.startAt;
 		if (!this.nextEvent.has(time)) this.nextEvent.set(time, new Map());
 		const casual = this.nextEvent.get(time);
@@ -75,14 +75,36 @@ export class Timeline {
 	};
 
 	runNext = (status: CbStatus) => {
-		const { currentTime } = status;
-		if (this.nextEvent.has(currentTime)) {
-			const casual = this.nextEvent.get(currentTime);
-			casual.forEach((event, name) => {
-				this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
-				casual.delete(name);
-				casual.size === 0 && this.nextEvent.delete(currentTime);
-			});
+		if (status.action === 'seek' && status.currentTime > status.headTime) {
+			console.log('***** runNext', status.currentTime);
+			status.action = 'seeking';
+			let time = status.headTime;
+			while (time <= status.currentTime) {
+				console.log(this.nextEvent.size, time);
+
+				const casual = this.nextEvent.get(time);
+				casual &&
+					casual.forEach((event, name) => {
+						const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
+						// console.log('headtime', name, time, currentStatus);
+						this.channels.get(event.channel).run({ name, time, status: currentStatus, data: event.data });
+						casual.delete(name);
+						casual.size === 0 && this.nextEvent.delete(time);
+					});
+				time += TIME_INTERVAL;
+			}
+		} else {
+			const { currentTime } = status;
+			if (this.nextEvent.has(currentTime)) {
+				const casual = this.nextEvent.get(currentTime);
+				casual.forEach((event, name) => {
+					console.log('runNext', name, event, status);
+
+					this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
+					casual.delete(name);
+					casual.size === 0 && this.nextEvent.delete(currentTime);
+				});
+			}
 		}
 	};
 
@@ -124,14 +146,17 @@ export class Timeline {
 
 	seek = (status: CbStatus) => {
 		const pastTimes: number[] = [];
+
 		for (const time of this.times) {
 			if (time > status.currentTime) break;
 			pastTimes.push(time);
 		}
+
 		this.channels.forEach(({ name: channelName }) => {
 			if (!this.events.has(channelName)) return;
 			const events = this.events.get(channelName);
 			const channel = this.channels.get(channelName);
+
 			for (const time of pastTimes) {
 				if (events.has(time)) {
 					events.get(time).forEach((name) => {

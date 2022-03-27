@@ -39,12 +39,11 @@ const events: Eventime = {
 			startAt: 400,
 			name: 'counter',
 			channel: STRAP,
-			// data: { duration: 4000, reaction: { lost: 'PERDU', win: 'GAGNE' } },
 			data: counter01,
 		},
 		{ startAt: 600, name: 'timeStrap', channel: STRAP },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
-		{ startAt: END_SEQUENCE - 200, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
+		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
 	],
 };
 
@@ -67,7 +66,7 @@ const actions: Store = {
 				transition: {
 					from: { fontSize: 16, left: 200 },
 					to: { fontSize: 32, left: 400 },
-					duration: 500,
+					duration: 1500,
 				},
 			},
 			action03: {
@@ -100,32 +99,51 @@ Clock.on(Tm.runNext);
 
 Clock.start(0);
 
+// setTimeout(() => {
+// 	Clock.pause();
+// 	console.log('---------pause 1200');
+// }, 1200);
+
 setTimeout(() => {
-	Clock.seek(1000);
-}, 1600);
+	Clock.seek(2000);
+	console.log('---------seek 2000');
+}, 1200);
+
+setTimeout(() => {
+	Clock.seek(700);
+	console.log('---------seek 700');
+}, 1500);
+
 setTimeout(() => {
 	Clock.play();
-}, 2600);
+	console.log('---------play');
+}, 1800);
 
-slider.addEventListener('mouseenter', () => {
-	Clock.start(0);
+// setTimeout(() => {
+// 	console.log('---------pause');
+// 	Clock.pause();
+// }, END_SEQUENCE + 500);
+
+slider.addEventListener('mousedown', () => {
 	slider.addEventListener('mousemove', mousemove);
 });
-slider.addEventListener('mouseleave', () => {
+slider.addEventListener('mouseup', () => {
 	slider.removeEventListener('mousemove', mousemove);
 });
 
 function mousemove(e: Event): void {
 	const el = e.target as HTMLInputElement;
 	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
-	Clock.seek(progress);
+	Clock.seek(progress > 0 ? progress : 0);
 }
 
+let _style = '';
 function render(update: Partial<Action>) {
 	const element = update[ID];
 	if (element) {
 		const style = objectToString(element.style);
-
+		// style !== _style && console.log(style);
+		_style = style;
 		div.setAttribute('style', style);
 		if (element.className) div.classList.add(...element.className.split(' '));
 		if (element.content) div.textContent = element.content;
