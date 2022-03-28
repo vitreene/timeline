@@ -68,16 +68,13 @@ export class Timeline {
 		eventData.set(event.startAt, event.data);
 	};
 
-	// FIXME boucle infinie... à revoir
 	executeEvent = (event: Eventime, status: CbStatus) => {
-		const time = status.currentTime;
-		console.log('executeEvent', event.name, time, status.headTime, status);
-		if (time > status.headTime) {
-			console.log('***** runNext', time);
-			const currentStatus: CbStatus = { ...status, nextTime: time + TIME_INTERVAL };
-			this.channels
-				.get(event.channel)
-				.run({ name: event.name, time: time + TIME_INTERVAL, status: currentStatus, data: event.data });
+		console.log('executeEvent', !!event.data.startTime, event.name, status.currentTime, status.seekTime, status.headTime);
+		if (status.currentTime <= status.seekTime) {
+			const time = status.currentTime + TIME_INTERVAL;
+
+			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
+			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
 		}
 	};
 
@@ -118,9 +115,12 @@ export class Timeline {
 			if (!this.events.has(channel)) return;
 			const events = this.events.get(channel);
 			for (const currentTime of ti) {
+				const ev = events.get(currentTime);
 				if (events.has(currentTime)) {
 					events.get(currentTime).forEach((name) => {
 						const data = this.data.has(name) && this.data.get(name).has(currentTime) && this.data.get(name).get(currentTime);
+						console.log(name, currentTime);
+
 						this.channels.get(channel).run({ name, time: currentTime, status, data });
 					});
 				}

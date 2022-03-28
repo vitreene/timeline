@@ -10,6 +10,7 @@ export interface Status {
 	action: string;
 	hasAborted: boolean;
 	nextTime: number;
+	seekTime?: number;
 }
 export interface CbStatus extends Partial<Status> {
 	endClock?: boolean;
@@ -134,11 +135,11 @@ class Clock {
 									nextTime: _currentTime + TIME_INTERVAL,
 								};
 
+								oldTime = this.status.currentTime;
 								this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 							});
 						}
 
-						oldTime = this.status.currentTime;
 						const tickStatus = { ...this.status, currentTime };
 						this.tick.forEach((fn) => fn(tickStatus));
 					}
@@ -186,8 +187,9 @@ export class Timer extends Clock {
 	[PAUSE]() {
 		this.status.action = PAUSE;
 	}
-	[SEEK](currentTime: number) {
-		this.status = { ...this.status, action: SEEK, currentTime };
+	[SEEK](time: number) {
+		const seekTime = this.status.headTime < time ? time : this.status.headTime;
+		this.status = { ...this.status, action: SEEK, seekTime };
 	}
 
 	start(initial = 0) {

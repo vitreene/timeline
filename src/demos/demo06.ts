@@ -41,7 +41,7 @@ const events: Eventime = {
 			channel: STRAP,
 			data: counter01,
 		},
-		{ startAt: 600, name: 'timeStrap', channel: STRAP },
+		// { startAt: 600, name: 'timeStrap', channel: STRAP },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
 		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
 	],
@@ -99,20 +99,22 @@ Clock.on(Tm.runNext);
 
 Clock.start(0);
 
-// setTimeout(() => {
-// 	Clock.pause();
-// 	console.log('---------pause 1200');
-// }, 1200);
-
 setTimeout(() => {
 	Clock.seek(2000);
 	console.log('---------seek 2000');
-}, 1200);
+}, 1000);
 
 setTimeout(() => {
 	Clock.seek(700);
 	console.log('---------seek 700');
 }, 1500);
+
+/* 
+// setTimeout(() => {
+// 	Clock.pause();
+// 	console.log('---------pause 1200');
+// }, 1200);
+ */
 
 setTimeout(() => {
 	Clock.play();
