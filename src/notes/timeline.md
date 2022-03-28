@@ -432,3 +432,8 @@ Timer est employé par les channels :
   Avec les tracks, il y a mélange de lignes temporelles, avec le risque de tout mélanger...
   Il faudrait que chaque strap connaisse son contexte d'exécution pour choisir le bon Status.
   Si un strap doit envoyer un event à un autre trck, celadevra passer par une api pour garantir le bon enregistrement et les effets de bord.
+
+<!-- FIX 28/03 -->
+
+en mode seek, deplacer le test headTime - currentime sur addEvent pour provoquer l'exécution immédiate de l'event si rattrapage de temps.
+revoir la state machine seek->seeking, peut etre pas utile pour le moment ?

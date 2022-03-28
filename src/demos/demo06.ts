@@ -119,10 +119,10 @@ setTimeout(() => {
 	console.log('---------play');
 }, 1800);
 
-// setTimeout(() => {
-// 	console.log('---------pause');
-// 	Clock.pause();
-// }, END_SEQUENCE + 500);
+setTimeout(() => {
+	console.log('---------pause');
+	Clock.pause();
+}, END_SEQUENCE);
 
 slider.addEventListener('mousedown', () => {
 	slider.addEventListener('mousemove', mousemove);

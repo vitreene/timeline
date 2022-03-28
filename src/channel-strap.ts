@@ -54,7 +54,7 @@ export class StrapChannel extends Channel {
 	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		if (status.action === 'play') {
 			const event = {
-				startAt: status.nextTime,
+				startAt: status.currentTime + 100,
 				..._event,
 			};
 			this.addEvent(event);
@@ -62,32 +62,24 @@ export class StrapChannel extends Channel {
 	};
 
 	_next = (name: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		if (status.action === 'play' || status.action === 'seeking') {
-			const event: Eventime = {
-				startAt: status.nextTime,
-				..._event,
-			};
+		const event = {
+			startAt: status.nextTime,
+			..._event,
+		};
+		if (status.action === 'play') {
 			this.next(event, name);
 		}
+		if (status.action === 'seek') {
+			this.executeEvent(event, status);
+		}
 	};
-	/* 
-revoir strap :
-- instancer Class à Register
-- strap.run(action, state) : le state est externe et passé par l'appel précédent
-- si pas de state = init
-- il y a une fonction d'appel à chaque tick avec l'état précédent, qui n'est pas déclenché si la lecture ne passe plus sur cette valeur.
-- un appel peut renvoyer un event qui sera ajouté.
 
-
-*/
 	run({ name, time, status, data }: ChannelProps): void {
 		//TODO cache
 		// if ((this.strap.has(name) && this.strap.get(name).has(time)) || !this.strap.has(name)) return;
-		console.log('run', name, time, status, data);
-		// FIXME quand on passe en mode seek, il faut invalider les events qui initialisent le strap, mais laisser disponible les nextevents
-		//  - soit passer de l'état 'seek' à 'seeking'
+		// console.log('run', name, time, status, data);
 
-		if ((status.action === 'play' || status.action === 'seeking') && this.strap.has(name)) {
+		if ((status.action === 'play' || status.action === 'seek') && this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 			Strap.run(status, data);
 		}

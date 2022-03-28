@@ -152,13 +152,14 @@ class Clock {
 						this.tick.forEach((fn) => fn(this.status));
 						this.status.action = SEEKING;
 						oldTime = this.status.currentTime;
+						this.status.action = PAUSE;
 					}
 					break;
 
 				default:
-				case SEEKING: {
-					this.status.action = PAUSE;
-				}
+				// case SEEKING: {
+				// 	this.status.action = PAUSE;
+				// }
 				case PAUSE:
 					{
 						this.status.pauseTime = elapsed - oldTime;
