@@ -147,20 +147,23 @@ class Clock {
 
 				case SEEK:
 					{
-						console.log('SEEK', this.status.currentTime);
+						console.log('SEEK', this.status.seekTime, this.status.currentTime);
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 						this.tick.forEach((fn) => fn(this.status));
-						this.status.action = SEEKING;
+
 						oldTime = this.status.currentTime;
-						this.status.action = PAUSE;
+						this.status.action = SEEKING;
 					}
 					break;
 
 				default:
-				// case SEEKING: {
-				// 	this.status.action = PAUSE;
-				// }
+				case SEEKING: {
+					this.status.currentTime = this.status.seekTime;
+					this.status.headTime = this.status.seekTime;
+					this.status.action = PAUSE;
+					console.log('** SEEKING', this.status);
+				}
 				case PAUSE:
 					{
 						this.status.pauseTime = elapsed - oldTime;

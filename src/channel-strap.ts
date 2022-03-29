@@ -70,7 +70,7 @@ export class StrapChannel extends Channel {
 			this.next(event, name);
 		}
 		if (status.action === 'seek') {
-			this.executeEvent(event, status);
+			this.executeEvent(event, name, status);
 		}
 	};
 

@@ -23,7 +23,7 @@ export class Timeline {
 
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
-		channel.executeEvent = this.executeEvent;
+		channel.executeEvent = this.executeEvent.bind(this);
 		channel.next = this.next;
 		channel.init();
 		this.channels.set(channel.name, channel);
@@ -68,13 +68,14 @@ export class Timeline {
 		eventData.set(event.startAt, event.data);
 	};
 
-	executeEvent = (event: Eventime, status: CbStatus) => {
+	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
 		console.log('executeEvent', !!event.data.startTime, event.name, status.currentTime, status.seekTime, status.headTime);
 		if (status.currentTime <= status.seekTime) {
 			const time = status.currentTime + TIME_INTERVAL;
-
 			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
 			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
+		} else {
+			this.next({ ...event, startAt: status.currentTime + TIME_INTERVAL }, name);
 		}
 	};
 
