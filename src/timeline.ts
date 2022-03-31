@@ -31,8 +31,6 @@ export class Timeline {
 	}
 
 	addEvent = (event: Eventime) => {
-		console.log('addEvent', event.name);
-
 		this._registerEvent(event);
 		// TODO ajouter la valeur start relative
 		if (event.events) event.events.map(this.addEvent);

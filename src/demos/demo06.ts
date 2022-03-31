@@ -19,13 +19,13 @@ div.textContent = 'test demo 002';
 document.body.appendChild(div);
 
 const { MAIN, STRAP } = ChannelName;
-const END_SEQUENCE = 3600;
+const END_SEQUENCE = 4000;
 
 const counter01 = {
 	id: 'counter01',
 	duration: 2000,
 	start: 0,
-	end: 50,
+	end: 10,
 	complete: { lost: 'PERDU', win: 'GAGNE' },
 };
 
@@ -41,7 +41,6 @@ const events: Eventime = {
 			channel: STRAP,
 			data: counter01,
 		},
-		// { startAt: 600, name: 'timeStrap', channel: STRAP },
 		{ startAt: 1200, name: 'action02', channel: MAIN },
 		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
 	],
@@ -100,32 +99,31 @@ Clock.on(Tm.runNext);
 Clock.start(0);
 
 setTimeout(() => {
-	Clock.seek(2000);
+	Clock.seek(1500);
 	console.log('---------seek 2000');
 }, 1000);
 
-setTimeout(() => {
-	Clock.seek(700);
-	console.log('---------seek 700');
-}, 1500);
-
-/* 
 // setTimeout(() => {
-// 	Clock.pause();
-// 	console.log('---------pause 1200');
-// }, 1200);
- */
+// 	Clock.seek(800);
+// 	console.log('---------seek 800');
+// }, 1400);
 
 setTimeout(() => {
 	Clock.play();
 	console.log('---------play');
-}, 1800);
+}, 1600);
 
+// setTimeout(() => {
+// 	Clock.pause();
+// 	console.log('---------pause 3000');
+// }, 3000);
+
+/*
 setTimeout(() => {
 	console.log('---------pause');
 	Clock.pause();
 }, END_SEQUENCE);
-
+ */
 slider.addEventListener('mousedown', () => {
 	slider.addEventListener('mousemove', mousemove);
 });

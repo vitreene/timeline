@@ -147,11 +147,11 @@ class Clock {
 
 				case SEEK:
 					{
-						console.log('SEEK', this.status.seekTime, this.status.currentTime);
+						console.log('SEEK', this.status.seekTime, this.status.currentTime, { status: { ...this.status } });
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
-						this.tick.forEach((fn) => fn(this.status));
 
+						this.tick.forEach((fn) => fn(this.status));
 						oldTime = this.status.currentTime;
 						this.status.action = SEEKING;
 					}
@@ -159,8 +159,8 @@ class Clock {
 
 				default:
 				case SEEKING: {
-					this.status.currentTime = this.status.seekTime;
-					this.status.headTime = this.status.seekTime;
+					// this.status.currentTime = this.status.seekTime;
+					// this.status.headTime = this.status.seekTime;
 					this.status.action = PAUSE;
 					console.log('** SEEKING', this.status);
 				}
@@ -191,8 +191,10 @@ export class Timer extends Clock {
 		this.status.action = PAUSE;
 	}
 	[SEEK](time: number) {
-		const seekTime = this.status.headTime < time ? time : this.status.headTime;
-		this.status = { ...this.status, action: SEEK, seekTime };
+		const headTime = Math.max(this.status.headTime, time);
+		// const seekTime = Math.max(this.status.headTime , time);
+
+		this.status = { ...this.status, action: SEEK, headTime, seekTime: time, currentTime: time };
 	}
 
 	start(initial = 0) {

@@ -52,13 +52,13 @@ export class StrapChannel extends Channel {
 	};
 
 	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		if (status.action === 'play') {
-			const event = {
-				startAt: status.currentTime + 100,
-				..._event,
-			};
-			this.addEvent(event);
-		}
+		// if (status.action === 'play' || status.action === 'seek') {
+		const event = {
+			startAt: status.currentTime + 100,
+			..._event,
+		};
+		this.addEvent(event);
+		// }
 	};
 
 	_next = (name: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
@@ -69,17 +69,13 @@ export class StrapChannel extends Channel {
 		if (status.action === 'play') {
 			this.next(event, name);
 		}
-		if (status.action === 'seek') {
-			this.executeEvent(event, name, status);
+		if (status.action === 'seeking') {
+			this.executeEvent(event, event.name, status);
 		}
 	};
 
 	run({ name, time, status, data }: ChannelProps): void {
-		//TODO cache
-		// if ((this.strap.has(name) && this.strap.get(name).has(time)) || !this.strap.has(name)) return;
-		// console.log('run', name, time, status, data);
-
-		if ((status.action === 'play' || status.action === 'seek') && this.strap.has(name)) {
+		if ((status.action === 'play' || status.action === 'seeking') && this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 			Strap.run(status, data);
 		}
