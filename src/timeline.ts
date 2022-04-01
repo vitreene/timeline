@@ -84,12 +84,19 @@ export class Timeline {
 		casual.set(name, event);
 	};
 
-	runNext = (status: CbStatus) => {
+	runNext = (_status: CbStatus) => {
+		// ici il faudrait lancer execute ;repenser le flux !
+
+		const status = { ..._status };
+		status.action === 'seek' && (status.currentTime += TIME_INTERVAL);
 		const { currentTime } = status;
+
+		if (status.action === 'seek') console.log('runNext seek', currentTime, this.nextEvent);
+
 		if (this.nextEvent.has(currentTime)) {
 			const casual = this.nextEvent.get(currentTime);
 			casual.forEach((event, name) => {
-				// console.log('runNext', name, event, status);
+				console.log('2.runNext', name, event, status);
 				this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
 				casual.delete(name);
 				casual.size === 0 && this.nextEvent.delete(currentTime);
@@ -171,3 +178,9 @@ function timeIndexes(times: number[], currentTime: number) {
 		}
 	return timeIndexes;
 }
+
+/* 
+seek :
+- channel strap : si seek >headtime, rattraper headtime
+- channel perso : rollback actions, ok
+*/

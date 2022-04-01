@@ -99,7 +99,7 @@ Clock.on(Tm.runNext);
 Clock.start(0);
 
 setTimeout(() => {
-	Clock.seek(1500);
+	Clock.seek(2000);
 	console.log('---------seek 2000');
 }, 1000);
 
@@ -111,12 +111,12 @@ setTimeout(() => {
 setTimeout(() => {
 	Clock.play();
 	console.log('---------play');
-}, 1600);
+}, 2000);
 
 // setTimeout(() => {
 // 	Clock.pause();
-// 	console.log('---------pause 3000');
-// }, 3000);
+// 	console.log('---------pause 2000');
+// }, 2000);
 
 /*
 setTimeout(() => {

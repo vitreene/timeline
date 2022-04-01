@@ -150,8 +150,8 @@ class Clock {
 						console.log('SEEK', this.status.seekTime, this.status.currentTime, { status: { ...this.status } });
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
-
 						this.tick.forEach((fn) => fn(this.status));
+
 						oldTime = this.status.currentTime;
 						this.status.action = SEEKING;
 					}
@@ -192,9 +192,7 @@ export class Timer extends Clock {
 	}
 	[SEEK](time: number) {
 		const headTime = Math.max(this.status.headTime, time);
-		// const seekTime = Math.max(this.status.headTime , time);
-
-		this.status = { ...this.status, action: SEEK, headTime, seekTime: time, currentTime: time };
+		this.status = { ...this.status, action: SEEK, headTime, seekTime: time };
 	}
 
 	start(initial = 0) {
