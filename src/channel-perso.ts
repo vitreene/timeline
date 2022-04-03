@@ -1,6 +1,7 @@
 import { CbStatus } from './clock';
 import { ChannelName, Transition } from './types';
 import { Channel, ChannelProps } from './channel';
+import { FORWARD, SEEK } from './common/constants';
 
 export type ProgressInterpolation = (time: number) => FromTo;
 
@@ -8,9 +9,13 @@ export class PersoChannel extends Channel {
 	name: ChannelName = ChannelName.MAIN;
 
 	run({ name, time, status, data }: ChannelProps): void {
-		// console.log({ time, name, data });
+		// console.log('RUN PERSO', { time, name, data });
 
-		if (status.action === 'seek') this.queue.resetState();
+		if (status.seekAction === FORWARD) return;
+		if (status.action === SEEK) {
+			status.currentTime = status.seekTime;
+			this.queue.resetState();
+		}
 
 		for (const perso in this.store) {
 			const action = this.store[perso].actions[name];

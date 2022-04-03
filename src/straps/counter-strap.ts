@@ -1,6 +1,7 @@
 import { CbStatus, Status } from '../clock';
-import { ChannelName } from '../types';
+
 import { Strap } from './strap';
+import { MAIN, STRAP } from '../common/constants';
 
 interface StrapMinuteurProps {
 	id: string;
@@ -15,8 +16,6 @@ interface StrapMinuteurProps {
 		[status: string]: string;
 	};
 }
-
-const { MAIN, STRAP } = ChannelName;
 
 const defaultState = {
 	id: 'counter00',

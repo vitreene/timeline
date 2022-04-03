@@ -41,7 +41,7 @@ const events: Eventime = {
 			channel: STRAP,
 			data: counter01,
 		},
-		{ startAt: 1200, name: 'action02', channel: MAIN },
+		{ startAt: 1500, name: 'action02', channel: MAIN },
 		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
 	],
 };
@@ -54,19 +54,19 @@ const actions: Store = {
 				style: { fontWeight: 'bold', position: 'relative' },
 				className: 'action01',
 				transition: {
-					from: { top: 0, left: 0 },
-					to: { top: 100, left: 200 },
-					duration: 1000,
+					from: { fontSize: 16, top: 0, left: 0 },
+					to: { fontSize: 32, top: 100, left: 400 },
+					duration: 4000,
 				},
 			},
 			action02: {
 				style: { color: 'red' },
 				className: 'action02',
-				transition: {
-					from: { fontSize: 16, left: 200 },
-					to: { fontSize: 32, left: 400 },
-					duration: 1500,
-				},
+				// transition: {
+				// 	from: { fontSize: 16, left: 200 },
+				// 	to: { fontSize: 32, left: 400 },
+				// 	duration: 1500,
+				// },
 			},
 			action03: {
 				// style: { left: 100, fontSize: 32 },
@@ -98,32 +98,35 @@ Clock.on(Tm.runNext);
 
 Clock.start(0);
 
-setTimeout(() => {
-	Clock.seek(2000);
-	console.log('---------seek 2000');
-}, 1000);
-
 // setTimeout(() => {
-// 	Clock.seek(800);
-// 	console.log('---------seek 800');
-// }, 1400);
+// 	debugger;
+// }, 2000);
 
 setTimeout(() => {
-	Clock.play();
-	console.log('---------play');
+	console.log('---------seek 2000');
+	Clock.seek(2000);
+}, 1400);
+
+setTimeout(() => {
+	Clock.seek(800);
+	console.log('---------seek 800');
 }, 2000);
+
+setTimeout(() => {
+	console.log('---------play');
+	Clock.play();
+}, 2400);
 
 // setTimeout(() => {
 // 	Clock.pause();
 // 	console.log('---------pause 2000');
 // }, 2000);
 
-/*
 setTimeout(() => {
 	console.log('---------pause');
 	Clock.pause();
 }, END_SEQUENCE);
- */
+
 slider.addEventListener('mousedown', () => {
 	slider.addEventListener('mousemove', mousemove);
 });

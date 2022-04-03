@@ -1,6 +1,8 @@
 import { Channel } from './channel';
-import { CbStatus, Status, TIME_INTERVAL } from './clock';
-import { ChannelName, Eventime } from './types';
+import { CbStatus } from './clock';
+import { Eventime } from './types';
+
+import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK } from './common/constants';
 
 /**
  * @param events Events
@@ -11,10 +13,8 @@ type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = Map<string, Eventime>;
 
-const { MAIN, STRAP } = ChannelName;
-
 export class Timeline {
-	defaultChannelName = ChannelName.DEFAULT;
+	defaultChannelName = DEFAULT_CHANNEL_NAME;
 	events = new Map<string, EventChannel>();
 	channels = new Map();
 	times: number[] = [];
@@ -67,13 +67,12 @@ export class Timeline {
 	};
 
 	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
-		console.log('executeEvent', !!event.data.startTime, event.name, status.currentTime, status.seekTime, status.headTime);
-		if (status.currentTime <= status.seekTime) {
+		if (status.currentTime < status.seekTime) {
 			const time = status.currentTime + TIME_INTERVAL;
 			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
 			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
 		} else {
-			this.next({ ...event, startAt: status.currentTime + TIME_INTERVAL }, name);
+			this.next({ ...event, startAt: status.seekTime + TIME_INTERVAL }, name);
 		}
 	};
 
@@ -84,19 +83,15 @@ export class Timeline {
 		casual.set(name, event);
 	};
 
-	runNext = (_status: CbStatus) => {
-		// ici il faudrait lancer execute ;repenser le flux !
+	runNext = (status: CbStatus) => {
+		if (status.seekAction === BACKWARD) return;
 
-		const status = { ..._status };
-		status.action === 'seek' && (status.currentTime += TIME_INTERVAL);
+		status.seekAction === FORWARD && (status.currentTime += TIME_INTERVAL);
 		const { currentTime } = status;
-
-		if (status.action === 'seek') console.log('runNext seek', currentTime, this.nextEvent);
 
 		if (this.nextEvent.has(currentTime)) {
 			const casual = this.nextEvent.get(currentTime);
 			casual.forEach((event, name) => {
-				console.log('2.runNext', name, event, status);
 				this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
 				casual.delete(name);
 				casual.size === 0 && this.nextEvent.delete(currentTime);
@@ -105,7 +100,7 @@ export class Timeline {
 	};
 
 	run = (status: CbStatus) => {
-		if (status.action === 'seek') return this.seek(status);
+		if (status.action === SEEK) return this.seek(status);
 		/* 
 			recoit un time
 			- cherche dans les events les correspondances
@@ -125,8 +120,6 @@ export class Timeline {
 				if (events.has(currentTime)) {
 					events.get(currentTime).forEach((name) => {
 						const data = this.data.has(name) && this.data.get(name).has(currentTime) && this.data.get(name).get(currentTime);
-						console.log(name, currentTime);
-
 						this.channels.get(channel).run({ name, time: currentTime, status, data });
 					});
 				}
@@ -144,10 +137,33 @@ export class Timeline {
 	};
 
 	seek = (status: CbStatus) => {
-		const pastTimes: number[] = [];
+		status.seekAction = status.currentTime < status.seekTime ? FORWARD : BACKWARD;
 
+		if (status.seekAction === FORWARD) {
+			const forwardTimes = [];
+			for (const time of this.times) {
+				if (time > status.currentTime && time < status.seekTime) forwardTimes.push(time);
+			}
+			this.channels.forEach(({ name: channelName }) => {
+				if (!this.events.has(channelName)) return;
+				const events = this.events.get(channelName);
+				const channel = this.channels.get(channelName);
+				for (const time of forwardTimes) {
+					if (events.has(time)) {
+						events.get(time).forEach((name) => {
+							const data = this.data.has(name) && this.data.get(name).has(time) && this.data.get(name).get(time);
+							channel.run({ name, time, status, data });
+						});
+					}
+				}
+			});
+			this.runNext(status);
+			status.seekAction = BACKWARD;
+		}
+
+		const pastTimes: number[] = [];
 		for (const time of this.times) {
-			if (time > status.currentTime) break;
+			if (time > status.seekTime) break;
 			pastTimes.push(time);
 		}
 
@@ -178,9 +194,3 @@ function timeIndexes(times: number[], currentTime: number) {
 		}
 	return timeIndexes;
 }
-
-/* 
-seek :
-- channel strap : si seek >headtime, rattraper headtime
-- channel perso : rollback actions, ok
-*/

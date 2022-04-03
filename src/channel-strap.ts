@@ -1,7 +1,8 @@
 import * as straps from './straps';
 import { ChannelName, Eventime } from './types';
-import { Channel, ChannelOptions, ChannelProps } from './channel';
+import { Channel, ChannelProps } from './channel';
 import { CbStatus } from './clock';
+import { PLAY, FORWARD } from './common/constants';
 
 type Fct = (args: any) => any;
 
@@ -15,24 +16,6 @@ export class StrapChannel extends Channel {
 		super(options);
 		this.registerStrap(straps);
 	}
-	// init = () => {
-	// 	// const options = {
-	// 	// 	timer: this.timer,
-	// 	// };
-	// 	// Object.defineProperty(options, 'store', {
-	// 	// 	get: function () {
-	// 	// 		return this.store;
-	// 	// 	}.bind(this),
-	// 	// });
-	// 	// for (const strap in straps) this.registerStrap(straps[strap] /* , options */);
-	// };
-
-	/* 
-	TODO : distinguer les classes et les instances dans deux Map distinctes.
-	- la clé de l'instance sera le time
-- l'instance est créée à la volée
-	-> cela permettra d'utiliser le constructeur 
-	*/
 
 	registerStrap = (straps) => {
 		const options = { timer: this.timer, addEvent: this._addEvent };
@@ -62,24 +45,26 @@ export class StrapChannel extends Channel {
 	};
 
 	_next = (strapName: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		const event = {
-			startAt: status.nextTime,
-			..._event,
-		};
-		if (status.action === 'play') {
+		const event = { startAt: status.nextTime, ..._event };
+
+		if (status.action === PLAY) {
 			this.next(event, strapName);
 		}
-		if (status.action === 'seek') {
+		if (status.seekAction === FORWARD) {
 			this.executeEvent(event, event.name, status);
 		}
 	};
 
-	run({ name, time, status, data }: ChannelProps): void {
+	run({ name, status, data }: ChannelProps): void {
 		if (this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 
-			if (status.action === 'play') Strap.run(status, data);
-			if (status.action === 'seek') Strap.run(status, data);
+			if (status.action === PLAY) {
+				Strap.run(status, data);
+			}
+			if (status.seekAction === FORWARD) {
+				Strap.run(status, data);
+			}
 		}
 	}
 }

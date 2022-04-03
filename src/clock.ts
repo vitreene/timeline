@@ -1,3 +1,5 @@
+import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
+
 export type Cb = (status?: CbStatus) => void;
 export type Guard = (status?: Status) => boolean;
 
@@ -11,6 +13,7 @@ export interface Status {
 	hasAborted: boolean;
 	nextTime: number;
 	seekTime?: number;
+	seekAction?: string;
 }
 export interface CbStatus extends Partial<Status> {
 	endClock?: boolean;
@@ -22,24 +25,16 @@ interface Props {
 	audioContext: { currentTime: number };
 }
 
-const MAX_ENDS = 10000;
-const DEFAULT = '1/10';
-export const TIME_INTERVAL = 10;
 const defaultStatus: Status = {
 	elapsed: 0,
 	pauseTime: 0,
 	headTime: 0,
 	currentTime: 0,
-	action: 'pause',
+	action: PAUSE,
 	hasAborted: false,
 	nextTime: TIME_INTERVAL,
 	timers: _timers(0),
 };
-
-const PLAY = 'play';
-const PAUSE = 'pause';
-const SEEK = 'seek';
-const SEEKING = 'seeking';
 
 class Clock {
 	oldTime = 0;
@@ -53,10 +48,10 @@ class Clock {
 		this.AC = props.audioContext || new AudioContext();
 
 		this.addTimer('1/100', ({ timers }: Status) => timers.milliemes % 100 === 0);
-		this.addTimer(DEFAULT, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
+		this.addTimer(DEFAULT_TIMER, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
 		this.addTimer('seconds', ({ timers }: Status) => timers.diziemes === timers.seconds * 10);
 
-		this.subscribers.get(DEFAULT).cb.add(this.onEndLoop(props.endsAt));
+		this.subscribers.get(DEFAULT_TIMER).cb.add(this.onEndLoop(props.endsAt));
 	}
 
 	addTimer(track: string, guard: Guard) {
@@ -77,8 +72,8 @@ class Clock {
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
-	subscribe = (track: string = DEFAULT, subcription: Cb) => {
-		if (track === 'tick') return this.subscribeTick(subcription);
+	subscribe = (track: string = DEFAULT_TIMER, subcription: Cb) => {
+		if (track === TICK) return this.subscribeTick(subcription);
 
 		if (!this.subscribers.has(track)) return console.error(`Can't subscribe to ${track} : unknown track.`);
 		const { cb } = this.subscribers.get(track);
@@ -113,6 +108,7 @@ class Clock {
 			const timers = _timers(elapsed);
 
 			switch (this.status.action) {
+				default:
 				case PLAY:
 					{
 						/* 
@@ -136,6 +132,7 @@ class Clock {
 								};
 
 								oldTime = this.status.currentTime;
+
 								this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 							});
 						}
@@ -147,7 +144,7 @@ class Clock {
 
 				case SEEK:
 					{
-						console.log('SEEK', this.status.seekTime, this.status.currentTime, { status: { ...this.status } });
+						console.log(SEEK, this.status.seekTime, this.status.currentTime, { ...this.status });
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 						this.tick.forEach((fn) => fn(this.status));
@@ -157,13 +154,19 @@ class Clock {
 					}
 					break;
 
-				default:
-				case SEEKING: {
-					// this.status.currentTime = this.status.seekTime;
-					// this.status.headTime = this.status.seekTime;
-					this.status.action = PAUSE;
-					console.log('** SEEKING', this.status);
-				}
+				case SEEKING:
+					{
+						console.log('** ', SEEKING, { ...this.status });
+
+						// this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
+						// this.tick.forEach((fn) => fn(this.status));
+
+						this.status.seekAction = undefined;
+						this.status.currentTime = this.status.seekTime;
+						this.status.action = PAUSE;
+					}
+					break;
+
 				case PAUSE:
 					{
 						this.status.pauseTime = elapsed - oldTime;
@@ -186,13 +189,15 @@ export class Timer extends Clock {
 
 	[PLAY]() {
 		this.status.action = PLAY;
+		console.log(PLAY, this.status);
 	}
 	[PAUSE]() {
 		this.status.action = PAUSE;
 	}
 	[SEEK](time: number) {
 		const headTime = Math.max(this.status.headTime, time);
-		this.status = { ...this.status, action: SEEK, headTime, seekTime: time };
+		const currentTime = this.status.currentTime;
+		this.status = { ...this.status, action: SEEK, currentTime, headTime, seekTime: time };
 	}
 
 	start(initial = 0) {
@@ -206,8 +211,8 @@ export class Timer extends Clock {
 		this.status.hasAborted = true;
 	}
 
-	on = (fct: Cb) => this.subscribe(DEFAULT, fct);
-	off = (fct: Cb) => this.unSubscribe(DEFAULT, fct);
+	on = (fct: Cb) => this.subscribe(DEFAULT_TIMER, fct);
+	off = (fct: Cb) => this.unSubscribe(DEFAULT_TIMER, fct);
 
 	onTick = this.subscribeTick;
 	offTick = this.unSubscribeTick;
