@@ -9,6 +9,8 @@
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
 		"types": ["vite/client"],
-		"baseUrl": "."
+		"baseUrl": ".",
+		"sourceMap": true,
+		"strictNullChecks": false
 	}
 }

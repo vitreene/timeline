@@ -1,7 +1,7 @@
 import { Action } from './types';
 
 type QueueActionProp = Pick<Action, 'style' | 'className' | 'content' | 'attr'>;
-type Attribute = {
+export type Attribute = {
 	[attribute in QueueActionProp as string]: Partial<Action>[];
 };
 export type Render = (update: Partial<Action>) => void;
@@ -27,7 +27,7 @@ export class QueueActions {
 	// des particularités de chaque propriété
 	// un reducer par propriété
 
-	render = () => {
+	render = (): { [id: string]: Partial<Attribute> } => {
 		const update = {};
 		this.stack.forEach((actions, id) => {
 			const state = this.state.get(id) || {};

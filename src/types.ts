@@ -11,6 +11,7 @@ export interface Eventime {
 }
 
 export interface Initial {
+	tag: string;
 	id: string;
 	attr: any;
 	fit: string;
