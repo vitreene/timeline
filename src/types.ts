@@ -11,6 +11,7 @@ export interface Eventime {
 }
 
 export interface Initial {
+	tag: string;
 	id: string;
 	attr: any;
 	fit: string;
@@ -33,7 +34,7 @@ export interface Store {
 }
 
 export interface PersoNode {
-	actions: { [action: string]: Action };
+	actions: { [action: string]: Action | boolean };
 	initial: Partial<Initial>;
 }
 export interface Perso {

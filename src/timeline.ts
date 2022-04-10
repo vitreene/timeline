@@ -11,7 +11,7 @@ import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK } from './
 
 type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
-type CasualEvent = Map<string, Eventime>;
+type CasualEvent = [string, Eventime];
 
 export class Timeline {
 	defaultChannelName = DEFAULT_CHANNEL_NAME;
@@ -19,7 +19,7 @@ export class Timeline {
 	channels = new Map();
 	times: number[] = [];
 	data = new Map<string, EventData>();
-	nextEvent = new Map<number, CasualEvent>();
+	nextEvent = new Map<number, CasualEvent[]>();
 
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
@@ -78,9 +78,9 @@ export class Timeline {
 
 	next = (event: Eventime, name: string) => {
 		const time = event.startAt;
-		if (!this.nextEvent.has(time)) this.nextEvent.set(time, new Map());
+		if (!this.nextEvent.has(time)) this.nextEvent.set(time, []);
 		const casual = this.nextEvent.get(time);
-		casual.set(name, event);
+		casual.push([name, event]);
 	};
 
 	runNext = (status: CbStatus) => {
@@ -91,11 +91,10 @@ export class Timeline {
 
 		if (this.nextEvent.has(currentTime)) {
 			const casual = this.nextEvent.get(currentTime);
-			casual.forEach((event, name) => {
+			casual.forEach(([name, event]) => {
 				this.channels.get(event.channel).run({ name, time: currentTime, status, data: event.data });
-				casual.delete(name);
-				casual.size === 0 && this.nextEvent.delete(currentTime);
 			});
+			this.nextEvent.delete(currentTime);
 		}
 	};
 

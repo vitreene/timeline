@@ -1,7 +1,7 @@
 import { CbStatus } from './clock';
 import { ChannelName, Transition } from './types';
 import { Channel, ChannelProps } from './channel';
-import { FORWARD, SEEK } from './common/constants';
+import { FORWARD, PLAY, SEEK } from './common/constants';
 
 export type ProgressInterpolation = (time: number) => FromTo;
 
@@ -21,16 +21,19 @@ export class PersoChannel extends Channel {
 			const action = this.store[perso].actions[name];
 
 			if (action) {
-				const { move, transition, ..._action } = action;
-				transition && this.transition({ perso, time, status, transition });
-				this.queue.add(perso, { ..._action, ...data });
-			} else if (data) {
-				this.queue.add(perso, data);
+				if (typeof action === 'boolean') this.queue.add(perso, data);
+				else {
+					const { move, transition, ..._action } = action;
+					transition && this.transition({ perso, time, status, transition });
+					this.queue.add(perso, { ..._action, ...data });
+				}
 			}
 		}
 	}
 
 	transition = (props: { perso: string; time: number; transition: Transition; status: CbStatus }) => {
+		console.log(props);
+
 		const { perso, time, transition, status } = props;
 
 		const state = this.queue.stack.get(perso) || this.store[perso].initial;
@@ -41,10 +44,10 @@ export class PersoChannel extends Channel {
 		const end = start + duration;
 		const progress: ProgressInterpolation = interpolate({ from, to, start, end });
 
-		if (status.action !== 'seek') {
+		if (status.action !== SEEK) {
 			const transtitionComplete = this.timer.subscribeTick((status) => {
 				if (status.currentTime >= end) transtitionComplete();
-				status.action === 'play' && this.renderTransition(perso, progress(status.currentTime));
+				status.action === PLAY && this.renderTransition(perso, progress(status.currentTime));
 			});
 		}
 
@@ -58,7 +61,9 @@ export class PersoChannel extends Channel {
 	};
 	renderTransition = (perso: string, result: FromTo) => {
 		const style = {};
-		for (const prop in result) style[prop] = Math.round(result[prop]) + 'px';
+		for (const prop in result) {
+			style[prop] = Math.round(result[prop] * 10) / 10;
+		}
 		this.queue.add(perso, { style });
 	};
 }

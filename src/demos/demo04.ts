@@ -5,7 +5,7 @@ import { StrapChannel } from '../channel-strap';
 import { QueueActions, Render } from '../queue';
 
 import { Action, ChannelName, Eventime, Store } from '../types';
-import { objectToString } from '../utils';
+import { objectToString } from '../common/utils';
 
 const slider = document.createElement('input');
 slider.setAttribute('type', 'range');

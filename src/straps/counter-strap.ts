@@ -31,11 +31,12 @@ export class Counter extends Strap {
 	static publicName = 'counter';
 
 	init = (status: CbStatus, state: Partial<StrapMinuteurProps>): StrapMinuteurProps => {
-		const frequency = state.frequency || defaultState.duration / Math.abs(state.end - state.start);
+		const duration = state.duration || defaultState.duration;
+		const frequency = state.frequency || duration / Math.abs(state.end - state.start);
 		const startTime = status.currentTime;
 		const endTime = startTime + state.duration;
 		const initState = { ...defaultState, ...state, frequency, startTime, endTime };
-		console.log('initState', status.currentTime, { ...status });
+		console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
 
 		return initState;
 	};
@@ -46,7 +47,8 @@ export class Counter extends Strap {
 	};
 
 	count = (status: CbStatus, state: StrapMinuteurProps) => {
-		const counter = Math.round((status.currentTime - state.startTime) / state.frequency);
+		const elapsed = Math.round((status.currentTime - state.startTime) / state.frequency);
+		const counter = state.start + elapsed * Math.sign(state.end - state.start);
 		const canEvent = counter !== state.counter;
 		const canEnd = status.currentTime > state.endTime;
 
@@ -54,9 +56,9 @@ export class Counter extends Strap {
 			console.log('END-COUNTER', state.id, state.duration, counter);
 			this.addEvent(
 				{
-					name: 'end-counter',
+					name: 'end_' + state.id,
 					channel: MAIN,
-					data: { content: state.complete.win },
+					data: { content: state.complete.win || counter },
 				},
 				status
 			);
@@ -68,7 +70,7 @@ export class Counter extends Strap {
 			canEvent &&
 				this.addEvent(
 					{
-						name: 'show_counter',
+						name: state.id,
 						channel: MAIN,
 						data: { content: counter },
 					},

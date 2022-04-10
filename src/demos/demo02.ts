@@ -4,7 +4,7 @@ import { PersoChannel } from '../channel-perso';
 import { QueueActions, Render } from '../queue';
 
 import { Action, ChannelName, Eventime, Store } from '../types';
-import { objectToString } from '../utils';
+import { objectToString } from '../common/utils';
 
 const ID = 'hello';
 const div = document.createElement('div');

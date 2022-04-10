@@ -126,9 +126,9 @@ class Clock {
 									...this.status,
 									timers,
 									elapsed,
-									headTime: _currentTime,
 									currentTime: _currentTime,
 									nextTime: _currentTime + TIME_INTERVAL,
+									headTime: Math.max(this.status.headTime, _currentTime),
 								};
 
 								oldTime = this.status.currentTime;

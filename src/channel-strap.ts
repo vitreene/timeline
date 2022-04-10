@@ -1,18 +1,14 @@
 import * as straps from './straps';
 import { ChannelName, Eventime } from './types';
-import { Channel, ChannelProps } from './channel';
+import { Channel, ChannelOptions, ChannelProps } from './channel';
 import { CbStatus } from './clock';
 import { PLAY, FORWARD } from './common/constants';
-
-type Fct = (args: any) => any;
-
-const testData = { duration: 3000, reaction: { win: true } };
 
 export class StrapChannel extends Channel {
 	name: ChannelName = ChannelName.STRAP;
 	strap = new Map<string, any>();
 
-	constructor(options) {
+	constructor(options: ChannelOptions) {
 		super(options);
 		this.registerStrap(straps);
 	}
@@ -35,13 +31,11 @@ export class StrapChannel extends Channel {
 	};
 
 	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		// if (status.action === 'play' || status.action === 'seek') {
 		const event = {
 			startAt: status.currentTime + 100,
 			..._event,
 		};
 		this.addEvent(event);
-		// }
 	};
 
 	_next = (strapName: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
@@ -59,7 +53,7 @@ export class StrapChannel extends Channel {
 		if (this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 
-			if (status.action === PLAY) {
+			if (status.action === PLAY && status.headTime === status.currentTime) {
 				Strap.run(status, data);
 			}
 			if (status.seekAction === FORWARD) {
