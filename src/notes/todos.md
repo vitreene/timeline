@@ -37,11 +37,11 @@ Accepter et résoudre des valeurs relatives au précédent eventTime - formes "+
 
 [-] straps tester les cas :
 
-- seek au milieu de l'execution d'un strap
+- [x] seek au milieu de l'execution d'un strap
 - [x] mettre en cache les résultats pour ne pas surcharger les event deja créés
 - ? tester sur le couple nom_instance/time
 
-[ ] distinguer l'id du state d'un strap du strap lui-meme : permettre d'avoir plusieurs exécutions simultanément
+[x] distinguer l'id du state d'un strap du strap lui-meme : permettre d'avoir plusieurs exécutions simultanément
 Plusieurs exécutions simultanées necessitent de nommer les evenements de façon unique pour chaque instance
 
 [ ] convenir des termes pour nommer les evenements que peut produire un strap :
@@ -56,4 +56,15 @@ Plusieurs exécutions simultanées necessitent de nommer les evenements de faço
 - comment la TL pourrait etre informée de l'etat d'un élément avec agir dessus la toute première fois ? faux probleme ?
 - temporaire : recopier initial comme une action.
 
-[ ] un event à 0 est ignoré.
+[x] un event à 0 est ignoré.
+
+[x] transition ne reprend pas.
+Suite des opérations :
+
+- play jusqu'à transition complete;
+- seek au milieu de la transition
+- play : la transition n'existe plus, elle n'est pas relancée.
+  Au lancement de play, il faudrait vérifier que toutes les transitions soient relancées.
+  Ou, une transition n'est jamais supprimée mais filtrée ?
+  Si la transition n'est pas supprimée, il y a le risque qu'elles s'accumulent si il y a replay. il faut s'assurer qu'il n'y en ai qu'une seule
+  -> props sert de reference pour ne pas dupliquer les transitions.

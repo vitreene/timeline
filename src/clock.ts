@@ -144,7 +144,7 @@ class Clock {
 
 				case SEEK:
 					{
-						console.log(SEEK, this.status.seekTime, this.status.currentTime, { ...this.status });
+						// console.log(SEEK, this.status.seekTime, this.status.currentTime, { ...this.status });
 
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 						this.tick.forEach((fn) => fn(this.status));
@@ -194,6 +194,7 @@ export class Timer extends Clock {
 	[PAUSE]() {
 		this.status.action = PAUSE;
 	}
+
 	[SEEK](time: number) {
 		const headTime = Math.max(this.status.headTime, time);
 		const currentTime = this.status.currentTime;

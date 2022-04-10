@@ -35,10 +35,10 @@ const counter02 = {
 
 const events: Eventime = {
 	startAt: 0,
-	name: 'init',
+	name: 'initial',
 	channel: MAIN,
 	events: [
-		{ startAt: 400, name: 'initial', channel: MAIN },
+		{ startAt: 400, name: 'init', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{
 			startAt: 400,
@@ -66,7 +66,6 @@ const initialID01: Partial<Initial> = {
 const initialID02: Partial<Initial> = {
 	className: 'initial',
 	content: ID02,
-
 	style: { 'background-color': 'orange', padding: '1rem', color: 'cyan', position: 'absolute' },
 };
 
@@ -93,14 +92,14 @@ const actions: Store = {
 				style: { 'font-weight': 'bold' },
 				className: 'action01',
 				transition: {
-					from: { 'font-size': 16, top: 0, left: 0 },
-					to: { 'font-size': 32, top: 100, left: 400 },
+					from: { 'font-size': 16, top: 0, left: 400 },
+					to: { 'font-size': 32, top: 100, left: 0 },
 					duration: 2000,
 				},
 			},
-			action02: {
+			init: {
 				style: { color: 'red' },
-				className: 'action02',
+				className: 'init-action02',
 			},
 			action03: {
 				className: 'action03',
@@ -160,37 +159,70 @@ Tm.addEvent(events);
 Clock.on(Tm.run);
 Clock.on(Tm.runNext);
 
-Clock.start(0);
-
 // setTimeout(() => {
 // 	debugger;
 // }, 2000);
 
-setTimeout(() => {
-	console.log('---------seek 2000');
-	Clock.seek(2000);
-}, 1400);
-
-setTimeout(() => {
-	Clock.seek(800);
-	console.log('---------seek 800');
-}, 2000);
-
-setTimeout(() => {
-	console.log('---------play');
-	Clock.play();
-}, 2400);
+// setTimeout(() => {
+// 	console.log('---------seek 2000');
+// 	Clock.seek(2000);
+// }, 1400);
 
 // setTimeout(() => {
-// 	Clock.pause();
-// 	console.log('---------pause 2000');
+// 	Clock.seek(800);
+// 	console.log('---------seek 800');
 // }, 2000);
+
+// setTimeout(() => {
+// 	console.log('---------play');
+// 	Clock.play();
+// }, 2400);
+
+// const STpause = 600;
+// setTimeout(() => {
+// 	Clock.pause();
+// 	console.log('---------pause ' + STpause);
+// }, STpause);
 
 // setTimeout(() => {
 // 	console.log('---------pause');
 // 	Clock.pause();
 // }, END_SEQUENCE);
 
+//SLIDER////////////
+const telco = document.createElement('div');
+telco.id = 'telco';
+
+const slider = document.createElement('input');
+slider.setAttribute('type', 'range');
+
+slider.addEventListener('mousedown', () => {
+	slider.addEventListener('mousemove', mousemove);
+});
+slider.addEventListener('mouseup', () => {
+	slider.removeEventListener('mousemove', mousemove);
+});
+
+function mousemove(e: Event): void {
+	const el = e.target as HTMLInputElement;
+	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
+	Clock.seek(progress > 0 ? progress : 0);
+}
+
+const playButton = document.createElement('button');
+playButton.innerText = 'play';
+playButton.addEventListener('click', () => Clock.play());
+
+const pauseButton = document.createElement('button');
+pauseButton.innerText = 'pause';
+pauseButton.addEventListener('click', () => Clock.pause());
+
+telco.appendChild(playButton);
+telco.appendChild(slider);
+telco.appendChild(pauseButton);
+document.body.appendChild(telco);
+
+// PERSOS////////////
 const root = document.getElementById('app');
 const store = new Map<string, any>();
 
@@ -200,8 +232,10 @@ for (const id in actions) {
 	root.appendChild(perso());
 }
 
-let precUpdate = {};
+Clock.start(0);
 
+// RENDER ////////////
+let precUpdate = {};
 function render(update: Partial<Action>) {
 	for (const id in update) {
 		const up = diff(precUpdate[id], update[id]);

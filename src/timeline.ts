@@ -108,14 +108,15 @@ export class Timeline {
 			- indexer les times + un pointeur 
 		*/
 
-		// console.log(status.currentTime);
+		// console.log('RUN', status.currentTime);
 
 		const ti = timeIndexes(this.times, status.currentTime);
+		// console.log('RUN timeIndexes', status.currentTime, ti);
+
 		this.channels.forEach(({ name: channel }) => {
 			if (!this.events.has(channel)) return;
 			const events = this.events.get(channel);
 			for (const currentTime of ti) {
-				const ev = events.get(currentTime);
 				if (events.has(currentTime)) {
 					events.get(currentTime).forEach((name) => {
 						const data = this.data.has(name) && this.data.get(name).has(currentTime) && this.data.get(name).get(currentTime);
@@ -184,11 +185,12 @@ export class Timeline {
 }
 
 function timeIndexes(times: number[], currentTime: number) {
-	const timeIndexes = [];
+	const timeIndexes: number[] = [];
 	let i = times.findIndex((t) => t === currentTime);
-	if (i > 0)
+
+	if (i > -1)
 		while (times[i] < currentTime + TIME_INTERVAL) {
-			times[i] && timeIndexes.push(times[i]);
+			times[i] !== undefined && timeIndexes.push(times[i]);
 			i++;
 		}
 	return timeIndexes;

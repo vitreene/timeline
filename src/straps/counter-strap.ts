@@ -30,20 +30,20 @@ const defaultState = {
 export class Counter extends Strap {
 	static publicName = 'counter';
 
+	run = (status: CbStatus, _state: Partial<StrapMinuteurProps>) => {
+		const state = !_state?.startTime ? this.init(status, _state) : (_state as StrapMinuteurProps);
+		this.count(status, state);
+	};
+
 	init = (status: CbStatus, state: Partial<StrapMinuteurProps>): StrapMinuteurProps => {
 		const duration = state.duration || defaultState.duration;
 		const frequency = state.frequency || duration / Math.abs(state.end - state.start);
 		const startTime = status.currentTime;
 		const endTime = startTime + state.duration;
 		const initState = { ...defaultState, ...state, frequency, startTime, endTime };
-		console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
+		// console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
 
 		return initState;
-	};
-
-	run = (status: CbStatus, _state: Partial<StrapMinuteurProps>) => {
-		const state = !_state?.startTime ? this.init(status, _state) : (_state as StrapMinuteurProps);
-		this.count(status, state);
 	};
 
 	count = (status: CbStatus, state: StrapMinuteurProps) => {
@@ -53,7 +53,7 @@ export class Counter extends Strap {
 		const canEnd = status.currentTime > state.endTime;
 
 		if (canEnd) {
-			console.log('END-COUNTER', state.id, state.duration, counter);
+			// console.log('END-COUNTER', state.id, state.duration, counter);
 			this.addEvent(
 				{
 					name: 'end_' + state.id,

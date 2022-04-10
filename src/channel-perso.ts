@@ -31,8 +31,9 @@ export class PersoChannel extends Channel {
 		}
 	}
 
+	transitionCache = new Set();
 	transition = (props: { perso: string; time: number; transition: Transition; status: CbStatus }) => {
-		console.log(props);
+		// console.log('transition', props);
 
 		const { perso, time, transition, status } = props;
 
@@ -44,10 +45,12 @@ export class PersoChannel extends Channel {
 		const end = start + duration;
 		const progress: ProgressInterpolation = interpolate({ from, to, start, end });
 
-		if (status.action !== SEEK) {
-			const transtitionComplete = this.timer.subscribeTick((status) => {
-				if (status.currentTime >= end) transtitionComplete();
-				status.action === PLAY && this.renderTransition(perso, progress(status.currentTime));
+		if (status.action !== SEEK && !this.transitionCache.has(props)) {
+			this.transitionCache.add(props);
+			this.timer.subscribeTick((status) => {
+				if (status.action === PLAY && status.currentTime < end && status.currentTime >= start) {
+					this.renderTransition(perso, progress(status.currentTime));
+				}
 			});
 		}
 
