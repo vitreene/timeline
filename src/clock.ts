@@ -41,11 +41,11 @@ class Clock {
 	raf: number;
 	status: Status = defaultStatus;
 	tick = new Set<Cb>();
-	AC: Props['audioContext'] = null;
+	// AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
 
 	constructor(props: Partial<Props>) {
-		this.AC = props.audioContext || new AudioContext();
+		// this.AC = props.audioContext || new AudioContext();
 
 		this.addTimer('1/100', ({ timers }: Status) => timers.milliemes % 100 === 0);
 		this.addTimer(DEFAULT_TIMER, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
@@ -95,7 +95,7 @@ class Clock {
 
 	loop = (initial: number) => {
 		let oldTime = -10; // pour démarrer à 0
-		const start = this.AC.currentTime - initial;
+		const start = performance.now() - initial;
 
 		const _loop = () => {
 			if (this.status.hasAborted) {
@@ -103,8 +103,8 @@ class Clock {
 				return cancelAnimationFrame(this.raf);
 			}
 
-			const startTime = this.AC.currentTime - start;
-			const elapsed = _milliseconds(startTime);
+			const startTime = performance.now() - start;
+			const elapsed = Math.round(startTime);
 			const timers = _timers(elapsed);
 
 			switch (this.status.action) {

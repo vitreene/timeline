@@ -16,6 +16,9 @@ Prochaines étapes :
 - Pause est une permutation de tracks
 - Timer.stop devient Timer.end
 
+Track va s'intercaler entre clock et Timeline,
+track
+
 [x] inputs
 
 - evenements enregistrés ou non
@@ -68,3 +71,5 @@ Suite des opérations :
   Ou, une transition n'est jamais supprimée mais filtrée ?
   Si la transition n'est pas supprimée, il y a le risque qu'elles s'accumulent si il y a replay. il faut s'assurer qu'il n'y en ai qu'une seule
   -> props sert de reference pour ne pas dupliquer les transitions.
+
+[ ] un mode "idle" sur Clock inactive la loop, mais conserve le status

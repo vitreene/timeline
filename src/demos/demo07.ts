@@ -7,6 +7,7 @@ import { QueueActions } from '../queue';
 import { Action, ChannelName, Eventime, Initial, Store } from '../types';
 import { createPerso } from '../render/create-perso';
 import { diff } from '../common/utils';
+import { Tracks } from '../tracks';
 
 const { MAIN, STRAP } = ChannelName;
 const END_SEQUENCE = 4000;
@@ -154,10 +155,14 @@ Straps.addStore(actions);
 
 Tm.addChannel(Main);
 Tm.addChannel(Straps);
+
 Tm.addEvent(events);
 
-Clock.on(Tm.run);
-Clock.on(Tm.runNext);
+const tracks = new Tracks(Tm.run, Tm.runNext);
+Clock.on(tracks.run);
+
+// Clock.on(Tm.run);
+// Clock.on(Tm.runNext);
 
 // setTimeout(() => {
 // 	debugger;

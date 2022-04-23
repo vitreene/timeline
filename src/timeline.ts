@@ -15,10 +15,10 @@ type CasualEvent = [string, Eventime];
 
 export class Timeline {
 	defaultChannelName = DEFAULT_CHANNEL_NAME;
-	events = new Map<string, EventChannel>();
 	channels = new Map();
 	times: number[] = [];
 	data = new Map<string, EventData>();
+	events = new Map<string, EventChannel>();
 	nextEvent = new Map<number, CasualEvent[]>();
 
 	addChannel(channel: Channel) {
