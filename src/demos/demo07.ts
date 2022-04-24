@@ -4,10 +4,11 @@ import { PersoChannel } from '../channel-perso';
 import { StrapChannel } from '../channel-strap';
 import { QueueActions } from '../queue';
 
-import { Action, ChannelName, Eventime, Initial, Store } from '../types';
-import { createPerso } from '../render/create-perso';
+import { PersoStore } from '../render/create-perso';
 import { diff } from '../common/utils';
 import { Tracks } from '../tracks';
+
+import { Action, ChannelName, Eventime, Initial, Store } from '../types';
 
 const { MAIN, STRAP } = ChannelName;
 const END_SEQUENCE = 4000;
@@ -124,6 +125,13 @@ const actions: Store = {
 			},
 			[ID_COUNTER_01]: true, // signifie : j'écoute counter01
 		},
+		emit: {
+			mousedown: {
+				channel: STRAP,
+				name: 'move',
+				data: { event: ' move-toto' },
+			},
+		},
 	},
 	[ID03]: {
 		initial: { ...initialID03, tag: 'div' },
@@ -142,13 +150,15 @@ const actions: Store = {
 	},
 };
 
+// rendre Clock dispo dans Tm !
+// simplifier la construction de Tm
+
 const Tm = new Timeline();
 const Clock = new Timer({ endsAt: END_SEQUENCE });
 const Queue = new QueueActions(render);
+
 const Main = new PersoChannel({ queue: Queue, timer: Clock });
 const Straps = new StrapChannel({ queue: Queue, timer: Clock });
-
-console.log(Tm);
 
 Main.addStore(actions);
 Straps.addStore(actions);
@@ -157,6 +167,8 @@ Tm.addChannel(Main);
 Tm.addChannel(Straps);
 
 Tm.addEvent(events);
+
+console.log(Tm);
 
 const tracks = new Tracks(Tm.run, Tm.runNext);
 Clock.on(tracks.run);
@@ -229,12 +241,11 @@ document.body.appendChild(telco);
 
 // PERSOS////////////
 const root = document.getElementById('app');
-const store = new Map<string, any>();
+const store = new PersoStore(Tm.addEvent);
 
 for (const id in actions) {
-	const perso = createPerso(id, actions[id].initial);
-	store.set(id, perso);
-	root.appendChild(perso());
+	const perso = store.add(id, actions[id]);
+	root.appendChild(perso.node);
 }
 
 Clock.start(0);
@@ -245,6 +256,12 @@ function render(update: Partial<Action>) {
 	for (const id in update) {
 		const up = diff(precUpdate[id], update[id]);
 		precUpdate[id] = { ...update[id] };
-		up && store.has(id) && store.get(id)(up);
+		if (up) {
+			const node = store.getPerso(id);
+			if (node) {
+				node.update(up);
+				up.content && (node.content = up.content);
+			}
+		}
 	}
 }

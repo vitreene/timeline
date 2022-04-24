@@ -36,6 +36,7 @@ export interface Store {
 export interface PersoNode {
 	actions: { [action: string]: Action | boolean };
 	initial: Partial<Initial>;
+	emit?: { [prop in keyof Emit]: Partial<Eventime> };
 }
 export interface Perso {
 	readonly id: string;

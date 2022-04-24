@@ -2,7 +2,7 @@ import * as straps from './straps';
 import { ChannelName, Eventime } from './types';
 import { Channel, ChannelOptions, ChannelProps } from './channel';
 import { CbStatus } from './clock';
-import { PLAY, FORWARD } from './common/constants';
+import { PLAY, FORWARD, TIME_INTERVAL } from './common/constants';
 
 export class StrapChannel extends Channel {
 	name: ChannelName = ChannelName.STRAP;
@@ -32,7 +32,7 @@ export class StrapChannel extends Channel {
 
 	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = {
-			startAt: status.currentTime + 100,
+			startAt: status.currentTime + TIME_INTERVAL,
 			..._event,
 		};
 		this.addEvent(event);

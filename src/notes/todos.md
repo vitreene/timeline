@@ -73,3 +73,10 @@ Suite des opérations :
   -> props sert de reference pour ne pas dupliquer les transitions.
 
 [ ] un mode "idle" sur Clock inactive la loop, mais conserve le status
+
+[ ] consolidation :
+
+- Clock accessible depuis timeline, via les Track, Track fournit Status aux channels
+- les channels sont intégrés dès le constructeur de Timeline
+- il n'est pas utile d'avoir une Api extérieure : Main et Strap n'ont pas besoin d'etre accessibles à part de Timeline
+- Queue à besoin d'un render ; il doit etre possible de définir une queue/render par channel.

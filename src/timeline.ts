@@ -57,10 +57,10 @@ export class Timeline {
 		} else channelEvent.set(event.startAt, new Set<string>([event.name]));
 		!this.times.includes(event.startAt) && this.times.push(event.startAt);
 
-		if (event.data) this.addData(event);
+		if (event.data) this._addData(event);
 	};
 
-	addData = (event: Eventime) => {
+	_addData = (event: Eventime) => {
 		!this.data.has(event.name) && this.data.set(event.name, new Map());
 		const eventData = this.data.get(event.name);
 		eventData.set(event.startAt, event.data);
