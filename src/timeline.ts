@@ -1,8 +1,13 @@
 import { Channel } from './channel';
-import { CbStatus } from './clock';
-import { Eventime } from './types';
+import { CbStatus, Timer } from './clock';
+import { Eventime, Store } from './types';
 
-import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK } from './common/constants';
+import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK, END_SEQUENCE, ROOT } from './common/constants';
+import { createRender } from './render/render-DOM';
+import { QueueActions } from './queue';
+import { PersoChannel } from './channel-perso';
+import { StrapChannel } from './channel-strap';
+import { PersoStore } from './render/create-perso';
 
 /**
  * @param events Events
@@ -13,6 +18,8 @@ type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = [string, Eventime];
 
+export const Clock = new Timer({ endsAt: END_SEQUENCE });
+
 export class Timeline {
 	defaultChannelName = DEFAULT_CHANNEL_NAME;
 	channels = new Map();
@@ -20,6 +27,18 @@ export class Timeline {
 	data = new Map<string, EventData>();
 	events = new Map<string, EventChannel>();
 	nextEvent = new Map<number, CasualEvent[]>();
+
+	constructor({ actions, events }) {
+		const store = createStore(actions, this.addEvent.bind(this));
+		const queue = createQueue(store);
+		const Main = new PersoChannel({ queue, timer: Clock });
+		const Straps = new StrapChannel({ timer: Clock });
+		Main.addStore(store);
+		Straps.addStore(store);
+		this.addChannel(Main);
+		this.addChannel(Straps);
+		events && this.addEvent(events);
+	}
 
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
@@ -194,4 +213,22 @@ function timeIndexes(times: number[], currentTime: number) {
 			i++;
 		}
 	return timeIndexes;
+}
+
+// PERSOS////////////
+const root = document.getElementById('app');
+
+function createStore(actions: Store, handler) {
+	const store = new PersoStore(handler);
+	for (const id in actions) {
+		const perso = store.add(id, actions[id]);
+		// Provisoire
+		id === ROOT && root.appendChild(perso.node);
+	}
+	return store;
+}
+
+function createQueue(store) {
+	const render = createRender(store);
+	return new QueueActions(render);
 }

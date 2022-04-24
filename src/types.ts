@@ -40,7 +40,7 @@ export interface PersoNode {
 }
 export interface Perso {
 	readonly id: string;
-	readonly element: PersoElement;
+	readonly element: PersoElementType;
 	initial: Initial;
 	listen?: Eventime[];
 	actions: Action[];
@@ -58,7 +58,7 @@ interface EmitEvent {
 	data?: any;
 }
 
-interface Move {
+export interface Move {
 	to: string;
 	rescale?: boolean;
 }
@@ -104,7 +104,7 @@ export enum Lang {
 	CN = 'cn',
 }
 
-export enum PersoElement {
+export enum PersoElementType {
 	IMG = 'img',
 	LIST = 'list',
 	BLOC = 'bloc',

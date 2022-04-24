@@ -80,3 +80,5 @@ Suite des opérations :
 - les channels sont intégrés dès le constructeur de Timeline
 - il n'est pas utile d'avoir une Api extérieure : Main et Strap n'ont pas besoin d'etre accessibles à part de Timeline
 - Queue à besoin d'un render ; il doit etre possible de définir une queue/render par channel.
+- dans un premier temps, Clock reste à part, l'api play/pause sera géré par Tracks ensuite
+- channel.addStore doit ajouter le store, pas seulement les actions

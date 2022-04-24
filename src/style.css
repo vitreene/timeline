@@ -1,0 +1,12 @@
+#app {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr;
+	position: relative;
+	padding: 2rem;
+	border: 1px solid grey;
+	min-height: 50vh;
+}
+
+.root {
+}

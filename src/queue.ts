@@ -40,7 +40,9 @@ export class QueueActions {
 						case 'style':
 							return { ...prec, ...current };
 						case 'content':
-							return current;
+							if (!prec) return [current];
+
+							return [...prec, current];
 
 						default:
 							break;

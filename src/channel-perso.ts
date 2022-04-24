@@ -1,7 +1,8 @@
 import { CbStatus } from './clock';
-import { ChannelName, Transition } from './types';
+import { ChannelName, Transition, Move } from './types';
 import { Channel, ChannelProps } from './channel';
 import { FORWARD, PLAY, SEEK } from './common/constants';
+import { PersoItem } from './render/create-perso';
 
 export type ProgressInterpolation = (time: number) => FromTo;
 
@@ -17,27 +18,28 @@ export class PersoChannel extends Channel {
 			this.queue.resetState();
 		}
 
-		for (const perso in this.store) {
-			const action = this.store[perso].actions[name];
+		this.store.persos.forEach((perso, id) => {
+			const action = perso.actions[name];
 
 			if (action) {
-				if (typeof action === 'boolean') this.queue.add(perso, data);
+				if (typeof action === 'boolean') this.queue.add(id, data);
 				else {
 					const { move, transition, ..._action } = action;
-					transition && this.transition({ perso, time, status, transition });
-					this.queue.add(perso, { ..._action, ...data });
+					transition && this.transition({ id, time, status, transition });
+					move && this.move(move, perso);
+					this.queue.add(id, { ..._action, ...data });
 				}
 			}
-		}
+		});
 	}
 
 	transitionCache = new Set();
-	transition = (props: { perso: string; time: number; transition: Transition; status: CbStatus }) => {
+	transition = (props: { id: string; time: number; transition: Transition; status: CbStatus }) => {
 		// console.log('transition', props);
 
-		const { perso, time, transition, status } = props;
+		const { id, time, transition, status } = props;
 
-		const state = this.queue.stack.get(perso) || this.store[perso].initial;
+		const state = this.queue.stack.get(id) || this.store.getPerso(id).initial;
 		const from = (transition.from || state.style) as FromTo;
 		const to = transition.to as FromTo;
 		const duration = transition.duration;
@@ -49,12 +51,12 @@ export class PersoChannel extends Channel {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
 				if (status.action === PLAY && status.currentTime < end && status.currentTime >= start) {
-					this.renderTransition(perso, progress(status.currentTime));
+					this.renderTransition(id, progress(status.currentTime));
 				}
 			});
 		}
 
-		this.renderTransition(perso, progress(status.currentTime));
+		this.renderTransition(id, progress(status.currentTime));
 
 		//init
 		// preparer from et to
@@ -62,12 +64,19 @@ export class PersoChannel extends Channel {
 		// push
 		// boucle avec start et end
 	};
-	renderTransition = (perso: string, result: FromTo) => {
+	renderTransition = (id: string, result: FromTo) => {
 		const style = {};
 		for (const prop in result) {
 			style[prop] = Math.round(result[prop] * 10) / 10;
 		}
-		this.queue.add(perso, { style });
+		this.queue.add(id, { style });
+	};
+
+	move = (move: string | Move, perso: PersoItem) => {
+		if (typeof move === 'string') {
+			const id = move;
+			this.queue.add(id, { content: perso.node });
+		}
 	};
 }
 
