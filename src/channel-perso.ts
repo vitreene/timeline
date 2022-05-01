@@ -1,8 +1,7 @@
 import { CbStatus } from './clock';
-import { ChannelName, Transition, Move } from './types';
+import { ChannelName, Transition, Move, Content, PersoItem } from './types';
 import { Channel, ChannelProps } from './channel';
 import { FORWARD, PLAY, SEEK } from './common/constants';
-import { PersoItem } from './render/create-perso';
 
 export type ProgressInterpolation = (time: number) => FromTo;
 
@@ -75,7 +74,16 @@ export class PersoChannel extends Channel {
 	move = (move: string | Move, perso: PersoItem) => {
 		if (typeof move === 'string') {
 			const id = move;
-			this.queue.add(id, { content: perso.node });
+			const parentContent = this.store.getPerso(id).content;
+			let content: Content | Content[];
+			if (parentContent) {
+				content = Array.isArray(parentContent) ? [...parentContent, perso] : [parentContent, perso];
+			} else {
+				content = perso;
+			}
+
+			this.store.getPerso(id).content = content;
+			this.queue.add(id, { content });
 		}
 	};
 }

@@ -16,7 +16,7 @@ export interface Initial {
 	attr: any;
 	fit: string;
 	style: Style;
-	content: Content;
+	content: Content | Content[];
 	classStyle: Style;
 	className: string | [string];
 	move: string | Move;
@@ -48,6 +48,14 @@ export interface Perso {
 	// extends?: string;
 	// src?: string;
 }
+export interface PersoItem extends PersoNode {
+	update: (update: Partial<Action>) => void;
+	node: HTMLElement;
+	content: Content | Content[];
+	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
+}
+
+export type HandlerListener = (target: Event) => void;
 
 export type Emit = {
 	readonly [key in keyof GlobalEventHandlersEventMap]?: EmitEvent | Array<EmitEvent>;
@@ -70,7 +78,8 @@ export interface Transition {
 	oncomplete?: any;
 }
 
-export type Content = Lang | string | HTMLElement | Array<Initial> | CollectionImages;
+export type Content = string | number | PersoItem | HTMLElement;
+/* |Lang |  CollectionImages */
 
 export interface CollectionImages {
 	src: string;

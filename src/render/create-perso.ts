@@ -1,17 +1,9 @@
-import { Action, Content, Eventime, PersoNode } from 'src/types';
+import { Action, Content, Eventime, HandlerListener, PersoItem, PersoNode } from 'src/types';
 import { objectToString } from '../common/utils';
 
-type HandlerListener = (target: Event) => void;
 type HandlerEvent = (event: Eventime) => HandlerListener;
 type HandlerEventime = (event: Eventime, target: Event) => void;
 export type StorePerso = Map<string, PersoItem>;
-
-export interface PersoItem extends PersoNode {
-	update: (update: Partial<Action>) => void;
-	node: HTMLElement;
-	content: Content;
-	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
-}
 
 export class PersoStore {
 	persos: StorePerso = new Map();
@@ -83,17 +75,21 @@ export class PersoStore {
 			initial,
 			actions,
 			update: (update: Partial<Action>) => this.spread(node, update),
-			get content() {
-				return content;
-			},
-			set content(newContent) {
-				content = createContent(newContent);
-				console.log(newContent);
-				console.log(content);
+			content,
 
-				node.firstChild ? node.replaceChild(content, node.firstChild) : node.appendChild(content);
-			},
+			// get content() {
+			// 	return content;
+			// },
+			// // attention, ca double update ; inutile ici ?
+			// set content(newContent) {
+			// 	content = createContent(newContent);
+			// 	console.log(newContent);
+			// 	console.log(content);
+
+			// 	node.firstChild ? node.replaceChild(content, node.firstChild) : node.appendChild(content);
+			// },
 		};
+
 		return perso;
 	}
 
@@ -115,10 +111,14 @@ export class PersoStore {
 }
 
 // content peut etre un node, interprété à partir d'une string, dans une procédure de prépartion des contenus.
-function createContent(content) {
+export function createContent(content) {
+	console.log('createContent', content);
 	if (!content) return null;
 	if (typeof content === 'string' || typeof content === 'number') {
 		return document.createTextNode(String(content));
+	}
+	if (typeof content === 'object' && content.node) {
+		return content.node;
 	}
 
 	if (Array.isArray(content)) {
@@ -128,5 +128,8 @@ function createContent(content) {
 		return fragment;
 	}
 
-	return content;
+	if (content instanceof HTMLElement) return content;
+	if (typeof content === 'function') return content();
+
+	return '';
 }
