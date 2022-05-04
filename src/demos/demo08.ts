@@ -78,7 +78,7 @@ const initialID03: Partial<Initial> = {
 	},
 };
 
-const actions: Store = {
+const persos: Store = {
 	[ROOT]: {
 		initial: {
 			tag: 'div',
@@ -106,6 +106,13 @@ const actions: Store = {
 			},
 			action03: {
 				className: 'action03',
+			},
+		},
+		emit: {
+			click: {
+				channel: STRAP,
+				name: 'move',
+				data: { event: ' move-toto' },
 			},
 		},
 	},
@@ -243,7 +250,7 @@ telco.appendChild(slider);
 telco.appendChild(pauseButton);
 document.body.appendChild(telco);
 
-const Tm = new Timeline({ actions, events });
+const Tm = new Timeline({ persos, events });
 console.log(Tm);
 
 const tracks = new Tracks(Tm.run, Tm.runNext);

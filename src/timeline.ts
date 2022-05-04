@@ -28,8 +28,8 @@ export class Timeline {
 	events = new Map<string, EventChannel>();
 	nextEvent = new Map<number, CasualEvent[]>();
 
-	constructor({ actions, events }) {
-		const store = createStore(actions, this.addEvent.bind(this));
+	constructor({ persos, events }) {
+		const store = createStore(persos, this.addEvent.bind(this));
 		const queue = createQueue(store);
 		const Main = new PersoChannel({ queue, timer: Clock });
 		const Straps = new StrapChannel({ timer: Clock });
@@ -50,6 +50,8 @@ export class Timeline {
 	}
 
 	addEvent = (event: Eventime) => {
+		console.log('addEvent==>', event);
+
 		this._registerEvent(event);
 		// TODO ajouter la valeur start relative
 		if (event.events) event.events.map(this.addEvent);
@@ -218,10 +220,10 @@ function timeIndexes(times: number[], currentTime: number) {
 // PERSOS////////////
 const root = document.getElementById('app');
 
-function createStore(actions: Store, handler) {
+function createStore(persos: Store, handler) {
 	const store = new PersoStore(handler);
-	for (const id in actions) {
-		const perso = store.add(id, actions[id]);
+	for (const id in persos) {
+		const perso = store.add(id, persos[id]);
 		// Provisoire
 		id === ROOT && root.appendChild(perso.node);
 	}

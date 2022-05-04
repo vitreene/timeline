@@ -1,22 +1,26 @@
 import { Action, Content, Eventime, HandlerListener, PersoItem, PersoNode } from 'src/types';
 import { objectToString } from '../common/utils';
 
-type HandlerEvent = (event: Eventime) => HandlerListener;
-type HandlerEventime = (event: Eventime, target: Event) => void;
+type HandlerEvent = (event: Eventime) => void;
+
+// type HandlerEventime = (event: Eventime, target: Event) => void;
 export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
+	emit = new Map<string, PersoNode['emit']>();
 	handler: HandlerEvent = null;
 
-	constructor(handler: HandlerEventime) {
-		this.handler = (event: Eventime) => (e: Event) => {
+	constructor(handler: HandlerEvent) {
+		this.handler = handler;
+		/* 
+		(event: Eventime) => (e: Event) => {
 			console.log(event);
 			console.log(e);
 			// c'est un event immédiat qu'il faut créer, disponible que dans un channel, et pas timeline...
 			// de plus, il faut le dispatcher en fonction du chanel désigné
 			handler(event, e);
-		};
+		}; */
 	}
 
 	addAll(persos: Map<string, PersoNode>) {
@@ -25,9 +29,9 @@ export class PersoStore {
 		});
 	}
 
-	add(id: string, { initial, emit, actions }: PersoNode) {
-		const perso = this.createPerso(id, initial, actions);
-		emit && this.addListeners(id, perso, emit);
+	add(id: string, _perso: PersoNode) {
+		const perso = this.createPerso(id, _perso);
+		// emit && this.addListeners(id, perso, emit);
 		this.persos.set(id, perso);
 		return perso;
 	}
@@ -43,33 +47,53 @@ export class PersoStore {
 		return this.persos.has(id) ? this.persos.get(id) : null;
 	}
 
-	private addListeners(id: string, perso: any, emit: any) {
-		perso.listeners = new Map();
-		for (const prop in emit) {
-			const event = emit[prop];
-			event.data.id = id;
-			const handler = this.handler(event);
-			perso.listeners.set(prop, handler);
-			perso.node.addEventListener(prop, handler);
-		}
-	}
+	// private addListeners(id: string, perso: any, emit: any) {
+	// 	perso.listeners = new Map();
+	// 	for (const prop in emit) {
+	// 		const event = emit[prop];
+	// 		event.data.id = id;
+	// 		const handler = this.handler(event);
+	// 		perso.listeners.set(prop, handler);
+	// 		perso.node.addEventListener(prop, handler);
+	// 	}
+	// }
 
-	private removeListeners(id: string) {
-		const perso = this.persos.get(id);
-		if (perso) {
-			perso.listeners.forEach((handler, prop) => {
-				perso.node.removeEventListener(prop, handler);
-			});
-		}
-	}
+	// private removeListeners(id: string) {
+	// 	const perso = this.persos.get(id);
+	// 	if (perso) {
+	// 		perso.listeners.forEach((handler, prop) => {
+	// 			perso.node.removeEventListener(prop, handler);
+	// 		});
+	// 	}
+	// }
 
-	private createPerso(id: string, { tag = 'div', ...initial }, actions: PersoNode['actions']) {
-		const node = document.createElement(tag);
+	handleEvent = (event) => {
+		console.log(event.type);
+		console.log(event);
+		console.log(event.target.dataset.id);
+		console.log(this.emit);
+		console.log(this);
+
+		const emit = this.emit.get(event.target.dataset.id)[event.type];
+		emit.data = { ...emit.data, emit: { e: event, id: event.target.dataset.id } };
+		emit && this.handler(emit);
+	};
+
+	private createPerso(id: string, { initial, actions, emit }: PersoNode) {
+		// console.log(this);
+		const node = document.createElement(initial.tag || 'div');
 		node.id = id;
 		this.spread(node, initial);
-		let content = createContent(initial.content || initial.children);
+		// let content = createContent(initial.content || initial.children);
+		const content = createContent(initial.content);
 		content && node.appendChild(content);
-
+		if (emit) {
+			this.emit.set(id, emit);
+			for (const ev in emit) {
+				node.dataset.id = id;
+				node.addEventListener(ev, this);
+			}
+		}
 		const perso: PersoItem = {
 			node,
 			initial,
