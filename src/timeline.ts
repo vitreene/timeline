@@ -62,7 +62,7 @@ export class Timeline {
 			this.times = Array.from(times);
 		}
 	};
-	_registerEvent = (event: Eventime) => {
+	private _registerEvent = (event: Eventime) => {
 		const channel = event.channel || this.defaultChannelName;
 
 		if (!this.events.has(channel)) {

@@ -8,7 +8,6 @@ export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
-	emit = new Map<string, PersoNode['emit']>();
 	handler: HandlerEvent = null;
 
 	constructor(handler: HandlerEvent) {
@@ -71,11 +70,14 @@ export class PersoStore {
 		console.log(event.type);
 		console.log(event);
 		console.log(event.target.dataset.id);
-		console.log(this.emit);
+
 		console.log(this);
 
-		const emit = this.emit.get(event.target.dataset.id)[event.type];
-		emit.data = { ...emit.data, emit: { e: event, id: event.target.dataset.id } };
+		const persoId = event.target.dataset.id;
+		const perso = this.persos.get(persoId);
+		const emit = perso.emit[event.type];
+
+		emit.data = { ...emit.data, emit: { e: event, type: event.type, id: event.target.dataset.id } };
 		emit && this.handler(emit);
 	};
 
@@ -88,9 +90,8 @@ export class PersoStore {
 		const content = createContent(initial.content);
 		content && node.appendChild(content);
 		if (emit) {
-			this.emit.set(id, emit);
+			node.dataset.id = id;
 			for (const ev in emit) {
-				node.dataset.id = id;
 				node.addEventListener(ev, this);
 			}
 		}
@@ -100,19 +101,9 @@ export class PersoStore {
 			actions,
 			update: (update: Partial<Action>) => this.spread(node, update),
 			content,
-
-			// get content() {
-			// 	return content;
-			// },
-			// // attention, ca double update ; inutile ici ?
-			// set content(newContent) {
-			// 	content = createContent(newContent);
-			// 	console.log(newContent);
-			// 	console.log(content);
-
-			// 	node.firstChild ? node.replaceChild(content, node.firstChild) : node.appendChild(content);
-			// },
+			//add/remove/Listener ?
 		};
+		emit && (perso.emit = emit);
 
 		return perso;
 	}
@@ -136,7 +127,6 @@ export class PersoStore {
 
 // content peut etre un node, interprété à partir d'une string, dans une procédure de prépartion des contenus.
 export function createContent(content) {
-	console.log('createContent', content);
 	if (!content) return null;
 	if (typeof content === 'string' || typeof content === 'number') {
 		return document.createTextNode(String(content));
