@@ -1,4 +1,5 @@
 // Add Strap to register
 
-// export * from './simple-strap';
+export * from './move';
+export * from './simple-strap';
 export * from './counter-strap';

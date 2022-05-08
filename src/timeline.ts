@@ -32,7 +32,7 @@ export class Timeline {
 		const store = createStore(persos, this.addEvent.bind(this));
 		const queue = createQueue(store);
 		const Main = new PersoChannel({ queue, timer: Clock });
-		const Straps = new StrapChannel({ timer: Clock });
+		const Straps = new StrapChannel({ queue, timer: Clock });
 		Main.addStore(store);
 		Straps.addStore(store);
 		this.addChannel(Main);
@@ -50,8 +50,6 @@ export class Timeline {
 	}
 
 	addEvent = (event: Eventime) => {
-		console.log('addEvent==>', event);
-
 		this._registerEvent(event);
 		// TODO ajouter la valeur start relative
 		if (event.events) event.events.map(this.addEvent);
@@ -62,8 +60,13 @@ export class Timeline {
 			this.times = Array.from(times);
 		}
 	};
+
 	private _registerEvent = (event: Eventime) => {
 		const channel = event.channel || this.defaultChannelName;
+		// un event ajouté sans startAt est exécuté immédiatement
+		// rendre l'intention plus explicite ? startAt = -1 , ou bien startAt = "now" -> voir avec les labels
+
+		if (!event.startAt) event.startAt = Clock.status.currentTime + TIME_INTERVAL;
 
 		if (!this.events.has(channel)) {
 			console.warn(`Channel ${channel} has not been declared`);
@@ -128,8 +131,6 @@ export class Timeline {
 			- recherche du time jusqu'au pointeur suivant : time = 500, chercher 501, 502,..510..599
 			- indexer les times + un pointeur 
 		*/
-
-		// console.log('RUN', status.currentTime);
 
 		const ti = timeIndexes(this.times, status.currentTime);
 		// console.log('RUN timeIndexes', status.currentTime, ti);

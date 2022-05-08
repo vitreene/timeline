@@ -14,7 +14,7 @@ export class StrapChannel extends Channel {
 	}
 
 	registerStrap = (straps) => {
-		const options = { timer: this.timer, addEvent: this._addEvent };
+		const options = { queue: this.queue, timer: this.timer, addEvent: this._addEvent };
 		Object.defineProperty(options, 'store', {
 			get: function () {
 				return this.store;

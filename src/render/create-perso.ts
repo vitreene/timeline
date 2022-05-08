@@ -78,6 +78,8 @@ export class PersoStore {
 		const emit = perso.emit[event.type];
 
 		emit.data = { ...emit.data, emit: { e: event, type: event.type, id: event.target.dataset.id } };
+		console.log(emit);
+
 		emit && this.handler(emit);
 	};
 
