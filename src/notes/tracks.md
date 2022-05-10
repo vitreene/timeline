@@ -117,3 +117,16 @@ interface
 
 - play()
 - pause()
+
+06-05
+Tracks est l'équivalent pour les events de Channel pour les actions.
+On peut créer un Track en étendant une classe de base.
+La base doit s'occuper de récupérer / accéder , aux events , status, ajouter un event
+Il faut aussi un process pour communiquer entre les tracks, par exemple pour envoyer des events de l'un à l'autre
+
+Une autre classe s'occupe de gérer l'ensemble des tracks : activation /désactivation, initialisation...
+
+Faut-il un equivalent pour Channels ?
+Timeline est-il seul gestionnaire des channels, ou bien de l'ensemble tracks/channel ?
+
+Timeline pourrait se renommer... StoryLine, ou mieux : SceneLine

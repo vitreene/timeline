@@ -37,3 +37,15 @@ export function diff(prec: any, next: any) {
 	}
 	return next;
 }
+
+// separe valeur et unités
+const separe = /\s*(\d+)\s*(\D*)/;
+export function splitUnitValue(val: string | number | undefined) {
+	if (val === undefined) return null;
+	if (typeof val === 'number') return { value: val, unit: null };
+	const match = val.match(separe);
+	return {
+		value: Number(match[1]),
+		unit: match[2],
+	};
+}

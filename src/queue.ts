@@ -51,7 +51,8 @@ export class QueueActions {
 			this.state.set(id, reduces);
 		});
 
-		return update;
+		const _update = resolveAttributes(update);
+		return _update;
 	};
 
 	flush = () => {
@@ -62,4 +63,12 @@ export class QueueActions {
 	};
 
 	resetState = () => (this.state = new Map<string, Partial<Attribute>>());
+}
+
+// traitement de finition sur les valeurs
+// transform
+// appliquer les unites aux valeurs zoomables
+// -> zoom en fonction d'un resize ?
+function resolveAttributes(update: Partial<Attribute>) {
+	return update;
 }
