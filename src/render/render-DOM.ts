@@ -4,9 +4,15 @@ import { Action, Content, PersoItem } from '../types';
 import { createContent, PersoStore } from './create-perso';
 
 // RENDER ////////////
+// function createQueue(store) {
+// 	const render = createRender(store);
+// 	return new QueueActions(render);
+// }
+
+// TODO precUpdate dans persos
 let precUpdate = {};
 export function createRender(store: PersoStore) {
-	return function render(update: Partial<Action>) {
+	return function renderToDOM(update: Partial<Action>) {
 		for (const id in update) {
 			const up = diff(precUpdate[id], update[id]);
 			precUpdate[id] = { ...update[id] };

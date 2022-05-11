@@ -51,6 +51,7 @@ export class QueueActions {
 			this.state.set(id, reduces);
 		});
 
+		// zoom ne peut etre ici.
 		const _update = resolveAttributes(update);
 		return _update;
 	};
