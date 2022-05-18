@@ -1,10 +1,9 @@
-import { Action } from './types';
+import type { Action, Render, Update } from './types';
 
 type QueueActionProp = Pick<Action, 'style' | 'className' | 'content' | 'attr'>;
 type Attribute = {
 	[attribute in QueueActionProp as string]: Partial<Action>[];
 };
-export type Render = (update: Partial<Action>) => void;
 
 export class QueueActions {
 	stack = new Map<string, Partial<Attribute>>();
@@ -28,7 +27,7 @@ export class QueueActions {
 	// un reducer par propriété
 
 	render = () => {
-		const update = {};
+		const update: Update = {};
 		this.stack.forEach((actions, id) => {
 			const state = this.state.get(id) || {};
 			const reduces = state;
@@ -51,9 +50,7 @@ export class QueueActions {
 			this.state.set(id, reduces);
 		});
 
-		// zoom ne peut etre ici.
-		const _update = resolveAttributes(update);
-		return _update;
+		return update;
 	};
 
 	flush = () => {
@@ -64,12 +61,4 @@ export class QueueActions {
 	};
 
 	resetState = () => (this.state = new Map<string, Partial<Attribute>>());
-}
-
-// traitement de finition sur les valeurs
-// transform
-// appliquer les unites aux valeurs zoomables
-// -> zoom en fonction d'un resize ?
-function resolveAttributes(update: Partial<Attribute>) {
-	return update;
 }

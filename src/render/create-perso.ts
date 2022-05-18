@@ -88,6 +88,7 @@ export class PersoStore {
 		const node = document.createElement(initial.tag || 'div');
 		node.id = id;
 		this.spread(node, initial);
+		const style = initial.style || {};
 		// let content = createContent(initial.content || initial.children);
 		const content = createContent(initial.content);
 		content && node.appendChild(content);
@@ -98,7 +99,9 @@ export class PersoStore {
 			}
 		}
 		const perso: PersoItem = {
+			prec: {},
 			node,
+			style,
 			initial,
 			actions,
 			update: (update: Partial<Action>) => this.spread(node, update),

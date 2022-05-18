@@ -8,6 +8,7 @@ import { QueueActions } from './queue';
 import { PersoChannel } from './channel-perso';
 import { StrapChannel } from './channel-strap';
 import { PersoStore } from './render/create-perso';
+import { resolveStyles } from './render/resolve-styles';
 
 /**
  * @param events Events
@@ -29,17 +30,35 @@ export class Timeline {
 	nextEvent = new Map<number, CasualEvent[]>();
 
 	constructor({ persos, events }) {
-		const store = createStore(persos, this.addEvent.bind(this));
-		const queue = createQueue(store);
-		const Main = new PersoChannel({ queue, timer: Clock });
-		const Straps = new StrapChannel({ queue, timer: Clock });
-		Main.addStore(store);
-		Straps.addStore(store);
-		this.addChannel(Main);
-		this.addChannel(Straps);
+		this.addEvent = this.addEvent.bind(this);
+		const store = createStore(persos, this.addEvent);
+		this._initChannels(store);
 		events && this.addEvent(events);
 	}
 
+	private _initChannels(store: PersoStore) {
+		const render = createRender(store);
+		const queue = new QueueActions(render);
+		[PersoChannel, StrapChannel].forEach((Channel) => {
+			const channel = new Channel({ queue, timer: Clock });
+			channel.addStore(store);
+			this.addChannel(channel);
+		});
+	}
+
+	onResize(persos) {
+		function resize() {
+			const zoom = calculateZoom();
+			requestAnimationFrame(() =>
+				persos.forEach((perso) => {
+					const style = resolveStyles(perso.style, zoom);
+					perso.update(style);
+				})
+			);
+		}
+		document.addEventListener('resize', resize);
+		return () => document.removeEventListener('resize', resize);
+	}
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
 		channel.executeEvent = this.executeEvent.bind(this);
@@ -84,7 +103,7 @@ export class Timeline {
 		if (event.data) this._addData(event);
 	};
 
-	_addData = (event: Eventime) => {
+	private _addData = (event: Eventime) => {
 		!this.data.has(event.name) && this.data.set(event.name, new Map());
 		const eventData = this.data.get(event.name);
 		eventData.set(event.startAt, event.data);
@@ -231,7 +250,4 @@ function createStore(persos: Store, handler) {
 	return store;
 }
 
-function createQueue(store) {
-	const render = createRender(store);
-	return new QueueActions(render);
-}
+function calculateZoom() {}

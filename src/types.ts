@@ -29,6 +29,9 @@ export interface Action extends Partial<Initial> {
 	// leave?: boolean;
 }
 
+export type Update = { [id: string]: Partial<Action> };
+export type Render = (update: Update) => void;
+
 export interface Store {
 	[perso: string]: PersoNode;
 }
@@ -49,9 +52,11 @@ export interface Perso {
 	// src?: string;
 }
 export interface PersoItem extends PersoNode {
+	prec: Partial<Action>;
 	update: (update: Partial<Action>) => void;
 	node: HTMLElement;
 	content: Content | Content[];
+	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
 }
 

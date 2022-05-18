@@ -1,7 +1,7 @@
+import { createContent, PersoStore } from './create-perso';
 import { diff } from '../common/utils';
 
-import { Action, Content, PersoItem } from '../types';
-import { createContent, PersoStore } from './create-perso';
+import type { Update, PersoItem } from '../types';
 
 // RENDER ////////////
 // function createQueue(store) {
@@ -9,16 +9,16 @@ import { createContent, PersoStore } from './create-perso';
 // 	return new QueueActions(render);
 // }
 
-// TODO precUpdate dans persos
-let precUpdate = {};
 export function createRender(store: PersoStore) {
-	return function renderToDOM(update: Partial<Action>) {
+	return function renderToDOM(update: Update) {
 		for (const id in update) {
-			const up = diff(precUpdate[id], update[id]);
-			precUpdate[id] = { ...update[id] };
-			if (up) {
-				const perso = store.getPerso(id);
-				if (perso) {
+			const perso = store.getPerso(id);
+			if (perso) {
+				const up = diff(perso.prec, update[id]);
+				perso.prec = { ...update[id] };
+
+				if (up) {
+					Object.assign(perso.style, up.style);
 					perso.update(up);
 					if (up.content) {
 						perso.content = up.content;
