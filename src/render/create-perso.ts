@@ -1,4 +1,3 @@
-import { stringSnakeToCamel, objectToString } from '../common/utils';
 import { resolveStyles } from './resolve-styles';
 
 import type { Action, Eventime, PersoItem, PersoNode, Style } from 'src/types';
@@ -9,19 +8,20 @@ export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
-	handler: HandlerEvent = null;
 	zoom = 1;
+	removeResize: () => void;
+	handler: HandlerEvent = null;
 
 	constructor(handler: HandlerEvent) {
 		this.handler = handler;
 		this.initResize();
-		this.spread = this.spread.bind(this);
 	}
 
 	initResize() {
 		console.log('initResize');
 		window.addEventListener('resize', this.resize);
-		return () => window.removeEventListener('resize', this.resize);
+		this.removeResize = () => window.removeEventListener('resize', this.resize);
+		this.resize();
 	}
 
 	resize = () => {
