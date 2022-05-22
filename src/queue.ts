@@ -10,8 +10,8 @@ export class QueueActions {
 	state = new Map<string, Partial<Attribute>>();
 	callback: Render;
 
-	constructor(callback: Render) {
-		this.callback = callback;
+	constructor(render: Render) {
+		this.callback = render;
 	}
 
 	add(id: string, action: Action) {

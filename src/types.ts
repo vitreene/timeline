@@ -52,8 +52,9 @@ export interface Perso {
 	// src?: string;
 }
 export interface PersoItem extends PersoNode {
+	id: string;
 	prec: Partial<Action>;
-	update: (update: Partial<Action>) => void;
+	update: (update?: Partial<Action> | undefined) => void;
 	node: HTMLElement;
 	content: Content | Content[];
 	style: Style;

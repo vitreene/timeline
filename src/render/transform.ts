@@ -1,4 +1,6 @@
 import { splitUnitValue } from '../common/utils';
+import type { Style } from 'src/types';
+
 type CSSTransformParam =
 	| 'translateX'
 	| 'translateY'
@@ -31,7 +33,9 @@ type TransformUnit =
 	| 'dpi'
 	| 'dpcm'
 	| 'dppx';
+
 type TransformItem = { transform: CSSTransformParam; unit: TransformUnit; zoomable: boolean };
+
 type TransformList = {
 	x: TransformItem;
 	y: TransformItem;
@@ -44,6 +48,8 @@ type TransformList = {
 	dX: CSSTransformParam;
 	dY: CSSTransformParam;
 };
+
+type TransformStyle = { [key in keyof TransformList]?: number };
 
 const transformList: TransformList = {
 	x: { transform: 'translateX', unit: 'px', zoomable: true },
@@ -60,7 +66,7 @@ const transformList: TransformList = {
 transformList.r = transformList.rotate;
 transformList.s = transformList.scale;
 
-export function extractTransform(oldStyle) {
+export function extractTransform(oldStyle: Style) {
 	const style = {};
 	const transform = {};
 	for (const prop in oldStyle) {
@@ -69,7 +75,7 @@ export function extractTransform(oldStyle) {
 	return { style, transform };
 }
 
-export function withTransform(props, zoom) {
+export function withTransform(props: TransformStyle, zoom: number) {
 	const { dX, dY, ...other } = props;
 
 	let transform = '';
@@ -83,7 +89,7 @@ export function withTransform(props, zoom) {
 	}
 	if (typeof dX === 'number' || typeof dY === 'number') {
 		// if (dX || dY) {
-		const coords = transformCoords(dX, dY, other.rotate, other.scale);
+		const coords = transformCoords(dX, dY, other.rotate as number, other.scale);
 		transform += ` matrix(1,0,0,1,${coords.x * zoom || 0},${coords.y * zoom || 0})`;
 	}
 	return transform ? { transform } : null;

@@ -12,13 +12,17 @@ export function objectToString(obj: Style) {
 	return str;
 }
 
-function addSuffix(key, value: string) {
-	if (Number(value) && whiteListCssProps.has(key)) return value + 'px';
+export function addSuffix(key, value: string, zoom = 1) {
+	if (Number(value) && whiteListCssProps.has(key)) return Number(value) * zoom + 'px';
 	return value;
 }
 
 export function stringToLowercase(str) {
 	return exceptions.has(str) ? str : str.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`);
+}
+//convert  string Snake To Camel
+export function stringSnakeToCamel(str: string) {
+	return str.toLowerCase().replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 }
 
 // recursive diff between two objects

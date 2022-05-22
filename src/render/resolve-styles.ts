@@ -1,6 +1,18 @@
-import { withTransform } from './transform';
+import { extractTransform, withTransform } from './transform';
+import { stringSnakeToCamel, addSuffix } from '../common/utils';
 
-export function resolveStyles(_style, zoom) {
-	const style = withTransform(_style, zoom);
-	return style;
+import type { Style } from 'src/types';
+
+export function resolveStyles(styleExtended: Style, zoom: number) {
+	const { style, transform } = extractTransform(styleExtended);
+	const _transform = withTransform(transform, zoom);
+
+	const _style = {};
+	for (const _prop in style) {
+		const value = addSuffix(_prop, style[_prop], zoom);
+		const prop = stringSnakeToCamel(_prop);
+		_style[prop] = value;
+	}
+
+	return { ..._style, ..._transform };
 }

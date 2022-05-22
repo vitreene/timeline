@@ -1,6 +1,6 @@
 import { CbStatus } from './clock';
 import { ChannelName, Transition, Move, Content, PersoItem } from './types';
-import { Channel, ChannelProps } from './channel';
+import { Channel, ChannelOptions, ChannelProps } from './channel';
 import { FORWARD, PLAY, SEEK } from './common/constants';
 
 export type ProgressInterpolation = (time: number) => FromTo;

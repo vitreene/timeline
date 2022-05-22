@@ -46,19 +46,6 @@ export class Timeline {
 		});
 	}
 
-	onResize(persos) {
-		function resize() {
-			const zoom = calculateZoom();
-			requestAnimationFrame(() =>
-				persos.forEach((perso) => {
-					const style = resolveStyles(perso.style, zoom);
-					perso.update(style);
-				})
-			);
-		}
-		document.addEventListener('resize', resize);
-		return () => document.removeEventListener('resize', resize);
-	}
 	addChannel(channel: Channel) {
 		channel.addEvent = this.addEvent;
 		channel.executeEvent = this.executeEvent.bind(this);
@@ -249,5 +236,3 @@ function createStore(persos: Store, handler) {
 	}
 	return store;
 }
-
-function calculateZoom() {}

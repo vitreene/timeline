@@ -1,26 +1,41 @@
-import { Action, Content, Eventime, HandlerListener, PersoItem, PersoNode } from 'src/types';
-import { objectToString } from '../common/utils';
+import { stringSnakeToCamel, objectToString } from '../common/utils';
+import { resolveStyles } from './resolve-styles';
+
+import type { Action, Eventime, PersoItem, PersoNode, Style } from 'src/types';
 
 type HandlerEvent = (event: Eventime) => void;
 
-// type HandlerEventime = (event: Eventime, target: Event) => void;
 export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
 	handler: HandlerEvent = null;
+	zoom = 1;
 
 	constructor(handler: HandlerEvent) {
 		this.handler = handler;
-		/* 
-		(event: Eventime) => (e: Event) => {
-			console.log(event);
-			console.log(e);
-			// c'est un event immédiat qu'il faut créer, disponible que dans un channel, et pas timeline...
-			// de plus, il faut le dispatcher en fonction du chanel désigné
-			handler(event, e);
-		}; */
+		this.initResize();
+		this.spread = this.spread.bind(this);
 	}
+
+	initResize() {
+		console.log('initResize');
+		window.addEventListener('resize', this.resize);
+		return () => window.removeEventListener('resize', this.resize);
+	}
+
+	resize = () => {
+		const { zoom } = calculateZoom();
+		if (zoom === this.zoom) return;
+		this.zoom = zoom;
+		console.log('resize', zoom);
+		requestAnimationFrame(() =>
+			this.persos.forEach((perso: PersoItem) => {
+				const style = resolveStyles(perso.style, zoom);
+				perso.update();
+			})
+		);
+	};
 
 	addAll(persos: Map<string, PersoNode>) {
 		persos.forEach((perso, id) => {
@@ -30,7 +45,6 @@ export class PersoStore {
 
 	add(id: string, _perso: PersoNode) {
 		const perso = this.createPerso(id, _perso);
-		// emit && this.addListeners(id, perso, emit);
 		this.persos.set(id, perso);
 		return perso;
 	}
@@ -84,12 +98,11 @@ export class PersoStore {
 	};
 
 	private createPerso(id: string, { initial, actions, emit }: PersoNode) {
-		// console.log(this);
 		const node = document.createElement(initial.tag || 'div');
 		node.id = id;
 		this.spread(node, initial);
 		const style = initial.style || {};
-		// let content = createContent(initial.content || initial.children);
+
 		const content = createContent(initial.content);
 		content && node.appendChild(content);
 		if (emit) {
@@ -98,13 +111,17 @@ export class PersoStore {
 				node.addEventListener(ev, this);
 			}
 		}
+		const spread = this.spread.bind(this, node);
 		const perso: PersoItem = {
+			id,
 			prec: {},
 			node,
 			style,
 			initial,
 			actions,
-			update: (update: Partial<Action>) => this.spread(node, update),
+			update(update: Partial<Action> = { style: perso.style }) {
+				spread(update);
+			},
 			content,
 			//add/remove/Listener ?
 		};
@@ -113,19 +130,26 @@ export class PersoStore {
 		return perso;
 	}
 
-	private spread(el: HTMLElement, props: Partial<Action>) {
+	private spread(node: HTMLElement, props: Partial<Action>) {
 		if (!props) return;
-		for (const name in props) {
-			switch (true) {
-				case name === 'style':
-					const style = objectToString(props[name]);
-					el.setAttribute(name, style);
-					break;
+		const { style, ...attributes } = props;
+		switch (typeof style) {
+			case 'object':
+				const _style = resolveStyles(style, this.zoom);
+				for (const key in _style) node.style[key] = _style[key];
+				break;
+			case 'string':
+				node.style.cssText = style;
+				break;
+			case 'undefined':
+			default:
+				break;
+		}
 
-				default:
-					el.setAttribute(name, props[name]);
-					break;
-			}
+		for (const name in attributes) {
+			const value = attributes[name];
+			if (name in node) node[name] = value;
+			else node.setAttribute(name, value);
 		}
 	}
 }
@@ -151,4 +175,53 @@ export function createContent(content) {
 	if (typeof content === 'function') return content();
 
 	return '';
+}
+
+// PERSOS////////////
+const root = document.getElementById('app');
+const stage = {
+	width: 1000,
+	height: 750,
+	ratio: 4 / 3,
+};
+
+function calculateZoom() {
+	const el = root;
+
+	// determiner l'échelle du projet, comparée à sa valeur par défaut.
+	const width = el.clientWidth;
+	const height = el.clientHeight;
+	const wZoom = width / stage.width;
+	const hScene = wZoom * stage.height;
+
+	if (hScene > height) {
+		const zoom = height / stage.height;
+		const wScene = stage.width * zoom;
+		return round({
+			left: (width - wScene) / 2,
+			top: 0,
+			width: wScene,
+			height,
+			ratio: wScene / height,
+			zoom,
+		});
+	} else {
+		return round({
+			left: 0,
+			top: (height - hScene) / 2,
+			width,
+			height: hScene,
+			ratio: hScene / width,
+			zoom: wZoom,
+		});
+	}
+}
+
+type GenericObject = Record<string, any>;
+export function round(obj: GenericObject): GenericObject {
+	const r = {};
+	for (const e in obj) {
+		r[e] = typeof obj[e] === 'number' ? parseFloat(obj[e].toFixed(2)) : obj[e];
+	}
+	return r;
 }
