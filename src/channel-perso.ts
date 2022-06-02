@@ -3,7 +3,7 @@ import { ChannelName, Transition, Move, Content, PersoItem } from './types';
 import { Channel, ChannelOptions, ChannelProps } from './channel';
 import { FORWARD, PLAY, SEEK } from './common/constants';
 
-export type ProgressInterpolation = (time: number) => FromTo;
+export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
 	name: ChannelName = ChannelName.MAIN;
@@ -41,21 +41,22 @@ export class PersoChannel extends Channel {
 		const state = this.queue.stack.get(id) || this.store.getPerso(id).initial;
 		const from = (transition.from || state.style) as FromTo;
 		const to = transition.to as FromTo;
-		const duration = transition.duration;
-		const start = time;
-		const end = start + duration;
-		const progress: ProgressInterpolation = interpolate({ from, to, start, end });
+		const firstStart = time;
+		const lastEnd = firstStart + transition.duration * (transition.repeat || 1);
+
+		const progress: ProgressInterpolation = interpolate({ from, to });
 
 		if (status.action !== SEEK && !this.transitionCache.has(props)) {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
-				if (status.action === PLAY && status.currentTime < end && status.currentTime >= start) {
-					this.renderTransition(id, progress(status.currentTime));
+				if (status.action === PLAY && status.currentTime < lastEnd && status.currentTime >= firstStart) {
+					const elapsed = (status.currentTime - firstStart) % transition.duration;
+					this.renderTransition(id, progress(elapsed, 0, transition.duration));
 				}
 			});
 		}
 
-		this.renderTransition(id, progress(status.currentTime));
+		this.renderTransition(id, progress(status.currentTime, firstStart, lastEnd));
 
 		//init
 		// preparer from et to
@@ -63,11 +64,13 @@ export class PersoChannel extends Channel {
 		// push
 		// boucle avec start et end
 	};
-	renderTransition = (id: string, result: FromTo) => {
+	renderTransition = (id: string, result) => {
 		const style = {};
 		for (const prop in result) {
-			style[prop] = Math.round(result[prop] * 10) / 10;
+			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 10) / 10 : result[prop];
+			style[prop] = value;
 		}
+
 		this.queue.add(id, { style });
 	};
 
@@ -88,42 +91,122 @@ export class PersoChannel extends Channel {
 	};
 }
 
-/* 
-Todo 
-dispatch les propriétés trouvées :
-- celles qui necessitent un traitement : move, transition, classNames
-- les autres directement
-
-- envoyées dans une queue 
-- répartition par propriété
-- reduce
-
-`puis :
--> scale des styles 
--> update
-une queue par perso, ou bien globale ?
-
-*/
-
 export type FromTo = { [x: string]: number };
+export type FromToProps = { [x: string]: number | string };
+
 interface InterpolateProps {
-	from: FromTo;
-	to: FromTo;
-	start: number;
-	end: number;
+	from: FromToProps;
+	to: FromToProps;
 }
 
-export const interpolate =
-	({ from, to, start, end }: InterpolateProps) =>
-	(time: number): FromTo => {
+export const interpolate = (props: InterpolateProps) => {
+	const { from, to, parses } = prepareInterpolate(props);
+	return (time: number, start: number, end: number): FromTo => {
 		if (time >= end) return to;
 		const progress = (time - start) / (end - start);
-
-		const result = {};
-		for (const p in from) result[p] = lerp(from[p], to[p], progress);
+		const _result = {};
+		for (const p in to) _result[p] = lerp(from[p], to[p], progress);
+		const result = postInterpolate(_result, parses);
 		return result;
 	};
+};
 
 function lerp(start: number, end: number, amt: number) {
 	return (1 - amt) * start + amt * end;
+}
+
+// from et to sont censés avoir les memes propriétés
+function prepareInterpolate(props: InterpolateProps) {
+	const from = {};
+	const to = {};
+	const parses = new Map();
+
+	for (const prop in props.to) {
+		const valueTo = props.to[prop];
+		const valueFrom = props.from[prop];
+		if (typeof valueFrom === 'string' && typeof valueTo === 'string') {
+			const arrayTo = parseStringToArray({ [prop]: valueTo });
+			const arrayFrom = parseStringToArray({ [prop]: valueFrom });
+			if (arrayFrom.textArray.join('') === arrayTo.textArray.join('')) {
+				const places = {};
+				for (const p in arrayFrom.props) {
+					from[p] = arrayFrom.props[p].value;
+					to[p] = arrayTo.props[p].value;
+					places[p] = arrayFrom.props[p].index;
+				}
+				const textArray = arrayTo.textArray;
+				parses.set(prop, { textArray, places });
+			} else {
+				console.warn(`les propriétés de ${prop} ne sont pas identiques `);
+				console.warn(`props`, arrayFrom.props);
+				console.warn(`- from :`, from);
+				console.warn(`- to :`, to);
+			}
+		} else {
+			from[prop] = valueFrom;
+			to[prop] = valueTo;
+		}
+	}
+
+	return { from, to, parses };
+}
+
+// reconstitue les string a partir du tableau
+function postInterpolate(_result, parses) {
+	const result = _result;
+	parses.forEach(({ textArray, places }, prop: string) => {
+		for (const p in places) {
+			const index = places[p];
+			const value = result[p];
+			textArray[index] = Math.round(value * 100) / 100;
+			delete result[p];
+		}
+		result[prop] = textArray.join('');
+	});
+
+	return result;
+}
+
+/*
+pour from et to :
+- split string , selon les nombres
+- dans le tableau : 
+	- identifier les elements qui sont des nombres
+	- créer un identifiant : nom de la propriété + nombre ; ex : __color__1
+	- creer un tuple identifiant - index
+	- remplacer les nombres par leurs identifiants
+	join, et comparer les strings, elles doivent etre identiques, sinon warning
+	- ajouter les propriétés aux objets from et to 
+
+*/
+function parseStringToArray(text: { [k: string]: string }) {
+	const [key, val] = Object.entries(text)[0];
+	const textArray = val.split(/(\d+\.?\d*)/);
+
+	const props = {};
+	textArray.forEach((item, index) => {
+		const value = Number(item);
+		if (!Number.isNaN(value)) {
+			const prop = `__${key}__${index}`;
+			props[prop] = { index, value };
+			textArray[index] = prop;
+		}
+	});
+
+	return {
+		textArray,
+		props,
+	};
+}
+
+// take numbers form rgb, rgba, hsl, hsla
+function parseColor(value: string) {
+	const match = value.match(/^(rgb|hsl|hwb)a?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+	console.log('parseColor', value, match);
+
+	// if (!match) throw new Error(`invalid color ${value}`);
+	const [, type, r, g, b, a] = match;
+	if (type === 'rgb') return { r: parseInt(r), g: parseInt(g), b: parseInt(b) };
+	if (type === 'hsl') return { h: parseInt(r), s: parseInt(g), l: parseInt(b) };
+	if (type === 'hsla') return { h: parseInt(r), s: parseInt(g), l: parseInt(b), a: parseFloat(a) };
 }

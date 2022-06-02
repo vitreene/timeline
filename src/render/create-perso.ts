@@ -155,6 +155,8 @@ export class PersoStore {
 }
 
 // content peut etre un node, interprété à partir d'une string, dans une procédure de prépartion des contenus.
+// la capacité à gérer un array devrait etre réservé au type "Slot"
+
 export function createContent(content) {
 	if (!content) return null;
 	if (typeof content === 'string' || typeof content === 'number') {

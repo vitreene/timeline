@@ -81,6 +81,8 @@ export interface Transition {
 	from?: string | Style;
 	to: string | Style;
 	duration?: number;
+	repeat?: number;
+	yoyo?: boolean;
 	oncomplete?: any;
 }
 

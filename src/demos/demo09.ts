@@ -35,6 +35,7 @@ const events: Eventime = {
 	events: [
 		{ startAt: 400, name: 'init', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
+		{ startAt: 500, name: 'action04', channel: MAIN },
 		{
 			startAt: 400,
 			name: 'counter',
@@ -147,6 +148,16 @@ const persos: Store = {
 			initial: { ...initialID03, move: ROOT },
 
 			action01: { className: 'action01-' + ID03 },
+			action04: {
+				transition: {
+					// from: { 'background-color': 'rgb(10,128,255)' },
+					// to: { 'background-color': 'rgb(255,50,50)' },
+					from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
+					to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
+					duration: 1000,
+					repeat: 4,
+				},
+			},
 			['end_' + ID_COUNTER_02]: {
 				transition: {
 					from: { opacity: 1 },
