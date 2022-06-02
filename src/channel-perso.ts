@@ -1,7 +1,10 @@
-import { CbStatus } from './clock';
-import { ChannelName, Transition, Move, Content, PersoItem } from './types';
-import { Channel, ChannelOptions, ChannelProps } from './channel';
+import { Channel } from './channel';
 import { FORWARD, PLAY, SEEK } from './common/constants';
+
+import { ChannelName } from './types';
+import type { CbStatus } from './clock';
+import type { Transition, Move, Content, PersoItem } from './types';
+import type { ChannelProps } from './channel';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
@@ -45,25 +48,33 @@ export class PersoChannel extends Channel {
 		const lastEnd = firstStart + transition.duration * (transition.repeat || 1);
 
 		const progress: ProgressInterpolation = interpolate({ from, to });
+		const inverseProgress: ProgressInterpolation = transition.yoyo && interpolate({ from: to, to: from });
+
+		const doProgress = (status: CbStatus) => {
+			const currentTime = status.currentTime - firstStart;
+			const elapsed = currentTime % transition.duration;
+
+			if (inverseProgress) {
+				const yoyo = currentTime % (transition.duration * 2) > transition.duration;
+				const _progress = yoyo ? inverseProgress : progress;
+				this.renderTransition(id, _progress(elapsed, 0, transition.duration));
+			} else {
+				this.renderTransition(id, progress(elapsed, 0, transition.duration));
+			}
+		};
 
 		if (status.action !== SEEK && !this.transitionCache.has(props)) {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
 				if (status.action === PLAY && status.currentTime < lastEnd && status.currentTime >= firstStart) {
-					const elapsed = (status.currentTime - firstStart) % transition.duration;
-					this.renderTransition(id, progress(elapsed, 0, transition.duration));
+					doProgress(status);
 				}
 			});
 		}
 
-		this.renderTransition(id, progress(status.currentTime, firstStart, lastEnd));
-
-		//init
-		// preparer from et to
-		// lerp
-		// push
-		// boucle avec start et end
+		doProgress(status);
 	};
+
 	renderTransition = (id: string, result) => {
 		const style = {};
 		for (const prop in result) {

@@ -150,21 +150,22 @@ const persos: Store = {
 			action01: { className: 'action01-' + ID03 },
 			action04: {
 				transition: {
-					// from: { 'background-color': 'rgb(10,128,255)' },
-					// to: { 'background-color': 'rgb(255,50,50)' },
-					from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
-					to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
+					from: { 'background-color': 'rgb(10,128,255)' },
+					to: { 'background-color': 'rgb(255,50,50)' },
+					// from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
+					// to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
 					duration: 1000,
 					repeat: 4,
+					yoyo: true,
 				},
 			},
-			['end_' + ID_COUNTER_02]: {
+			/* 	['end_' + ID_COUNTER_02]: {
 				transition: {
 					from: { opacity: 1 },
 					to: { opacity: 0.7 },
 					duration: 500,
 				},
-			},
+			}, */
 			[ID_COUNTER_02]: true,
 		},
 		emit: {
