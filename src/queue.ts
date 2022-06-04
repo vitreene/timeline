@@ -39,6 +39,8 @@ export class QueueActions {
 						case 'style':
 							return { ...prec, ...current };
 						case 'content':
+							// const content = prec ? (Array.isArray(prec) ? [...prec, current] : [prec, current]) : current;
+							// return content;
 							return current;
 
 						default:

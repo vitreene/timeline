@@ -2,7 +2,7 @@ import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
 import { Clock, Timeline } from '../timeline';
 import { Tracks } from '../tracks';
 
-import { Eventime, Initial, Store } from '../types';
+import { Eventime, Initial, PersoElementType, Store } from '../types';
 
 import '../style.css';
 
@@ -68,13 +68,17 @@ const initialID01: Partial<Initial> = {
 const initialID02: Partial<Initial> = {
 	className: 'initial',
 	content: ID02,
-	style: { 'background-color': 'orange', padding: '1rem', color: 'cyan', position: 'absolute' },
+	style: {
+		'background-color': 'orange',
+		padding: '1rem',
+		color: 'cyan',
+		position: 'absolute',
+	},
 };
 
 const initialID03: Partial<Initial> = {
 	className: 'initial',
 	content: ID03,
-
 	style: {
 		'background-color': 'purple',
 		padding: '1rem',
@@ -87,6 +91,7 @@ const initialID03: Partial<Initial> = {
 
 const persos: Store = {
 	[ROOT]: {
+		type: PersoElementType.LAYER,
 		initial: {
 			tag: 'div',
 			id: ROOT,
@@ -95,6 +100,7 @@ const persos: Store = {
 		actions: {},
 	},
 	[ID01]: {
+		type: PersoElementType.TEXT,
 		initial: { ...initialID01, tag: 'div' },
 		actions: {
 			initial: { ...initialID01, move: ROOT },
@@ -117,6 +123,8 @@ const persos: Store = {
 		},
 	},
 	[ID02]: {
+		type: PersoElementType.TEXT,
+
 		initial: { ...initialID02, tag: 'div' },
 		actions: {
 			initial: { ...initialID02, move: ROOT },
@@ -143,6 +151,8 @@ const persos: Store = {
 		// },
 	},
 	[ID03]: {
+		type: PersoElementType.TEXT,
+
 		initial: { ...initialID03, tag: 'div' },
 		actions: {
 			initial: { ...initialID03, move: ROOT },
@@ -150,10 +160,12 @@ const persos: Store = {
 			action01: { className: 'action01-' + ID03 },
 			action04: {
 				transition: {
-					from: { 'background-color': 'rgb(10,128,255)' },
-					to: { 'background-color': 'rgb(255,50,50)' },
+					// from: { 'background-color': 'rgb(10,128,255)' },
+					// to: { 'background-color': 'rgb(255,50,50)' },
 					// from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
 					// to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
+					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
+					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
 					duration: 1000,
 					repeat: 4,
 					yoyo: true,

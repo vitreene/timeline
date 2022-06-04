@@ -1,4 +1,5 @@
 import * as CSS from 'csstype';
+import { Layer, Txt } from './render/create-perso';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -32,15 +33,6 @@ export interface Action extends Partial<Initial> {
 export type Update = { [id: string]: Partial<Action> };
 export type Render = (update: Update) => void;
 
-export interface Store {
-	[perso: string]: PersoNode;
-}
-
-export interface PersoNode {
-	actions: { [action: string]: Action | boolean };
-	initial: Partial<Initial>;
-	emit?: { [prop in keyof Emit]: Partial<Eventime> };
-}
 export interface Perso {
 	readonly id: string;
 	readonly element: PersoElementType;
@@ -51,12 +43,23 @@ export interface Perso {
 	// extends?: string;
 	// src?: string;
 }
-export interface PersoItem extends PersoNode {
+export interface Store {
+	[perso: string]: PersoNode;
+}
+
+export interface PersoNode {
+	type: PersoElementType;
+	actions: { [action: string]: Action | boolean };
+	initial: Partial<Initial>;
+	emit?: { [prop in keyof Emit]: Partial<Eventime> };
+}
+
+export interface PersoItem extends Omit<PersoNode, 'type'> {
 	id: string;
 	prec: Partial<Action>;
 	update: (update?: Partial<Action> | undefined) => void;
 	node: HTMLElement;
-	content: Content | Content[];
+	child: Txt | Layer;
 	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
 }
@@ -122,6 +125,7 @@ export enum Lang {
 }
 
 export enum PersoElementType {
+	TEXT = 'text',
 	IMG = 'img',
 	LIST = 'list',
 	BLOC = 'bloc',

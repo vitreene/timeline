@@ -14,29 +14,31 @@ export function createRender(store: PersoStore) {
 		for (const id in update) {
 			const perso = store.getPerso(id);
 			if (perso) {
+				// le diff pourrait etre réalisé dans queue
 				const up = diff(perso.prec, update[id]);
 				perso.prec = { ...update[id] };
 
 				if (up) {
 					Object.assign(perso.style, up.style);
 					perso.update(up);
-					if (up.content) {
-						perso.content = up.content;
-						appendContent(perso);
-					}
+					// passer dans update
+					// if (up.content) {
+					// 	perso.content = up.content;
+					// 	appendContent(perso);
+					// }
 				}
 			}
 		}
 	};
 }
 
-function appendContent(perso: PersoItem) {
-	const _content = createContent(perso.content);
-	if (_content) {
-		if (perso.node.hasChildNodes()) {
-			perso.node.replaceChild(_content, perso.node.firstChild);
-		} else {
-			perso.node.appendChild(_content);
-		}
-	}
-}
+// function appendContent(perso: PersoItem) {
+// 	const _content = createContent(perso.content);
+// 	if (_content) {
+// 		if (perso.node.hasChildNodes()) {
+// 			perso.node.replaceChild(_content, perso.node.firstChild);
+// 		} else {
+// 			perso.node.appendChild(_content);
+// 		}
+// 	}
+// }

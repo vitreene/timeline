@@ -5,6 +5,7 @@ import { ChannelName } from './types';
 import type { CbStatus } from './clock';
 import type { Transition, Move, Content, PersoItem } from './types';
 import type { ChannelProps } from './channel';
+import { Layer } from './render/create-perso';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
@@ -88,16 +89,12 @@ export class PersoChannel extends Channel {
 	move = (move: string | Move, perso: PersoItem) => {
 		if (typeof move === 'string') {
 			const id = move;
-			const parentContent = this.store.getPerso(id).content;
-			let content: Content | Content[];
-			if (parentContent) {
-				content = Array.isArray(parentContent) ? [...parentContent, perso] : [parentContent, perso];
-			} else {
-				content = perso;
+			const parent = this.store.getPerso(id).child;
+			if (parent instanceof Layer) {
+				parent.add(perso.node);
+				const content = parent.content;
+				this.queue.add(id, { content });
 			}
-
-			this.store.getPerso(id).content = content;
-			this.queue.add(id, { content });
 		}
 	};
 }

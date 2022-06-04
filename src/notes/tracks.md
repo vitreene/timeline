@@ -130,3 +130,12 @@ Faut-il un equivalent pour Channels ?
 Timeline est-il seul gestionnaire des channels, ou bien de l'ensemble tracks/channel ?
 
 Timeline pourrait se renommer... StoryLine, ou mieux : SceneLine
+
+02/06
+Ajouter des exemples d'utilisation des tracks ; la liste de fonctionnalités à retenir doit correspondre à des cas qu'on s'attend à rencontrer.
+
+le fonctionnement standard :
+
+- un déroulé type e-learning avec une télécommande play/pause. la mise en pause interrompt les evenements en cours lance des animations d'attente.
+- un canal de langue synchronise des images avec de la voix selon un temps distinct.
+  Le meme evenement est lancé selon un temps distinct.

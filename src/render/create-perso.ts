@@ -1,6 +1,6 @@
 import { resolveStyles } from './resolve-styles';
 
-import type { Action, Eventime, PersoItem, PersoNode, Style } from 'src/types';
+import { Action, Eventime, PersoElementType, PersoItem, PersoNode } from '../types';
 
 type HandlerEvent = (event: Eventime) => void;
 
@@ -97,14 +97,23 @@ export class PersoStore {
 		emit && this.handler(emit);
 	};
 
-	private createPerso(id: string, { initial, actions, emit }: PersoNode) {
-		const node = document.createElement(initial.tag || 'div');
+	private createPerso(id: string, { type, initial, actions, emit }: PersoNode) {
+		const { tag, content, ..._initial } = initial;
+		const node = document.createElement(tag || 'div');
 		node.id = id;
-		this.spread(node, initial);
+		this.spread(node, _initial);
 		const style = initial.style || {};
 
-		const content = createContent(initial.content);
-		content && node.appendChild(content);
+		const child = createContent(type, node);
+		if (child) {
+			if (type !== PersoElementType.LAYER) {
+				node.appendChild(child.node);
+				child.update(content as any);
+			}
+		} else {
+			console.warn(`le type ${type} n'est pas supporté`);
+		}
+
 		if (emit) {
 			node.dataset.id = id;
 			for (const ev in emit) {
@@ -112,6 +121,7 @@ export class PersoStore {
 			}
 		}
 		const spread = this.spread.bind(this, node);
+
 		const perso: PersoItem = {
 			id,
 			prec: {},
@@ -119,10 +129,11 @@ export class PersoStore {
 			style,
 			initial,
 			actions,
-			update(update: Partial<Action> = { style: perso.style }) {
+			update({ content, ...update }: Partial<Action> = { style: perso.style }) {
+				child.update(content as any);
 				spread(update);
 			},
-			content,
+			child,
 			//add/remove/Listener ?
 		};
 		emit && (perso.emit = emit);
@@ -154,30 +165,83 @@ export class PersoStore {
 	}
 }
 
-// content peut etre un node, interprété à partir d'une string, dans une procédure de prépartion des contenus.
-// la capacité à gérer un array devrait etre réservé au type "Slot"
-
-export function createContent(content) {
-	if (!content) return null;
-	if (typeof content === 'string' || typeof content === 'number') {
-		return document.createTextNode(String(content));
+export function createContent(type: PersoElementType, parentNode: HTMLElement) {
+	switch (type) {
+		case PersoElementType.TEXT:
+			return new Txt();
+		case PersoElementType.LAYER:
+			return new Layer(parentNode);
+		default:
+			return null;
 	}
-	if (typeof content === 'object' && content.node) {
-		return content.node;
-	}
-
-	if (Array.isArray(content)) {
-		const parts = content.map(createContent);
-		const fragment = document.createDocumentFragment();
-		parts.forEach((part) => fragment.appendChild(part));
-		return fragment;
-	}
-
-	if (content instanceof HTMLElement) return content;
-	if (typeof content === 'function') return content();
-
-	return '';
 }
+
+export class Txt {
+	node = document.createTextNode('');
+	update(text: string | number) {
+		this.node.textContent = String(text);
+	}
+}
+
+export class Layer {
+	node: HTMLElement;
+	content: null | HTMLElement[] = null;
+	constructor(node: HTMLElement) {
+		this.node = node;
+	}
+
+	add(item: HTMLElement, order: number = null) {
+		if (!this.content) return (this.content = [item]);
+		if (!order) {
+			this.content.push(item);
+		} else {
+			this.content.splice(order, 0, item);
+		}
+		return this.content;
+	}
+	remove(item: HTMLElement) {
+		if (!this.content) return;
+		const index = this.content.indexOf(item);
+		if (index > -1) {
+			this.content.splice(index, 1);
+		}
+	}
+	order(list) {}
+
+	update(content: any) {
+		if (!content) return;
+		if (Array.isArray(content)) {
+			const child = document.createDocumentFragment();
+			content.forEach((content) => {
+				child.appendChild(content);
+				this.node.appendChild(child);
+			});
+		} else {
+			this.node.appendChild(content);
+		}
+	}
+}
+// export function _createContent(content) {
+// 	if (!content) return null;
+// 	if (typeof content === 'string' || typeof content === 'number') {
+// 		return document.createTextNode(String(content));
+// 	}
+// 	if (typeof content === 'object' && content.node) {
+// 		return content.node;
+// 	}
+
+// 	if (Array.isArray(content)) {
+// 		const parts = content.map(_createContent);
+// 		const fragment = document.createDocumentFragment();
+// 		parts.forEach((part) => fragment.appendChild(part));
+// 		return fragment;
+// 	}
+
+// 	if (content instanceof HTMLElement) return content;
+// 	if (typeof content === 'function') return content();
+
+// 	return '';
+// }
 
 // PERSOS////////////
 const root = document.getElementById('app');
