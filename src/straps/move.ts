@@ -115,7 +115,9 @@ function move(e: MouseEvent) {
 
 	const x = newPointer.x;
 	const y = newPointer.y;
-	this.queue.add(this.data.emit.id, { style: { transform: `translate(${x}px, ${y}px)` } });
+	// this.queue.add(this.data.emit.id, { style: { transform: `translate(${x}px, ${y}px)` } });
+	// this.queue.add(this.data.emit.id, { style: { dX: `${x}px`, dY: `${y}px` } });
+	this.queue.add(this.data.emit.id, { style: { dX: x, dY: y } });
 
 	this.pointer = newPointer;
 	return newPointer;

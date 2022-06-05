@@ -84,12 +84,18 @@ const initialID03: Partial<Initial> = {
 		padding: '1rem',
 		color: 'yellow',
 		position: 'absolute',
-		left: '200px',
-		top: '200px',
+		left: 200,
+		top: 200,
+		width: 400,
+		height: 100,
+		display: 'flex',
+		'justify-content': 'center',
+		'align-items': 'center',
+		'font-size': 48,
 	},
 };
 
-const persos: Store = {
+const _persos: Store = {
 	[ROOT]: {
 		type: PersoElementType.LAYER,
 		initial: {
@@ -103,19 +109,19 @@ const persos: Store = {
 		type: PersoElementType.TEXT,
 		initial: { ...initialID01, tag: 'div' },
 		actions: {
-			initial: { ...initialID01, move: ROOT },
+			init: {
+				move: ROOT,
+				style: { color: 'red' },
+				className: 'init-action02',
+			},
 			action01: {
 				style: { 'font-weight': 'bold' },
 				className: 'action01',
 				transition: {
-					from: { 'font-size': 16, top: 0, left: 400 },
-					to: { 'font-size': 32, top: 100, left: 0 },
+					from: { 'font-size': 16, top: 0, left: 0 },
+					to: { 'font-size': 72, top: 100, left: 400 },
 					duration: 2000,
 				},
-			},
-			init: {
-				style: { color: 'red' },
-				className: 'init-action02',
 			},
 			action03: {
 				className: 'action03',
@@ -279,6 +285,12 @@ telco.appendChild(playButton);
 telco.appendChild(slider);
 telco.appendChild(pauseButton);
 document.body.appendChild(telco);
+
+// const persos = {
+// 	[ROOT]: _persos[ROOT],
+// 	[ID01]: _persos[ID01],
+// };
+const persos = _persos;
 
 const Tm = new Timeline({ persos, events });
 console.log(Tm);

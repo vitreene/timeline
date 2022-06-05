@@ -156,10 +156,7 @@ class Clock {
 
 				case SEEKING:
 					{
-						console.log('** ', SEEKING, { ...this.status });
-
-						// this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
-						// this.tick.forEach((fn) => fn(this.status));
+						// console.log('** ', SEEKING, { ...this.status });
 
 						this.status.seekAction = undefined;
 						this.status.currentTime = this.status.seekTime;

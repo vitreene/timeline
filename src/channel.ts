@@ -46,4 +46,5 @@ export class Channel {
 	}
 
 	init() {}
+	reset() {}
 }

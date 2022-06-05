@@ -1,16 +1,19 @@
 import { Channel } from './channel';
-import { FORWARD, PLAY, SEEK } from './common/constants';
-
 import { ChannelName } from './types';
 import type { CbStatus } from './clock';
-import type { Transition, Move, Content, PersoItem } from './types';
-import type { ChannelProps } from './channel';
 import { Layer } from './render/create-perso';
+import { FORWARD, PLAY, SEEK } from './common/constants';
+
+import type { Transition, Move, PersoItem } from './types';
+import type { ChannelProps } from './channel';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
 	name: ChannelName = ChannelName.MAIN;
+	reset(): void {
+		this.store.persos.forEach((perso) => perso.reset());
+	}
 
 	run({ name, time, status, data }: ChannelProps): void {
 		// console.log('RUN PERSO', { time, name, data });
@@ -38,7 +41,7 @@ export class PersoChannel extends Channel {
 
 	transitionCache = new Set();
 	transition = (props: { id: string; time: number; transition: Transition; status: CbStatus }) => {
-		// console.log('transition', props);
+		// console.log('transition', props.time, props.status.currentTime);
 
 		const { id, time, transition, status } = props;
 
@@ -46,12 +49,17 @@ export class PersoChannel extends Channel {
 		const from = (transition.from || state.style) as FromTo;
 		const to = transition.to as FromTo;
 		const firstStart = time;
-		const lastEnd = firstStart + transition.duration * (transition.repeat || 1);
+		const duration = transition.duration || 0;
+		const repeat = transition.repeat || 1;
+		const lastEnd = firstStart + duration * repeat;
 
 		const progress: ProgressInterpolation = interpolate({ from, to });
 		const inverseProgress: ProgressInterpolation = transition.yoyo && interpolate({ from: to, to: from });
 
 		const doProgress = (status: CbStatus) => {
+			const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
+			if (!onTransition) return;
+
 			const currentTime = status.currentTime - firstStart;
 			const elapsed = currentTime % transition.duration;
 
@@ -67,9 +75,7 @@ export class PersoChannel extends Channel {
 		if (status.action !== SEEK && !this.transitionCache.has(props)) {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
-				if (status.action === PLAY && status.currentTime < lastEnd && status.currentTime >= firstStart) {
-					doProgress(status);
-				}
+				if (status.action === PLAY) doProgress(status);
 			});
 		}
 

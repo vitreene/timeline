@@ -62,6 +62,7 @@ export interface PersoItem extends Omit<PersoNode, 'type'> {
 	child: Txt | Layer;
 	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
+	reset: () => void;
 }
 
 export type HandlerListener = (target: Event) => void;
@@ -89,7 +90,7 @@ export interface Transition {
 	oncomplete?: any;
 }
 
-export type Content = string | number | PersoItem | HTMLElement;
+export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement>;
 /* |Lang |  CollectionImages */
 
 export interface CollectionImages {

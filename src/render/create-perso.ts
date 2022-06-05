@@ -29,12 +29,7 @@ export class PersoStore {
 		if (zoom === this.zoom) return;
 		this.zoom = zoom;
 		console.log('resize', zoom);
-		requestAnimationFrame(() =>
-			this.persos.forEach((perso: PersoItem) => {
-				const style = resolveStyles(perso.style, zoom);
-				perso.update();
-			})
-		);
+		requestAnimationFrame(() => this.persos.forEach((perso: PersoItem) => perso.update()));
 	};
 
 	addAll(persos: Map<string, PersoNode>) {
@@ -130,11 +125,17 @@ export class PersoStore {
 			initial,
 			actions,
 			update({ content, ...update }: Partial<Action> = { style: perso.style }) {
-				child.update(content as any);
+				content && child.update(content as any);
 				spread(update);
 			},
 			child,
 			//add/remove/Listener ?
+			reset() {
+				removeAttributes(node);
+				this.child.update(content);
+				this.style = style;
+				spread(initial);
+			},
 		};
 		emit && (perso.emit = emit);
 
@@ -185,64 +186,38 @@ export class Txt {
 
 export class Layer {
 	node: HTMLElement;
-	content: null | HTMLElement[] = null;
+	content = new Set<HTMLElement>();
 	constructor(node: HTMLElement) {
 		this.node = node;
 	}
 
 	add(item: HTMLElement, order: number = null) {
-		if (!this.content) return (this.content = [item]);
 		if (!order) {
-			this.content.push(item);
+			this.content.add(item);
 		} else {
-			this.content.splice(order, 0, item);
+			this.content = new Set(Array.from(this.content).splice(order, 0, item));
 		}
 		return this.content;
 	}
 	remove(item: HTMLElement) {
-		if (!this.content) return;
-		const index = this.content.indexOf(item);
-		if (index > -1) {
-			this.content.splice(index, 1);
-		}
+		this.content.delete(item);
 	}
 	order(list) {}
 
 	update(content: any) {
-		if (!content) return;
-		if (Array.isArray(content)) {
+		if (!content || !content.size) return;
+		if (content.size > 1) {
 			const child = document.createDocumentFragment();
-			content.forEach((content) => {
-				child.appendChild(content);
+			content.forEach((element: HTMLElement) => {
+				child.appendChild(element);
 				this.node.appendChild(child);
 			});
 		} else {
-			this.node.appendChild(content);
+			const element = content.values().next().value;
+			this.node.appendChild(element);
 		}
 	}
 }
-// export function _createContent(content) {
-// 	if (!content) return null;
-// 	if (typeof content === 'string' || typeof content === 'number') {
-// 		return document.createTextNode(String(content));
-// 	}
-// 	if (typeof content === 'object' && content.node) {
-// 		return content.node;
-// 	}
-
-// 	if (Array.isArray(content)) {
-// 		const parts = content.map(_createContent);
-// 		const fragment = document.createDocumentFragment();
-// 		parts.forEach((part) => fragment.appendChild(part));
-// 		return fragment;
-// 	}
-
-// 	if (content instanceof HTMLElement) return content;
-// 	if (typeof content === 'function') return content();
-
-// 	return '';
-// }
-
 // PERSOS////////////
 const root = document.getElementById('app');
 const stage = {
@@ -290,4 +265,10 @@ export function round(obj: GenericObject): GenericObject {
 		r[e] = typeof obj[e] === 'number' ? parseFloat(obj[e].toFixed(2)) : obj[e];
 	}
 	return r;
+}
+
+function removeAttributes(node) {
+	for (const attr in node.attributes) {
+		node.removeAttribute(attr);
+	}
 }

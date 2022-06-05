@@ -199,11 +199,12 @@ export class Timeline {
 			if (!this.events.has(channelName)) return;
 			const events = this.events.get(channelName);
 			const channel = this.channels.get(channelName);
-
+			channel.reset();
 			for (const time of pastTimes) {
 				if (events.has(time)) {
 					events.get(time).forEach((name) => {
 						const data = this.data.has(name) && this.data.get(name).has(time) && this.data.get(name).get(time);
+
 						channel.run({ name, time, status, data });
 					});
 				}
