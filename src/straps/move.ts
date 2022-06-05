@@ -23,10 +23,12 @@ export class MoveStrap extends Strap {
 		x: 0,
 		y: 0,
 	};
+	offset = { x: 0, y: 0 };
 
 	run = (status: CbStatus, state: any) => {
-		console.log('init', state);
+		console.log('MoveStrap init', state);
 		this.initialMousePosition = point(state.emit.e);
+		this.init(state);
 		this.ondown();
 		const startTime = status.currentTime;
 		const endTime = startTime + 1000;
@@ -40,6 +42,15 @@ export class MoveStrap extends Strap {
 	onup() {
 		document.removeEventListener('pointermove', this.move);
 		document.removeEventListener('pointerup', this.up);
+	}
+
+	init(state) {
+		const { id } = state.emit;
+		const perso = this.store.getPerso(id);
+		if (perso) {
+			const { x = 0, y = 0 } = perso.style;
+			this.offset = { x, y };
+		}
 	}
 
 	up = (e: PointerEvent) => {
@@ -83,8 +94,6 @@ function whoIsBelow(e: MouseEvent) {
 }
 
 function move(e: MouseEvent) {
-	// const { id, event } = this.data;
-
 	const absPointer = {
 		x: window.scrollX + e.clientX,
 		y: window.scrollY + e.clientY,
@@ -113,8 +122,11 @@ function move(e: MouseEvent) {
 	//   pointeur: absPointer,
 	// });
 
-	const x = Math.round(newPointer.x);
-	const y = Math.round(newPointer.y);
+	const x = Math.round(newPointer.x) + this.offset.x;
+	const y = Math.round(newPointer.y) + this.offset.y;
+	// const x = Math.round(newPointer.x);
+	// const y = Math.round(newPointer.y);
+
 	// this.queue.add(this.data.emit.id, { style: { transform: `translate(${x}px, ${y}px)` } });
 	// this.queue.add(this.data.emit.id, { style: { x: `${x}px`, y: `${y}px` } });
 	this.queue.add(this.data.emit.id, { style: { x, y } });

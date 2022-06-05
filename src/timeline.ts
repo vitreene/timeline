@@ -67,12 +67,11 @@ export class Timeline {
 		}
 	};
 
-	private _registerEvent = (event: Eventime) => {
-		const channel = event.channel || this.defaultChannelName;
+	private _registerEvent = (_event_: Eventime) => {
+		const channel = _event_.channel || this.defaultChannelName;
 		// un event ajouté sans startAt est exécuté immédiatement
 		// rendre l'intention plus explicite ? startAt = -1 , ou bien startAt = "now" -> voir avec les labels
-
-		if (!event.startAt) event.startAt = Clock.status.currentTime + TIME_INTERVAL;
+		const event = { ..._event_, startAt: _event_.startAt || Clock.status.currentTime + TIME_INTERVAL };
 
 		if (!this.events.has(channel)) {
 			console.warn(`Channel ${channel} has not been declared`);
@@ -86,6 +85,7 @@ export class Timeline {
 			channelEvent.set(event.startAt, _events);
 		} else channelEvent.set(event.startAt, new Set<string>([event.name]));
 		!this.times.includes(event.startAt) && this.times.push(event.startAt);
+		event.name === 'move' && console.log('REGISTER', event.startAt, channelEvent.get(event.startAt));
 
 		if (event.data) this._addData(event);
 	};

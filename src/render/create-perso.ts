@@ -2,6 +2,12 @@ import { resolveStyles } from './resolve-styles';
 
 import { Action, Eventime, PersoElementType, PersoItem, PersoNode } from '../types';
 
+export interface HandlerEmit {
+	e: Event;
+	type: Event['type'];
+	id: string;
+}
+
 type HandlerEvent = (event: Eventime) => void;
 
 export type StorePerso = Map<string, PersoItem>;
@@ -77,17 +83,16 @@ export class PersoStore {
 
 	handleEvent = (event) => {
 		console.log(event.type);
-		console.log(event);
+		// console.log(event);
 		console.log(event.target.dataset.id);
-
-		console.log(this);
 
 		const persoId = event.target.dataset.id;
 		const perso = this.persos.get(persoId);
 		const emit = perso.emit[event.type];
 
 		emit.data = { ...emit.data, emit: { e: event, type: event.type, id: event.target.dataset.id } };
-		console.log(emit);
+
+		console.log('EMIT', emit);
 
 		emit && this.handler(emit);
 	};

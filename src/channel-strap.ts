@@ -53,6 +53,8 @@ export class StrapChannel extends Channel {
 		if (this.strap.has(name)) {
 			const Strap = this.strap.get(name);
 
+			name === 'move' && console.log({ name, status, data });
+
 			if (status.action === PLAY && status.headTime === status.currentTime) {
 				Strap.run(status, data);
 			}
