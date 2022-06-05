@@ -1,5 +1,4 @@
 import { CbStatus } from '../clock';
-import { STRAP } from '../common/constants';
 import { Strap } from './strap';
 
 /* 
@@ -94,7 +93,8 @@ function move(e: MouseEvent) {
 		x: absPointer.x - this.initialMousePosition.x,
 		y: absPointer.y - this.initialMousePosition.y,
 	};
-	const z = this.zoom;
+
+	const z = this.store.zoom;
 	const relativePointer = {
 		x: newPointer.x / z,
 		y: newPointer.y / z,
@@ -113,11 +113,11 @@ function move(e: MouseEvent) {
 	//   pointeur: absPointer,
 	// });
 
-	const x = newPointer.x;
-	const y = newPointer.y;
+	const x = Math.round(newPointer.x);
+	const y = Math.round(newPointer.y);
 	// this.queue.add(this.data.emit.id, { style: { transform: `translate(${x}px, ${y}px)` } });
-	// this.queue.add(this.data.emit.id, { style: { dX: `${x}px`, dY: `${y}px` } });
-	this.queue.add(this.data.emit.id, { style: { dX: x, dY: y } });
+	// this.queue.add(this.data.emit.id, { style: { x: `${x}px`, y: `${y}px` } });
+	this.queue.add(this.data.emit.id, { style: { x, y } });
 
 	this.pointer = newPointer;
 	return newPointer;

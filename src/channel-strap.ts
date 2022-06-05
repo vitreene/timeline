@@ -1,8 +1,12 @@
 import * as straps from './straps';
-import { ChannelName, Eventime } from './types';
-import { Channel, ChannelOptions, ChannelProps } from './channel';
-import { CbStatus } from './clock';
+import { Channel } from './channel';
+import { ChannelName } from './types';
 import { PLAY, FORWARD, TIME_INTERVAL } from './common/constants';
+
+import type { Eventime } from './types';
+import type { CbStatus } from './clock';
+import type { PersoStore } from './render/create-perso';
+import type { ChannelOptions, ChannelProps } from './channel';
 
 export class StrapChannel extends Channel {
 	name: ChannelName = ChannelName.STRAP;
@@ -15,16 +19,12 @@ export class StrapChannel extends Channel {
 
 	registerStrap = (straps) => {
 		const options = { queue: this.queue, timer: this.timer, addEvent: this._addEvent };
-		Object.defineProperty(options, 'store', {
-			get: function () {
-				return this.store;
-			}.bind(this),
-		});
-
 		for (const name in straps) {
 			const Strap = straps[name];
 			const next = this._next(Strap.publicName);
-			this.strap.set(Strap.publicName, new Strap({ ...options, next }));
+			const op = Object.assign({}, options, { next });
+
+			this.strap.set(Strap.publicName, new Strap(op));
 		}
 
 		console.log('registerStrap', this.strap);
@@ -60,5 +60,9 @@ export class StrapChannel extends Channel {
 				Strap.run(status, data);
 			}
 		}
+	}
+	addStore(store: PersoStore) {
+		super.addStore(store);
+		this.strap.forEach((strap) => strap.addStore(store));
 	}
 }

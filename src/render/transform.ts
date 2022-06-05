@@ -52,8 +52,8 @@ type TransformList = {
 type TransformStyle = { [key in keyof TransformList]?: number };
 
 const transformList: TransformList = {
-	x: { transform: 'translateX', unit: 'px', zoomable: true },
-	y: { transform: 'translateY', unit: 'px', zoomable: true },
+	x: { transform: 'translateX', unit: 'px', zoomable: false },
+	y: { transform: 'translateY', unit: 'px', zoomable: false },
 	rotate: { transform: 'rotate', unit: 'deg', zoomable: false },
 	scale: { transform: 'scale', unit: '', zoomable: false }, // true ?
 	skewX: { transform: 'skewX', unit: '', zoomable: false },
@@ -80,7 +80,7 @@ export function withTransform(props: TransformStyle, zoom: number) {
 
 	let transform = '';
 	for (const tr in other) {
-		// console.log("other, tr", other, tr);
+		// console.log('other, tr', other, tr);
 		let { value, unit } = splitUnitValue(other[tr]);
 
 		value *= !unit && transformList[tr].zoomable ? zoom : 1;

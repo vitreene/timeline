@@ -44,7 +44,7 @@ export function diff(prec: any, next: any) {
 }
 
 // separe valeur et unités
-const separe = /\s*(\d+)\s*(\D*)/;
+const separe = /\s*(-?\d+\.?\d*)\s*(\D*)/;
 export function splitUnitValue(val: string | number | undefined) {
 	if (val === undefined) return null;
 	if (typeof val === 'number') return { value: val, unit: null };
