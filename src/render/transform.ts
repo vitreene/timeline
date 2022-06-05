@@ -52,8 +52,8 @@ type TransformList = {
 type TransformStyle = { [key in keyof TransformList]?: number };
 
 const transformList: TransformList = {
-	x: { transform: 'translateX', unit: 'px', zoomable: false },
-	y: { transform: 'translateY', unit: 'px', zoomable: false },
+	x: { transform: 'translateX', unit: 'px', zoomable: true },
+	y: { transform: 'translateY', unit: 'px', zoomable: true },
 	rotate: { transform: 'rotate', unit: 'deg', zoomable: false },
 	scale: { transform: 'scale', unit: '', zoomable: false }, // true ?
 	skewX: { transform: 'skewX', unit: '', zoomable: false },
