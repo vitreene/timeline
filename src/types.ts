@@ -1,5 +1,6 @@
 import * as CSS from 'csstype';
-import { Layer, Txt } from './render/create-perso';
+import { Txt } from './render/components/txt';
+import { Layer } from './render/components/layer';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 

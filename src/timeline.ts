@@ -1,6 +1,6 @@
 import { Channel } from './channel';
 import { CbStatus, Timer } from './clock';
-import { Eventime, Store } from './types';
+import { ChannelName, Eventime, Store } from './types';
 
 import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK, END_SEQUENCE, ROOT } from './common/constants';
 import { createRender } from './render/render-DOM';
@@ -8,8 +8,8 @@ import { QueueActions } from './queue';
 import { PersoChannel } from './channel-perso';
 import { StrapChannel } from './channel-strap';
 import { PersoStore } from './render/create-perso';
-import { resolveStyles } from './render/resolve-styles';
 
+const INIT = '_initial_';
 /**
  * @param events Events
  * @param store object
@@ -33,6 +33,7 @@ export class Timeline {
 		this.addEvent = this.addEvent.bind(this);
 		const store = createStore(persos, this.addEvent);
 		this._initChannels(store);
+		this._addInitialEvents(store);
 		events && this.addEvent(events);
 	}
 
@@ -44,6 +45,18 @@ export class Timeline {
 			channel.addStore(store);
 			this.addChannel(channel);
 		});
+	}
+
+	private _addInitialEvents(store: PersoStore) {
+		store.persos.forEach((perso) => {
+			perso.actions[INIT] = perso.initial;
+		});
+		const event: Eventime = {
+			channel: this.defaultChannelName,
+			name: INIT,
+			startAt: 0,
+		};
+		this._registerEvent(event);
 	}
 
 	addChannel(channel: Channel) {
@@ -156,15 +169,19 @@ export class Timeline {
 
 		if (status.endClock) {
 			this.channels.forEach((channel) => channel.run({ time: status.currentTime, status }));
+			console.log('//////////END CLOCK/////////////');
 			console.log('END', status.currentTime);
 			console.log('events:', this.events);
-			// console.log(this.times);
-			console.log(this.data);
-			console.log(this.nextEvent);
+			// console.log('times', this.times);
+			console.log('data', this.data);
+			console.log('nextEvent', this.nextEvent);
+			console.log('///////////////////////////////');
 		}
 	};
 
 	seek = (status: CbStatus) => {
+		// console.log('SEEK', status.seekTime);
+
 		status.seekAction = status.currentTime < status.seekTime ? FORWARD : BACKWARD;
 
 		if (status.seekAction === FORWARD) {

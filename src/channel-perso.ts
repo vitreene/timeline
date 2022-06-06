@@ -1,7 +1,7 @@
 import { Channel } from './channel';
 import { ChannelName } from './types';
 import type { CbStatus } from './clock';
-import { Layer } from './render/create-perso';
+import { Layer } from './render/components/layer';
 import { FORWARD, PLAY, SEEK } from './common/constants';
 
 import type { Transition, Move, PersoItem } from './types';
@@ -57,16 +57,13 @@ export class PersoChannel extends Channel {
 		const inverseProgress: ProgressInterpolation = transition.yoyo && interpolate({ from: to, to: from });
 
 		const doProgress = (status: CbStatus) => {
-			const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
-			if (!onTransition) return;
-
 			const currentTime = status.currentTime - firstStart;
-			const elapsed = currentTime % transition.duration;
+			const elapsed = status.currentTime < lastEnd ? currentTime % transition.duration : transition.duration;
 
 			if (inverseProgress) {
 				const yoyo = currentTime % (transition.duration * 2) > transition.duration;
-				const _progress = yoyo ? inverseProgress : progress;
-				this.renderTransition(id, _progress(elapsed, 0, transition.duration));
+				const iProgress = yoyo ? inverseProgress : progress;
+				this.renderTransition(id, iProgress(elapsed, 0, transition.duration));
 			} else {
 				this.renderTransition(id, progress(elapsed, 0, transition.duration));
 			}
@@ -75,7 +72,8 @@ export class PersoChannel extends Channel {
 		if (status.action !== SEEK && !this.transitionCache.has(props)) {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
-				if (status.action === PLAY) doProgress(status);
+				const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
+				if (status.action === PLAY && onTransition) doProgress(status);
 			});
 		}
 
@@ -85,7 +83,7 @@ export class PersoChannel extends Channel {
 	renderTransition = (id: string, result) => {
 		const style = {};
 		for (const prop in result) {
-			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 10) / 10 : result[prop];
+			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];
 			style[prop] = value;
 		}
 

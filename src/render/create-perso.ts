@@ -1,6 +1,8 @@
+import { calculateZoom } from './zoom';
+import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
-import { Action, Eventime, PersoElementType, PersoItem, PersoNode } from '../types';
+import type { Action, Eventime, PersoItem, PersoNode } from '../types';
 
 export interface HandlerEmit {
 	e: Event;
@@ -61,26 +63,6 @@ export class PersoStore {
 		return this.persos.has(id) ? this.persos.get(id) : null;
 	}
 
-	// private addListeners(id: string, perso: any, emit: any) {
-	// 	perso.listeners = new Map();
-	// 	for (const prop in emit) {
-	// 		const event = emit[prop];
-	// 		event.data.id = id;
-	// 		const handler = this.handler(event);
-	// 		perso.listeners.set(prop, handler);
-	// 		perso.node.addEventListener(prop, handler);
-	// 	}
-	// }
-
-	// private removeListeners(id: string) {
-	// 	const perso = this.persos.get(id);
-	// 	if (perso) {
-	// 		perso.listeners.forEach((handler, prop) => {
-	// 			perso.node.removeEventListener(prop, handler);
-	// 		});
-	// 	}
-	// }
-
 	handleEvent = (event) => {
 		console.log(event.type);
 		// console.log(event);
@@ -91,8 +73,6 @@ export class PersoStore {
 		const emit = perso.emit[event.type];
 
 		emit.data = { ...emit.data, emit: { e: event, type: event.type, id: event.target.dataset.id } };
-
-		console.log('EMIT', emit);
 
 		emit && this.handler(emit);
 	};
@@ -106,44 +86,36 @@ export class PersoStore {
 
 		const child = createContent(type, node);
 		if (child) {
-			if (type !== PersoElementType.LAYER) {
-				node.appendChild(child.node);
-				child.update(content as any);
-			}
-		} else {
-			console.warn(`le type ${type} n'est pas supporté`);
+			child.update(content as any);
 		}
-
 		if (emit) {
 			node.dataset.id = id;
 			for (const ev in emit) {
 				node.addEventListener(ev, this);
 			}
 		}
-		const spread = this.spread.bind(this, node);
 
+		const spread = this.spread.bind(this, node);
 		const perso: PersoItem = {
 			id,
 			prec: {},
 			node,
 			style,
+			child,
 			initial,
 			actions,
-			update({ content, ...update }: Partial<Action> = { style: perso.style }) {
-				content && child.update(content as any);
-				spread(update);
+			update(update: Partial<Action>) {
+				if (update) {
+					child.update(update.content as any);
+					spread(update);
+				}
 			},
-			child,
-			//add/remove/Listener ?
 			reset() {
 				removeAttributes(node);
-				this.child.update(content);
-				this.style = style;
-				spread(initial);
 			},
+			//add/remove/Listener ?
 		};
 		emit && (perso.emit = emit);
-
 		return perso;
 	}
 
@@ -164,6 +136,7 @@ export class PersoStore {
 		}
 
 		for (const name in attributes) {
+			if (['content', 'tag'].includes(name)) continue;
 			const value = attributes[name];
 			if (name in node) node[name] = value;
 			else node.setAttribute(name, value);
@@ -171,109 +144,29 @@ export class PersoStore {
 	}
 }
 
-export function createContent(type: PersoElementType, parentNode: HTMLElement) {
-	switch (type) {
-		case PersoElementType.TEXT:
-			return new Txt();
-		case PersoElementType.LAYER:
-			return new Layer(parentNode);
-		default:
-			return null;
+function removeAttributes(node: HTMLElement) {
+	for (let i = node.attributes.length - 1; i >= 0; i--) {
+		const name = node.attributes[i].name;
+		name !== 'id' && node.removeAttribute(name);
 	}
 }
 
-export class Txt {
-	node = document.createTextNode('');
-	update(text: string | number) {
-		this.node.textContent = String(text);
-	}
-}
+// private addListeners(id: string, perso: any, emit: any) {
+// 	perso.listeners = new Map();
+// 	for (const prop in emit) {
+// 		const event = emit[prop];
+// 		event.data.id = id;
+// 		const handler = this.handler(event);
+// 		perso.listeners.set(prop, handler);
+// 		perso.node.addEventListener(prop, handler);
+// 	}
+// }
 
-export class Layer {
-	node: HTMLElement;
-	content = new Set<HTMLElement>();
-	constructor(node: HTMLElement) {
-		this.node = node;
-	}
-
-	add(item: HTMLElement, order: number = null) {
-		if (!order) {
-			this.content.add(item);
-		} else {
-			this.content = new Set(Array.from(this.content).splice(order, 0, item));
-		}
-		return this.content;
-	}
-	remove(item: HTMLElement) {
-		this.content.delete(item);
-	}
-	order(list) {}
-
-	update(content: any) {
-		if (!content || !content.size) return;
-		if (content.size > 1) {
-			const child = document.createDocumentFragment();
-			content.forEach((element: HTMLElement) => {
-				child.appendChild(element);
-				this.node.appendChild(child);
-			});
-		} else {
-			const element = content.values().next().value;
-			this.node.appendChild(element);
-		}
-	}
-}
-// PERSOS////////////
-const root = document.getElementById('app');
-const stage = {
-	width: 1000,
-	height: 750,
-	ratio: 4 / 3,
-};
-
-function calculateZoom() {
-	const el = root;
-
-	// determiner l'échelle du projet, comparée à sa valeur par défaut.
-	const width = el.clientWidth;
-	const height = el.clientHeight;
-	const wZoom = width / stage.width;
-	const hScene = wZoom * stage.height;
-
-	if (hScene > height) {
-		const zoom = height / stage.height;
-		const wScene = stage.width * zoom;
-		return round({
-			left: (width - wScene) / 2,
-			top: 0,
-			width: wScene,
-			height,
-			ratio: wScene / height,
-			zoom,
-		});
-	} else {
-		return round({
-			left: 0,
-			top: (height - hScene) / 2,
-			width,
-			height: hScene,
-			ratio: hScene / width,
-			zoom: wZoom,
-		});
-	}
-}
-
-type GenericObject = Record<string, any>;
-export function round(obj: GenericObject): GenericObject {
-	const r = {};
-	for (const e in obj) {
-		r[e] = typeof obj[e] === 'number' ? parseFloat(obj[e].toFixed(2)) : obj[e];
-	}
-	return r;
-}
-
-function removeAttributes(node) {
-	for (const attr in node.attributes) {
-		node.removeAttribute(attr);
-	}
-}
+// private removeListeners(id: string) {
+// 	const perso = this.persos.get(id);
+// 	if (perso) {
+// 		perso.listeners.forEach((handler, prop) => {
+// 			perso.node.removeEventListener(prop, handler);
+// 		});
+// 	}
+// }

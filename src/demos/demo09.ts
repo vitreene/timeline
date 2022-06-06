@@ -4,6 +4,7 @@ import { Tracks } from '../tracks';
 
 import { Eventime, Initial, PersoElementType, Store } from '../types';
 
+import { createTelco } from './telco';
 import '../style.css';
 
 const ID01 = 'hello';
@@ -33,7 +34,7 @@ const events: Eventime = {
 	name: 'initial',
 	channel: MAIN,
 	events: [
-		{ startAt: 400, name: 'init', channel: MAIN },
+		{ startAt: 400, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{ startAt: 500, name: 'action04', channel: MAIN },
 		{
@@ -42,12 +43,6 @@ const events: Eventime = {
 			channel: STRAP,
 			data: counter01,
 		},
-		// {
-		// 	startAt: 500,
-		// 	name: 'simple',
-		// 	channel: STRAP,
-		// 	data: { x: 1, id: ID03 },
-		// },
 		{
 			startAt: 860,
 			name: 'counter',
@@ -61,7 +56,7 @@ const events: Eventime = {
 
 const initialID01: Partial<Initial> = {
 	className: 'initial',
-	content: 'init',
+	content: ID01,
 	style: { top: 0, left: 0, color: 'blue', position: 'absolute' },
 };
 
@@ -107,9 +102,9 @@ const _persos: Store = {
 	},
 	[ID01]: {
 		type: PersoElementType.TEXT,
-		initial: { ...initialID01, tag: 'div' },
+		initial: initialID01,
 		actions: {
-			init: {
+			enter: {
 				move: ROOT,
 				style: { color: 'red' },
 				className: 'init-action02',
@@ -120,7 +115,7 @@ const _persos: Store = {
 				transition: {
 					from: { 'font-size': 16, top: 0, left: 0 },
 					to: { 'font-size': 72, top: 100, left: 400 },
-					duration: 2000,
+					duration: 500,
 				},
 			},
 			action03: {
@@ -131,10 +126,8 @@ const _persos: Store = {
 	[ID02]: {
 		type: PersoElementType.TEXT,
 
-		initial: { ...initialID02, tag: 'div' },
+		initial: { ...initialID02, move: ROOT },
 		actions: {
-			initial: { ...initialID02, move: ROOT },
-
 			action01: {
 				style: { 'font-size': 48 },
 				className: 'action01-' + ID02,
@@ -148,20 +141,13 @@ const _persos: Store = {
 			},
 			[ID_COUNTER_01]: true, // signifie : j'écoute counter01
 		},
-		// emit: {
-		// 	mousedown: {
-		// 		channel: STRAP,
-		// 		name: 'move',
-		// 		data: { event: ' move-toto' },
-		// 	},
-		// },
 	},
 	[ID03]: {
 		type: PersoElementType.TEXT,
 
-		initial: { ...initialID03, tag: 'div' },
+		initial: initialID03,
 		actions: {
-			initial: { ...initialID03, move: ROOT },
+			initial: { move: ROOT },
 
 			action01: { className: 'action01-' + ID03 },
 			action04: {
@@ -196,95 +182,7 @@ const _persos: Store = {
 	},
 };
 
-// rendre Clock dispo dans Tm !
-// simplifier la construction de Tm
-// export const store = new PersoStore(Tm.addEvent);
-
-// const Tm = new Timeline({actions, events});
-// const Clock = new Timer({ endsAt: END_SEQUENCE });
-// const Queue = new QueueActions(render);
-
-// const Main = new PersoChannel({ queue: Queue, timer: Clock });
-// const Straps = new StrapChannel({ queue: Queue, timer: Clock });
-
-// Main.addStore(actions);
-// Straps.addStore(actions);
-
-// Tm.addChannel(Main);
-// Tm.addChannel(Straps);
-
-// Tm.addEvent(events);
-
-// console.log(Tm);
-
-// const tracks = new Tracks(Tm.run, Tm.runNext);
-// Clock.on(tracks.run);
-
-// Clock.on(Tm.run);
-// Clock.on(Tm.runNext);
-
-// setTimeout(() => {
-// 	debugger;
-// }, 2000);
-
-// setTimeout(() => {
-// 	console.log('---------seek 2000');
-// 	Clock.seek(2000);
-// }, 1400);
-
-// setTimeout(() => {
-// 	Clock.seek(800);
-// 	console.log('---------seek 800');
-// }, 2000);
-
-// setTimeout(() => {
-// 	console.log('---------play');
-// 	Clock.play();
-// }, 2400);
-
-// const STpause = 600;
-// setTimeout(() => {
-// 	Clock.pause();
-// 	console.log('---------pause ' + STpause);
-// }, STpause);
-
-// setTimeout(() => {
-// 	console.log('---------pause');
-// 	Clock.pause();
-// }, END_SEQUENCE);
-
-//SLIDER////////////
-const telco = document.createElement('div');
-telco.id = 'telco';
-
-const slider = document.createElement('input');
-slider.setAttribute('type', 'range');
-
-slider.addEventListener('mousedown', () => {
-	slider.addEventListener('mousemove', mousemove);
-});
-slider.addEventListener('mouseup', () => {
-	slider.removeEventListener('mousemove', mousemove);
-});
-
-function mousemove(e: Event): void {
-	const el = e.target as HTMLInputElement;
-	const progress = (Number(el.value) * END_SEQUENCE) / 100 - 100;
-	Clock.seek(progress > 0 ? progress : 0);
-}
-
-const playButton = document.createElement('button');
-playButton.innerText = 'play';
-playButton.addEventListener('click', () => Clock.play());
-
-const pauseButton = document.createElement('button');
-pauseButton.innerText = 'pause';
-pauseButton.addEventListener('click', () => Clock.pause());
-
-telco.appendChild(playButton);
-telco.appendChild(slider);
-telco.appendChild(pauseButton);
-document.body.appendChild(telco);
+createTelco();
 
 // const persos = {
 // 	[ROOT]: _persos[ROOT],
@@ -299,3 +197,28 @@ const tracks = new Tracks(Tm.run, Tm.runNext);
 Clock.on(tracks.run);
 
 Clock.start(0);
+
+// setTimeout(() => {
+// 	debugger;
+// }, 2000);
+// setTimeout(() => {
+// 	console.log('---------seek 2000');
+// 	Clock.seek(2000);
+// }, 1400);
+// setTimeout(() => {
+// 	Clock.seek(800);
+// 	console.log('---------seek 800');
+// }, 2000);
+// setTimeout(() => {
+// 	console.log('---------play');
+// 	Clock.play();
+// }, 2400);
+// const STpause = 600;
+// setTimeout(() => {
+// 	Clock.pause();
+// 	console.log('---------pause ' + STpause);
+// }, STpause);
+// setTimeout(() => {
+// 	console.log('---------pause');
+// 	Clock.pause();
+// }, END_SEQUENCE);

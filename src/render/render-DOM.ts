@@ -12,7 +12,9 @@ export function createRender(store: PersoStore) {
 				const up = diff(perso.prec, update[id]);
 				perso.prec = { ...update[id] };
 				if (up) {
-					Object.assign(perso.style, up.style);
+					// Object.assign(perso.style, up.style);
+					perso.style = { ...perso.style, ...up.style };
+
 					perso.update(up);
 				}
 			}

@@ -10,3 +10,19 @@
 
 .root {
 }
+
+#telco {
+	display: flex;
+	margin-top: 1rem;
+}
+#telco input {
+	flex: 1;
+}
+
+#telco span {
+	font-size: 1rem;
+	font-weight: bold;
+	padding-left: 1rem;
+	margin-left: auto;
+	width: 3rem;
+}
