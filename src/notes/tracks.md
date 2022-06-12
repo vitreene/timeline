@@ -139,3 +139,12 @@ le fonctionnement standard :
 - un déroulé type e-learning avec une télécommande play/pause. la mise en pause interrompt les evenements en cours lance des animations d'attente.
 - un canal de langue synchronise des images avec de la voix selon un temps distinct.
   Le meme evenement est lancé selon un temps distinct.
+
+**Exemple** : une phrase est prononcée, les noms sont illustrés et s'illuminent lorsque le mot est prononcé.
+Au changement de langue, les mots sont changés, et le timing evolue car les mots ne sont pas pronocés dans le meme ordre ( inversion sujet/verbe, ou nom/adjectif par exemple)
+
+RE:
+Implanter les Tracks necessite de revoir entièremement Clock et Timeline .
+Il n'est peut-etre pas possible de modifier, il faut recréer ces modules ?
+
+track = event => status => run
