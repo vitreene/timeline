@@ -81,41 +81,43 @@ export class PersoStore {
 		const { tag, content, ..._initial } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
-		this.spread(node, _initial);
-		const style = initial.style || {};
+		const spread = this.spread.bind(this, node);
+		spread(_initial);
 
 		const child = createContent(type, node);
-		if (child) {
-			child.update(content as any);
+		if (child) child.update(content as any);
+
+		function update(update: Partial<Action>) {
+			if (update) {
+				if (child) child.update(update.content as any);
+				spread(update);
+			}
 		}
+		function reset() {
+			removeAttributes(node);
+		}
+
+		const perso: PersoItem = {
+			id,
+			node,
+			child,
+			initial,
+			actions,
+			prec: {},
+			style: initial.style || {},
+			reset,
+			update,
+			//add/remove/Listener ?
+		};
+
 		if (emit) {
 			node.dataset.id = id;
 			for (const ev in emit) {
 				node.addEventListener(ev, this);
 			}
+			perso.emit = emit;
 		}
 
-		const spread = this.spread.bind(this, node);
-		const perso: PersoItem = {
-			id,
-			prec: {},
-			node,
-			style,
-			child,
-			initial,
-			actions,
-			update(update: Partial<Action>) {
-				if (update) {
-					child.update(update.content as any);
-					spread(update);
-				}
-			},
-			reset() {
-				removeAttributes(node);
-			},
-			//add/remove/Listener ?
-		};
-		emit && (perso.emit = emit);
 		return perso;
 	}
 

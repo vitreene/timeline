@@ -8,13 +8,11 @@ export function createRender(store: PersoStore) {
 		for (const id in update) {
 			const perso = store.getPerso(id);
 			if (perso) {
-				// le diff pourrait etre réalisé dans queue
+				// le diff pourrait etre réalisé dans queue ?
 				const up = diff(perso.prec, update[id]);
 				perso.prec = { ...update[id] };
 				if (up) {
-					// Object.assign(perso.style, up.style);
 					perso.style = { ...perso.style, ...up.style };
-
 					perso.update(up);
 				}
 			}
