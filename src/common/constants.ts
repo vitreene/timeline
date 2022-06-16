@@ -20,6 +20,13 @@ export const PAUSE = 'pause';
 export const SEEK = 'seek';
 export const SEEKING = 'seeking';
 
+export const DEFAULT_IMG = {
+	width: 250,
+	height: 250,
+	ratio: 1,
+	src: './ikono/placeholder.png',
+};
+
 export const DEFAULT_STYLES = {
 	x: 0,
 	y: 0,

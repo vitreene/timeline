@@ -34,28 +34,19 @@ export interface Action extends Partial<Initial> {
 export type Update = { [id: string]: Partial<Action> };
 export type Render = (update: Update) => void;
 
-export interface Perso {
-	readonly id: string;
-	readonly element: PersoElementType;
-	initial: Initial;
-	listen?: Eventime[];
-	actions: Action[];
-	// emit?: Emit;
-	// extends?: string;
-	// src?: string;
-}
 export interface Store {
-	[perso: string]: PersoNode;
+	[perso: string]: Perso;
 }
 
-export interface PersoNode {
-	type: PersoElementType;
+export interface Perso {
+	readonly id: string;
+	readonly type: PersoElementType;
 	actions: { [action: string]: Action | boolean };
 	initial: Partial<Initial>;
 	emit?: { [prop in keyof Emit]: Partial<Eventime> };
 }
 
-export interface PersoItem extends Omit<PersoNode, 'type'> {
+export interface PersoItem extends Omit<Perso, 'type'> {
 	id: string;
 	prec: Partial<Action>;
 	update: (update?: Partial<Action> | undefined) => void;
@@ -91,8 +82,11 @@ export interface Transition {
 	oncomplete?: any;
 }
 
-export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement>;
+export type Content = string | number | ContentImg | PersoItem | HTMLElement | Set<HTMLElement>;
 /* |Lang |  CollectionImages */
+
+export type ContentImg = string[] | ImgSrc[];
+export type ImagesCollection = Map<string, CollectionImages>;
 
 export interface CollectionImages {
 	src: string;
@@ -101,10 +95,12 @@ export interface CollectionImages {
 	height: number;
 }
 
-export type ImagesCollection = Map<string, CollectionImages>;
+export interface ImgSrc {
+	src: string;
+	fit?: string;
+}
 
 // ENUM
-
 export enum ChannelName {
 	MAIN = 'main',
 	TELCO = 'telco',

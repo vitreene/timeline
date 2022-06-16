@@ -2,7 +2,9 @@ import { calculateZoom } from './zoom';
 import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
-import type { Action, Eventime, PersoItem, PersoNode } from '../types';
+import { Action, Eventime, ImagesCollection, PersoItem, Perso, ImgSrc, PersoElementType, ContentImg } from '../types';
+import { toArray } from '../common/utils';
+import { DEFAULT_IMG } from '../common/constants';
 
 export interface HandlerEmit {
 	e: Event;
@@ -16,6 +18,7 @@ export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
+	imagesCollection: ImagesCollection = new Map();
 	zoom = 1;
 	removeResize: () => void;
 	handler: HandlerEvent = null;
@@ -40,14 +43,15 @@ export class PersoStore {
 		requestAnimationFrame(() => this.persos.forEach((perso: PersoItem) => perso.update()));
 	};
 
-	addAll(persos: Map<string, PersoNode>) {
+	addAll(persos: Map<string, Perso>) {
 		persos.forEach((perso, id) => {
 			this.add(id, perso);
 		});
 	}
 
-	add(id: string, _perso: PersoNode) {
+	add(id: string, _perso: Perso) {
 		const perso = this.createPerso(id, _perso);
+		this.addMedias(_perso);
 		this.persos.set(id, perso);
 		return perso;
 	}
@@ -77,7 +81,7 @@ export class PersoStore {
 		emit && this.handler(emit);
 	};
 
-	private createPerso(id: string, { type, initial, actions, emit }: PersoNode) {
+	private createPerso(id: string, { type, initial, actions, emit }: Perso) {
 		const { tag, content, ..._initial } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
@@ -144,6 +148,40 @@ export class PersoStore {
 			else node.setAttribute(name, value);
 		}
 	}
+	private addMedias(perso: Perso) {
+		if (perso.type === PersoElementType.IMG) {
+			const srcs: ContentImg = findSrcs(perso);
+			this.loadImages(srcs);
+		}
+		// this.imagesCollection.set(id,);
+	}
+	async loadImages(srcs: string[] | ImgSrc[]) {
+		return await Promise.all(
+			srcs.map(
+				(source: string | ImgSrc) =>
+					new Promise((resolve, reject) => {
+						const src = typeof source === 'string' ? source : source.src;
+						const ikono = new Image();
+						ikono.onload = () => {
+							this.imagesCollection.set(src, {
+								width: ikono.width,
+								height: ikono.height,
+								ratio: ikono.width / ikono.height,
+								src,
+							});
+							resolve(true);
+						};
+
+						ikono.onerror = (err) => {
+							this.imagesCollection.set(src, DEFAULT_IMG);
+							return reject(err);
+						};
+
+						ikono.src = src;
+					})
+			)
+		).catch((err) => console.log('on s‘est pas trompé ; ça a pas fonctionné', err));
+	}
 }
 
 function removeAttributes(node: HTMLElement) {
@@ -151,6 +189,14 @@ function removeAttributes(node: HTMLElement) {
 		const name = node.attributes[i].name;
 		name !== 'id' && node.removeAttribute(name);
 	}
+}
+
+function findSrcs(perso: Perso): ContentImg {
+	const srcs = (perso.initial.content ? [perso.initial.content] : []) as ContentImg;
+	Object.values(perso.actions).forEach(
+		(action) => typeof action === 'object' && srcs.push(action.content as string & ImgSrc)
+	);
+	return srcs;
 }
 
 // private addListeners(id: string, perso: any, emit: any) {
