@@ -1,10 +1,10 @@
 import { Channel } from './channel';
-import { ChannelName } from './types';
-import type { CbStatus } from './clock';
-import { Layer } from './render/components/layer';
-import { FORWARD, PLAY, SEEK } from './common/constants';
+import { ChannelName } from '../types';
+import type { CbStatus } from '../clock';
+import { Layer } from '../render/components/layer';
+import { FORWARD, PLAY, SEEK } from '../common/constants';
 
-import type { Transition, Move, PersoItem } from './types';
+import type { Transition, Move, PersoItem } from '../types';
 import type { ChannelProps } from './channel';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;

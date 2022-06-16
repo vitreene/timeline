@@ -1,6 +1,6 @@
-import { CbStatus } from './clock';
-import { Eventime } from './types';
-import { PAUSE, PLAY, SEEK } from './common/constants';
+import { CbStatus } from '../clock';
+import { Eventime } from '../types';
+import { PAUSE, PLAY, SEEK } from '../common/constants';
 
 type Run = (status: CbStatus) => void;
 

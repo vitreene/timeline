@@ -140,8 +140,16 @@ le fonctionnement standard :
 - un canal de langue synchronise des images avec de la voix selon un temps distinct.
   Le meme evenement est lancé selon un temps distinct.
 
-**Exemple** : une phrase est prononcée, les noms sont illustrés et s'illuminent lorsque le mot est prononcé.
-Au changement de langue, les mots sont changés, et le timing evolue car les mots ne sont pas pronocés dans le meme ordre ( inversion sujet/verbe, ou nom/adjectif par exemple)
+**Exemple** :
+
+- une phrase est prononcée, les noms sont illustrés et s'illuminent lorsque le mot est prononcé.
+  Au changement de langue, les mots sont changés, et le timing evolue car les mots ne sont pas pronocés dans le meme ordre ( inversion sujet/verbe, ou nom/adjectif par exemple)
+
+- un drag-drop d'elements est enregitré. seuls les originines et les destinations le sont, avec une transition entre les deux. tous les drag-drop s'enchainent les uns après les autres. Le temps réel n'est pas respecté.
+- une variante, un tracé est dessiné, puis enregistré lorsque l'on clique sur un bouton "save". le trajet est enregistré, l'echelle de temps ne l'est pas.
+
+dans cet exemple, les tracés sont mémorisés au fur et à mesure, puis : optimisés, enchainés, et enfin associé à un event dans la timeline principale.
+Ici, un track est lié à une fonctionnalité complete et autonome
 
 RE:
 Implanter les Tracks necessite de revoir entièremement Clock et Timeline .

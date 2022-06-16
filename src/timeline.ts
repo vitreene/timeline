@@ -5,7 +5,7 @@ import { ChannelName, Eventime, Store } from './types';
 import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK, END_SEQUENCE, ROOT } from './common/constants';
 import { createRender } from './render/render-DOM';
 import { QueueActions } from './queue';
-import { PersoChannel } from './channel-perso';
+import { PersoChannel } from './channels/channel-perso';
 import { StrapChannel } from './channel-strap';
 import { PersoStore } from './render/create-perso';
 

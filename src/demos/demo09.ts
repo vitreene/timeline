@@ -1,6 +1,6 @@
 import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
 import { Clock, Timeline } from '../timeline';
-import { Tracks } from '../__tracks';
+import { Tracks } from '../tracks/__tracks';
 
 import { Eventime, Initial, PersoElementType, Store } from '../types';
 
