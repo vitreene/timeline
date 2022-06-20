@@ -1,5 +1,5 @@
 import { Clock } from '../timeline';
-import { DEFAULT_CHANNEL_NAME, MAIN, STRAP, TIME_INTERVAL } from '../common/constants';
+import { DEFAULT_CHANNEL_NAME, DEFAULT_TRACK_NAME, MAIN, STRAP, TIME_INTERVAL } from '../common/constants';
 import { Eventime } from '../types';
 import { CbStatus } from 'src/clock';
 
@@ -15,6 +15,11 @@ interface TracksProps {
 	events: Eventime;
 	channels: ChannelName[];
 }
+const mapClock = {
+	play: 1,
+	pause: 2,
+	seek: 1,
+};
 
 export class Track {
 	name: TrackName;
@@ -75,12 +80,6 @@ export class Track {
 	}
 }
 
-const mapClock = {
-	play: 1,
-	pause: 2,
-	seek: 1,
-};
-
 type ControlName = string;
 type ClockName = number;
 interface TrackManagerCurrentProps {
@@ -103,19 +102,29 @@ class TrackManager {
 	// elements générés : un par controleur
 	times = new Map<ControlName, Time[]>();
 	nextEvent;
+	// track par défaut où sont rajoutés les events dynamiques
+	refTrack: string;
 
 	// collection : Clock.status
 	clock = new Map<ClockName, CbStatus>();
 
-	constructor(tracks: Track[]) {
-		tracks.forEach((track) => this.addTrack(track));
+	constructor(tracks: Record<TrackName, Eventime>) {
+		tracks && this.addTrack(tracks);
 	}
 
-	addTrack(track: Track) {
-		this.tracks.set(track.name, track);
+	addTrack(tracks: Record<TrackName, Eventime>) {
+		for (const name in tracks) {
+			const track = new Track({ name, events: tracks[name], channels });
+			this.tracks.set(track.name, track);
+		}
 	}
 
-	control(control: string, action: { active: string[]; inactive: string[] }) {
+	addEvent({ track = this.refTrack, ...event }: Eventime) {
+		this.tracks.has(track) && this.tracks.get(track).addEvent(event);
+	}
+
+	control(control: string, action: { active: string[]; inactive: string[]; refTrack?: string }) {
+		this.refTrack = action.refTrack || action.active[0];
 		const times = [];
 		action.active.forEach((name) => {
 			const track = this.tracks.get(name);
@@ -153,12 +162,16 @@ class TrackManager {
 	}
 }
 
+const channels = [DEFAULT_CHANNEL_NAME, STRAP];
+
 export class Tracks extends TrackManager {
 	play() {
 		const action = {
 			active: ['trackPlay', 'trackEnglish'],
 			inactive: ['trackPause'],
+			refTrack: 'trackPlay',
 		};
+
 		this.control('play', action);
 		console.log('play', this.current);
 	}
@@ -167,6 +180,7 @@ export class Tracks extends TrackManager {
 		const action = {
 			active: ['trackPause'],
 			inactive: ['trackPlay', 'trackEnglish'], //TODO  others
+			refTrack: 'trackPause',
 		};
 		this.control('pause', action);
 		console.log('pause', this.current);

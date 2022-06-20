@@ -1,9 +1,9 @@
-import { MAIN, STRAP, DEFAULT_CHANNEL_NAME } from '../common/constants';
+import { Tracks } from '.';
 import { Clock } from '../timeline';
-import { Eventime } from '../types';
-import { Track, Tracks } from '.';
+import { MAIN, STRAP } from '../common/constants';
 
-// EXECUTE PLAN
+import type { Eventime } from '../types';
+
 const playEvents: Eventime = {
 	startAt: 500,
 	name: 'play',
@@ -29,12 +29,14 @@ const englishEvents: Eventime = {
 	data: { tutu: 2 },
 };
 
-const channels = [DEFAULT_CHANNEL_NAME, STRAP];
-const TrackPlay = new Track({ name: 'trackPlay', events: playEvents, channels });
-const TrackPause = new Track({ name: 'trackPause', events: pauseEvents, channels });
-const TrackEnglish = new Track({ name: 'trackEnglish', events: englishEvents, channels });
+const tracks = {
+	trackPlay: playEvents,
+	trackPause: pauseEvents,
+	trackEnglish: englishEvents,
+};
 
-const Manager = new Tracks([TrackPlay, TrackPause, TrackEnglish]);
+// EXECUTE PLAN
+const Manager = new Tracks(tracks);
 
 Manager.play();
 Manager.pause();

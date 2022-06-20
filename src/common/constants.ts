@@ -4,12 +4,12 @@ import { stringToLowercase } from './utils';
 export const { MAIN, STRAP } = ChannelName;
 
 export const ROOT = 'root';
+export const INIT = '_initial_';
 
 export const END_SEQUENCE = 4000;
 export const MAX_ENDS = 10000;
 export const TIME_INTERVAL = 10;
 export const DEFAULT_TIMER = '1/10';
-export const DEFAULT_CHANNEL_NAME = ChannelName.DEFAULT;
 
 export const FORWARD = 'forward';
 export const BACKWARD = 'backward';
@@ -20,6 +20,8 @@ export const PAUSE = 'pause';
 export const SEEK = 'seek';
 export const SEEKING = 'seeking';
 
+export const DEFAULT_TRACK_NAME = PLAY;
+export const DEFAULT_CHANNEL_NAME = ChannelName.DEFAULT;
 export const DEFAULT_STYLES = {
 	x: 0,
 	y: 0,

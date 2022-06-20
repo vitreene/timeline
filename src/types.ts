@@ -8,6 +8,7 @@ export interface Eventime {
 	name?: string;
 	startAt: number;
 	channel?: string;
+	track?: string;
 	data?: any;
 	events?: Eventime[];
 }
@@ -108,7 +109,6 @@ export type ImagesCollection = Map<string, CollectionImages>;
 export enum ChannelName {
 	MAIN = 'main',
 	TELCO = 'telco',
-	PLAY = 'play',
 	STRAP = 'strap',
 	DEFAULT = MAIN,
 }
