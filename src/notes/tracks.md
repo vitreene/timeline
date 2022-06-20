@@ -140,7 +140,7 @@ le fonctionnement standard :
 - un canal de langue synchronise des images avec de la voix selon un temps distinct.
   Le meme evenement est lancé selon un temps distinct.
 
-**Exemple** :
+**Exemples** :
 
 - une phrase est prononcée, les noms sont illustrés et s'illuminent lorsque le mot est prononcé.
   Au changement de langue, les mots sont changés, et le timing evolue car les mots ne sont pas pronocés dans le meme ordre ( inversion sujet/verbe, ou nom/adjectif par exemple)
@@ -151,8 +151,31 @@ le fonctionnement standard :
 dans cet exemple, les tracés sont mémorisés au fur et à mesure, puis : optimisés, enchainés, et enfin associé à un event dans la timeline principale.
 Ici, un track est lié à une fonctionnalité complete et autonome
 
-RE:
-Implanter les Tracks necessite de revoir entièremement Clock et Timeline .
-Il n'est peut-etre pas possible de modifier, il faut recréer ces modules ?
+Tracks ressemble à une state machine ?
 
-track = event => status => run
+- controles
+  - par défaut : play, pause, stop
+- definir les transitions entre deux états
+
+dans tracks :
+
+- par controle :
+
+  - Clock.status,
+  - times,
+  - nextEvent,
+  - tracks active/inactive
+  - transition enter/exit
+  - hypothese d'un state
+
+- par track :
+  - events,
+  - datas
+  - transition enter/exit
+
+y'a t'il un cas ou il faut distinguer un groupe d'un controle ?
+
+chaque controle doit permettre l'accès aux events via une interface
+
+revoir la fonction de la recherche d'event dans timeline.run pour qu'elle renvoie les données dont this.channel a besoin
+-> pas besoin de data ou event dans timeline

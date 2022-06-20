@@ -1,11 +1,11 @@
-import * as straps from './straps';
+import * as straps from '../straps';
 import { Channel } from './channel';
-import { ChannelName } from './types';
-import { PLAY, FORWARD, TIME_INTERVAL } from './common/constants';
+import { ChannelName } from '../types';
+import { PLAY, FORWARD, TIME_INTERVAL } from '../common/constants';
 
-import type { Eventime } from './types';
-import type { CbStatus } from './clock';
-import type { PersoStore } from './render/create-perso';
+import type { Eventime } from '../types';
+import type { CbStatus } from '../clock';
+import type { PersoStore } from '../render/create-perso';
 import type { ChannelOptions, ChannelProps } from './channel';
 
 export class StrapChannel extends Channel {

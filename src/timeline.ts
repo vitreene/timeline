@@ -1,15 +1,18 @@
-import { Channel } from './channel';
+import { Channel } from './channels/channel';
 import { CbStatus, Timer } from './clock';
-import { ChannelName, Eventime, Store } from './types';
+import { Eventime, Store } from './types';
 
 import { FORWARD, BACKWARD, TIME_INTERVAL, DEFAULT_CHANNEL_NAME, SEEK, END_SEQUENCE, ROOT } from './common/constants';
 import { createRender } from './render/render-DOM';
 import { QueueActions } from './queue';
 import { PersoChannel } from './channels/channel-perso';
-import { StrapChannel } from './channel-strap';
+import { StrapChannel } from './channels/channel-strap';
 import { PersoStore } from './render/create-perso';
 
 const INIT = '_initial_';
+
+export const Clock = new Timer({ endsAt: END_SEQUENCE });
+
 /**
  * @param events Events
  * @param store object
@@ -19,14 +22,13 @@ type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = [string, Eventime];
 
-export const Clock = new Timer({ endsAt: END_SEQUENCE });
-
 export class Timeline {
-	defaultChannelName = DEFAULT_CHANNEL_NAME;
 	channels = new Map();
-	times: number[] = [];
+
 	data = new Map<string, EventData>();
 	events = new Map<string, EventChannel>();
+
+	times: number[] = [];
 	nextEvent = new Map<number, CasualEvent[]>();
 
 	constructor({ persos, events }) {
@@ -52,7 +54,7 @@ export class Timeline {
 			perso.actions[INIT] = perso.initial;
 		});
 		const event: Eventime = {
-			channel: this.defaultChannelName,
+			channel: DEFAULT_CHANNEL_NAME,
 			name: INIT,
 			startAt: 0,
 		};
@@ -81,7 +83,7 @@ export class Timeline {
 	};
 
 	private _registerEvent = (_event_: Eventime) => {
-		const channel = _event_.channel || this.defaultChannelName;
+		const channel = _event_.channel || DEFAULT_CHANNEL_NAME;
 		// un event ajouté sans startAt est exécuté immédiatement
 		// rendre l'intention plus explicite ? startAt = -1 , ou bien startAt = "now" -> voir avec les labels
 		const event = { ..._event_, startAt: _event_.startAt || Clock.status.currentTime + TIME_INTERVAL };
