@@ -9,26 +9,31 @@ import { createRender } from '../render/render-DOM';
 import { END_SEQUENCE, DEFAULT_CHANNEL_NAME, ROOT, INIT } from '../common/constants';
 
 import type { Eventime, Store } from '../types';
+import { Tracks } from '.';
 
 type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = [string, Eventime];
 
-type EventTracks = Record<string, Eventime>;
+type TrackName = string;
+
+type EventTracks = Record<TrackName, Eventime>;
 type TimelineOptions = {
 	persos: Store;
-	events?: EventTracks;
+	tracks?: EventTracks;
 };
 
 export const Clock = new Timer({ endsAt: END_SEQUENCE });
 
 export class Timeline {
 	channels = new Map();
-
-	constructor({ persos, events }: TimelineOptions) {
+	tracks;
+	constructor({ persos, tracks }: TimelineOptions) {
 		/* 
   comment importer TrackManager ici ?
   */
+		this.tracks = new Tracks(tracks);
+
 		const trackManagerAddEvent = () => {};
 		const store = createStore(persos, trackManagerAddEvent);
 		this._initChannels(store);
