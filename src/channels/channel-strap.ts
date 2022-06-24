@@ -9,7 +9,7 @@ import type { PersoStore } from '../render/create-perso';
 import type { ChannelOptions, ChannelProps } from './channel';
 
 export class StrapChannel extends Channel {
-	name: ChannelName = ChannelName.STRAP;
+	name = ChannelName.STRAP;
 	strap = new Map<string, any>();
 
 	constructor(options: ChannelOptions) {

@@ -9,33 +9,32 @@ import { createRender } from '../render/render-DOM';
 import { END_SEQUENCE, DEFAULT_CHANNEL_NAME, ROOT, INIT } from '../common/constants';
 
 import type { Eventime, Store } from '../types';
-import { Tracks } from '.';
+import { TrackManager } from '.';
 
 type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = [string, Eventime];
 
 type TrackName = string;
-
 type EventTracks = Record<TrackName, Eventime>;
-type TimelineOptions = {
+export interface Options {
+	defaultTrackName: TrackName;
+}
+interface TimelineConfig {
 	persos: Store;
 	tracks?: EventTracks;
-};
+	options?: Options;
+}
 
 export const Clock = new Timer({ endsAt: END_SEQUENCE });
-
+const channels = [PersoChannel, StrapChannel];
 export class Timeline {
 	channels = new Map();
-	tracks;
-	constructor({ persos, tracks }: TimelineOptions) {
-		/* 
-  comment importer TrackManager ici ?
-  */
-		this.tracks = new Tracks(tracks);
+	tracks: TrackManager;
 
-		const trackManagerAddEvent = () => {};
-		const store = createStore(persos, trackManagerAddEvent);
+	constructor({ persos, tracks, options }: TimelineConfig) {
+		this.tracks = new TrackManager(tracks, options);
+		const store = createStore(persos, this.tracks.addEvent);
 		this._initChannels(store);
 		this._addInitialEvents(store);
 	}
@@ -43,7 +42,7 @@ export class Timeline {
 	private _initChannels(store: PersoStore) {
 		const render = createRender(store);
 		const queue = new QueueActions(render);
-		[PersoChannel, StrapChannel].forEach((Channel) => {
+		channels.forEach((Channel) => {
 			const channel = new Channel({ queue, timer: Clock });
 			channel.addStore(store);
 			this.addChannel(channel);
@@ -59,16 +58,15 @@ export class Timeline {
 			name: INIT,
 			startAt: 0,
 		};
-		// this._registerEvent(event);
+		this.tracks.addEvent(event);
 	}
 
 	addChannel(channel: Channel) {
-		// channel.addEvent = this.addEvent;
+		channel.addEvent = this.tracks.addEvent;
 		// channel.executeEvent = this.executeEvent.bind(this);
 		// channel.next = this.next;
 		channel.init();
 		this.channels.set(channel.name, channel);
-		// this.events.set(channel.name, new Map());
 	}
 }
 

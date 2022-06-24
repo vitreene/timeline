@@ -1,8 +1,9 @@
-import { QueueActions } from './queue';
-import { CbStatus, Timer } from './clock';
+import { Timer } from '../clock';
+import { QueueActions } from '../queue';
+import { PersoStore } from '../render/create-perso';
 
-import { ChannelName, Eventime } from './types';
-import { PersoStore } from './render/create-perso';
+import type { CbStatus } from '../clock';
+import type { ChannelName, Eventime } from '../types';
 
 export interface ChannelProps {
 	name: string;
@@ -19,9 +20,9 @@ export interface ChannelOptions {
 
 // timer et store sont injectés par le parent
 export class Channel {
+	name: ChannelName;
 	store: PersoStore;
 	timer: Timer;
-	name: ChannelName;
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
 	executeEvent: (event: Eventime, name: string, status: CbStatus) => void;

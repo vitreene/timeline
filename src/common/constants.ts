@@ -22,6 +22,8 @@ export const SEEKING = 'seeking';
 
 export const DEFAULT_TRACK_NAME = PLAY;
 export const DEFAULT_CHANNEL_NAME = ChannelName.DEFAULT;
+export const channelsName = Array.from(new Set(Object.values(ChannelName)));
+
 export const DEFAULT_STYLES = {
 	x: 0,
 	y: 0,

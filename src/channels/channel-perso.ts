@@ -10,7 +10,7 @@ import type { ChannelProps } from './channel';
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
-	name: ChannelName = ChannelName.MAIN;
+	name = ChannelName.MAIN;
 	reset(): void {
 		this.store.persos.forEach((perso) => perso.reset());
 	}

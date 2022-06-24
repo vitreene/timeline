@@ -68,17 +68,51 @@ const englishEvents: Eventime = {
 	data: { tutu: 2 },
 };
 
+const TRACK_PLAY = 'trackPlay';
+const TRACK_PAUSE = 'trackPause';
+const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
-	trackPlay: playEvents,
-	trackPause: pauseEvents,
-	trackEnglish: englishEvents,
+	[TRACK_PLAY]: playEvents,
+	[TRACK_PAUSE]: pauseEvents,
+	[TRACK_ENGLISH]: englishEvents,
+};
+
+const options = {
+	defaultTrackName: TRACK_PLAY,
 };
 
 // EXECUTE PLAN
-const Manager = new Timeline({ persos, tracks });
+type Time = number;
+export class Telco extends Timeline {
+	play() {
+		const action = {
+			active: [TRACK_PLAY, TRACK_ENGLISH],
+			inactive: [TRACK_PAUSE],
+			refTrack: TRACK_PLAY,
+		};
 
-Manager.tracks.play();
-Manager.tracks.pause();
-// Manager.tracks.play();
+		this.tracks.control('play', action);
+		console.log('play', this.tracks.current);
+	}
+
+	pause() {
+		const action = {
+			active: [TRACK_PAUSE],
+			inactive: [TRACK_PLAY, TRACK_ENGLISH], //TODO  others
+			refTrack: TRACK_PAUSE,
+		};
+		this.tracks.control('pause', action);
+		console.log('pause', this.tracks.current);
+	}
+
+	seek(time: Time) {
+		//TODO
+	}
+}
+const Manager = new Telco({ persos, tracks, options });
+
+Manager.play();
+Manager.pause();
+Manager.play();
 const runs = Manager.tracks.getEvents(1000, Clock.status);
 console.log(runs);

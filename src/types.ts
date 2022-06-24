@@ -7,7 +7,7 @@ export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHy
 export interface Eventime {
 	name?: string;
 	startAt: number;
-	channel?: string;
+	channel?: ChannelName;
 	track?: string;
 	data?: any;
 	events?: Eventime[];
