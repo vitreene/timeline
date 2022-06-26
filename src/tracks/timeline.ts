@@ -32,31 +32,40 @@ export const channelList = [PersoChannel, StrapChannel];
 
 type ChannelsMap = Map<ChannelName, Channel>;
 
+/// SCENELINE
 export class Timeline {
 	channels: ChannelsMap;
-	// comment propager un nouveau channel  vers Tracks ?
-	addChannel: (channel: Channel) => void;
 	tracks: TrackManager;
 
 	constructor({ persos, tracks, options }: TimelineConfig) {
+		this.run = this.run.bind(this);
+		this.seek = this.seek.bind(this);
+
 		this.tracks = new TrackManager(tracks, options);
 		const handler = this.tracks.addEvent.bind(this.tracks);
 		const store = createStore(persos, handler);
-		const { channels, addChannel } = channelManager(store, handler);
+		const channels = channelManager(store, handler);
 		this.channels = channels;
-		this.addChannel = addChannel;
+		Clock.on(this.run);
 	}
 
-	seek = (status: CbStatus) => {};
+	seek(status: CbStatus) {}
 
-	run = (status: CbStatus) => {
+	run(status: CbStatus) {
 		if (status.action === SEEK) return this.seek(status);
 
 		const controlName = this.tracks.controlName;
 		const times = this.tracks.times.get(controlName);
 		const ti = timeIndexes(times, status.currentTime);
 
-		ti.forEach((time) => this.tracks.getEvents(time, status));
+		ti.forEach((time) => {
+			const runs = this.tracks.getEvents(time, status);
+			console.log('RUNS', runs);
+
+			for (const channel in runs) {
+				this.channels.has(channel as ChannelName) && this.channels.get(channel as ChannelName).run(runs[channel]);
+			}
+		});
 
 		if (status.endClock) {
 			this.channels.forEach((channel) => channel.run({ name: 'end-clock', time: status.currentTime, status }));
@@ -74,7 +83,7 @@ export class Timeline {
 			// console.log('nextEvent', this.nextEvent);
 			console.log('///////////////////////////////');
 		}
-	};
+	}
 }
 
 function timeIndexes(times: number[], currentTime: number) {
@@ -108,10 +117,7 @@ function channelManager(store: PersoStore, handler: AddEvent) {
 		channel.init();
 		channels.set(channel.name, channel);
 	}
-	return {
-		channels,
-		addChannel,
-	};
+	return channels;
 }
 
 // PERSOS////////////

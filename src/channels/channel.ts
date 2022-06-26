@@ -1,12 +1,11 @@
-import { Timer } from '../clock';
-import { QueueActions } from '../queue';
-import { PersoStore } from '../render/create-perso';
-
+import type { Timer } from '../clock';
 import type { CbStatus } from '../clock';
+import type { QueueActions } from '../queue';
 import type { ChannelName, Eventime } from '../types';
+import type { PersoStore } from '../render/create-perso';
 
 export type ActionName = string;
-export interface ChannelProps {
+export interface RunEvent {
 	name: ActionName;
 	time: number;
 	status: CbStatus;
@@ -34,7 +33,6 @@ export class Channel {
 		options.name && (this.name = options.name);
 		if (options.queue) {
 			this.queue = options.queue;
-			console.log(this.queue);
 			this.timer.subscribeTick(this.queue.flush);
 		}
 	}
@@ -43,7 +41,7 @@ export class Channel {
 		this.store = store;
 	}
 
-	run(_props: ChannelProps): void {
+	run(props: RunEvent): void {
 		console.warn(`\x1b[34m Channel \x1b[35m${this.constructor['name']} \x1b[34m  must define a "run" property`);
 	}
 

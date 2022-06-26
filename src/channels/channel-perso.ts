@@ -5,7 +5,7 @@ import { Layer } from '../render/components/layer';
 import { FORWARD, PLAY, SEEK } from '../common/constants';
 
 import type { Transition, Move, PersoItem } from '../types';
-import type { ChannelProps } from './channel';
+import type { RunEvent } from './channel';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
@@ -15,8 +15,8 @@ export class PersoChannel extends Channel {
 		this.store.persos.forEach((perso) => perso.reset());
 	}
 
-	run({ name, time, status, data }: ChannelProps): void {
-		// console.log('RUN PERSO', { time, name, data });
+	run({ name, time, status, data }: RunEvent): void {
+		console.log('RUN PERSO', { time, name, data, status });
 
 		if (status.seekAction === FORWARD) return;
 		if (status.action === SEEK) {

@@ -202,6 +202,7 @@ export class Timer extends Clock {
 		this.status = defaultStatus;
 		this.play();
 		this.loop(initial);
+		console.log('START', this);
 	}
 
 	rewind() {}

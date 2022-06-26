@@ -18,7 +18,7 @@ export class StrapChannel extends Channel {
 	}
 
 	registerStrap = (straps) => {
-		const options = { queue: this.queue, timer: this.timer, addEvent: this._addEvent };
+		const options = { queue: this.queue, addEvent: this._addEvent };
 		for (const name in straps) {
 			const Strap = straps[name];
 			const next = this._next(Strap.publicName);

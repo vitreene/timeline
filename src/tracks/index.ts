@@ -1,10 +1,11 @@
-import { Clock } from '../timeline';
+import { Clock } from '../tracks/timeline';
 import { CbStatus } from 'src/clock';
 import { Options } from './timeline';
 
 import { channelsName, DEFAULT_CHANNEL_NAME, STRAP, TIME_INTERVAL } from '../common/constants';
 
 import type { ChannelName, Eventime } from '../types';
+import { RunEvent } from 'src/channels/channel';
 
 type Time = number;
 type TrackName = string;
@@ -83,12 +84,7 @@ interface TrackManagerCurrentProps {
 	events: Track['events'];
 	data: Track['data'];
 }
-interface RunEvent {
-	name: string;
-	time: Time;
-	data: any;
-	status: CbStatus;
-}
+
 type RunEvents = Record<ChannelName, RunEvent[]>;
 
 export class TrackManager {
@@ -152,10 +148,12 @@ export class TrackManager {
 		this.times.set(control, sortUnique(times));
 	}
 
-	getEvents(time: number, status: CbStatus): Partial<RunEvents> {
-		const runs = {};
+	getEvents(time: number, status: CbStatus) {
+		const runs: Partial<RunEvents> = {};
 		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
 			eventsByChannel.forEach((events, channel) => {
+				console.log(channel, { events });
+				if (!events.size) return;
 				if (!runs[channel]) runs[channel] = [];
 				if (events.has(time)) {
 					events.get(time).forEach((name) => {

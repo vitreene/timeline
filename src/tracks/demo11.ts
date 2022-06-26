@@ -1,5 +1,5 @@
 import { Timeline } from './timeline';
-import { Clock } from '../timeline';
+import { Clock } from '../tracks/timeline';
 import { MAIN, ROOT, STRAP } from '../common/constants';
 
 import { Eventime, PersoElementType, Store } from '../types';
@@ -105,13 +105,14 @@ export class Telco extends Timeline {
 		console.log('pause', this.tracks.current);
 	}
 
-	seek(time: Time) {
+	_seek_(time: Time) {
 		//TODO
 	}
 }
-const Manager = new Telco({ persos, tracks, options });
 
+const Manager = new Telco({ persos, tracks, options });
 Manager.play();
+Clock.start();
 Manager.pause();
 Manager.play();
 const runs = Manager.tracks.getEvents(1000, Clock.status);

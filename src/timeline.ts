@@ -11,7 +11,7 @@ import { PersoStore } from './render/create-perso';
 
 const INIT = '_initial_';
 
-export const Clock = new Timer({ endsAt: END_SEQUENCE });
+const Clock = new Timer({ endsAt: END_SEQUENCE });
 
 /**
  * @param events Events
