@@ -5,8 +5,9 @@ import { PersoStore } from '../render/create-perso';
 import type { CbStatus } from '../clock';
 import type { ChannelName, Eventime } from '../types';
 
+export type ActionName = string;
 export interface ChannelProps {
-	name: string;
+	name: ActionName;
 	time: number;
 	status: CbStatus;
 	data?: any;

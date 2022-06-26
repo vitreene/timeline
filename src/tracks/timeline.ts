@@ -1,15 +1,15 @@
-import { Channel } from '../channels/channel';
-import { PersoChannel } from '../channels/channel-perso';
-import { StrapChannel } from '../channels/channel-strap';
-import { Timer } from '../clock';
+import { TrackManager } from '.';
+import { CbStatus, Timer } from '../clock';
 import { QueueActions } from '../queue';
 import { PersoStore } from '../render/create-perso';
 import { createRender } from '../render/render-DOM';
+import { PersoChannel } from '../channels/channel-perso';
+import { StrapChannel } from '../channels/channel-strap';
 
-import { END_SEQUENCE, DEFAULT_CHANNEL_NAME, ROOT, INIT } from '../common/constants';
+import { END_SEQUENCE, DEFAULT_CHANNEL_NAME, ROOT, INIT, SEEK, TIME_INTERVAL } from '../common/constants';
 
-import type { Eventime, Store } from '../types';
-import { TrackManager } from '.';
+import { Channel } from '../channels/channel';
+import type { ChannelName, Eventime, Store } from '../types';
 
 type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
@@ -27,58 +27,117 @@ interface TimelineConfig {
 }
 
 export const Clock = new Timer({ endsAt: END_SEQUENCE });
-const channels = [PersoChannel, StrapChannel];
+
+export const channelList = [PersoChannel, StrapChannel];
+
+type ChannelsMap = Map<ChannelName, Channel>;
+
 export class Timeline {
-	channels = new Map();
+	channels: ChannelsMap;
+	// comment propager un nouveau channel  vers Tracks ?
+	addChannel: (channel: Channel) => void;
 	tracks: TrackManager;
 
 	constructor({ persos, tracks, options }: TimelineConfig) {
 		this.tracks = new TrackManager(tracks, options);
-		const store = createStore(persos, this.tracks.addEvent);
-		this._initChannels(store);
-		this._addInitialEvents(store);
+		const handler = this.tracks.addEvent.bind(this.tracks);
+		const store = createStore(persos, handler);
+		const { channels, addChannel } = channelManager(store, handler);
+		this.channels = channels;
+		this.addChannel = addChannel;
 	}
 
-	private _initChannels(store: PersoStore) {
-		const render = createRender(store);
-		const queue = new QueueActions(render);
-		channels.forEach((Channel) => {
-			const channel = new Channel({ queue, timer: Clock });
-			channel.addStore(store);
-			this.addChannel(channel);
-		});
-	}
+	seek = (status: CbStatus) => {};
 
-	private _addInitialEvents(store: PersoStore) {
-		store.persos.forEach((perso) => {
-			perso.actions[INIT] = perso.initial;
-		});
-		const event: Eventime = {
-			channel: DEFAULT_CHANNEL_NAME,
-			name: INIT,
-			startAt: 0,
-		};
-		this.tracks.addEvent(event);
-	}
+	run = (status: CbStatus) => {
+		if (status.action === SEEK) return this.seek(status);
 
-	addChannel(channel: Channel) {
-		channel.addEvent = this.tracks.addEvent;
+		const controlName = this.tracks.controlName;
+		const times = this.tracks.times.get(controlName);
+		const ti = timeIndexes(times, status.currentTime);
+
+		ti.forEach((time) => this.tracks.getEvents(time, status));
+
+		if (status.endClock) {
+			this.channels.forEach((channel) => channel.run({ name: 'end-clock', time: status.currentTime, status }));
+			console.log('//////////END CLOCK/////////////');
+			console.log('END', status.currentTime);
+			console.log(
+				'events:',
+				this.tracks.current.forEach(({ events }) => events)
+			);
+			// console.log('times', this.times);
+			console.log(
+				'data',
+				this.tracks.current.forEach(({ data }) => data)
+			);
+			// console.log('nextEvent', this.nextEvent);
+			console.log('///////////////////////////////');
+		}
+	};
+}
+
+function timeIndexes(times: number[], currentTime: number) {
+	const timeIndexes: number[] = [];
+	let i = times.findIndex((t) => t === currentTime);
+
+	if (i > -1)
+		while (times[i] < currentTime + TIME_INTERVAL) {
+			times[i] !== undefined && timeIndexes.push(times[i]);
+			i++;
+		}
+	return timeIndexes;
+}
+
+/// CHANNELS
+function channelManager(store: PersoStore, handler: AddEvent) {
+	const channels: ChannelsMap = new Map();
+
+	const render = createRender(store);
+	const queue = new QueueActions(render);
+	channelList.forEach((Channel) => {
+		const channel = new Channel({ queue, timer: Clock });
+		channel.addStore(store);
+		addChannel(channel);
+	});
+
+	function addChannel(channel: Channel) {
+		channel.addEvent = handler;
 		// channel.executeEvent = this.executeEvent.bind(this);
 		// channel.next = this.next;
 		channel.init();
-		this.channels.set(channel.name, channel);
+		channels.set(channel.name, channel);
 	}
+	return {
+		channels,
+		addChannel,
+	};
 }
 
 // PERSOS////////////
+type AddEvent = TrackManager['addEvent'];
 const root = document.getElementById('app');
 
-function createStore(persos: Store, handler) {
+function createStore(persos: Store, handler: AddEvent): PersoStore {
+	addInitialEvents(persos, handler);
 	const store = new PersoStore(handler);
 	for (const id in persos) {
 		const perso = store.add(id, persos[id]);
+
 		// Provisoire
 		id === ROOT && root.appendChild(perso.node);
 	}
 	return store;
+}
+
+function addInitialEvents(persos: Store, handler: AddEvent) {
+	for (const id in persos) {
+		persos[id].actions[INIT] = persos[id].initial;
+	}
+	const event: Eventime = {
+		channel: DEFAULT_CHANNEL_NAME,
+		name: INIT,
+		startAt: 0,
+	};
+	handler(event);
 }

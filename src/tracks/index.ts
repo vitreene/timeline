@@ -92,15 +92,18 @@ interface RunEvent {
 type RunEvents = Record<ChannelName, RunEvent[]>;
 
 export class TrackManager {
+	// track par défaut où sont rajoutés les events dynamiques
+	refTrack: string;
 	// données importées : un par track
 	tracks = new Map<TrackName, Track>();
 	current = new Map<TrackName, TrackManagerCurrentProps>();
 
+	// control en cours
+	controlName: ControlName;
 	// elements générés : un par controleur
 	times = new Map<ControlName, Time[]>();
+
 	nextEvent;
-	// track par défaut où sont rajoutés les events dynamiques
-	refTrack: string;
 
 	// collection : Clock.status
 	clock = new Map<ClockName, CbStatus>();
@@ -127,6 +130,7 @@ export class TrackManager {
 	}
 
 	control(control: string, action: { active: string[]; inactive: string[]; refTrack?: string }) {
+		this.controlName = control;
 		this.refTrack = action.refTrack || action.active[0];
 		const times = [];
 		action.active.forEach((name) => {
@@ -164,8 +168,6 @@ export class TrackManager {
 		return runs;
 	}
 }
-
-const channels = [DEFAULT_CHANNEL_NAME, STRAP];
 
 // sort array of numbers , numbers must be unique
 // peut etre optimisée
