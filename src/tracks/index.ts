@@ -1,5 +1,5 @@
 import { Clock } from '../tracks/timeline';
-import { CbStatus } from 'src/clock';
+import { CbStatus, Status } from 'src/clock';
 import { Options } from './timeline';
 
 import { channelsName, DEFAULT_CHANNEL_NAME, STRAP, TIME_INTERVAL } from '../common/constants';
@@ -79,13 +79,18 @@ export class Track {
 }
 
 type ControlName = string;
-type ClockName = number;
+type ClockName = string;
 interface TrackManagerCurrentProps {
 	events: Track['events'];
 	data: Track['data'];
 }
-
 type RunEvents = Record<ChannelName, RunEvent[]>;
+interface ControlAction {
+	clock: ClockName;
+	active: TrackName[];
+	inactive: TrackName[];
+	refTrack?: string;
+}
 
 export class TrackManager {
 	// track par défaut où sont rajoutés les events dynamiques
@@ -100,13 +105,21 @@ export class TrackManager {
 	times = new Map<ControlName, Time[]>();
 
 	nextEvent;
+	runs = new Set<(status: CbStatus) => void>();
 
 	// collection : Clock.status
 	clock = new Map<ClockName, CbStatus>();
+	refClock: ClockName;
 
 	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
 		this.refTrack = options.defaultTrackName;
 		tracks && this.addTrack(tracks, channelsName);
+		this.run = this.run.bind(this);
+		Clock.subscribe(this.run);
+	}
+
+	run(status: CbStatus) {
+		this.runs.forEach((run) => run(status));
 	}
 
 	addTrack(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
@@ -125,7 +138,13 @@ export class TrackManager {
 		this.tracks.has(track) && this.tracks.get(track).addEvent(event);
 	}
 
-	control(control: string, action: { active: string[]; inactive: string[]; refTrack?: string }) {
+	control(control: string, action: ControlAction) {
+		//
+		const newRefClock = this.clock.has(action.clock) ? (this.clock.get(action.clock) as Status) : undefined;
+		const oldStatus = Clock.swap(newRefClock);
+		this.refClock && this.clock.set(this.refClock, oldStatus);
+		this.refClock = action.clock;
+
 		this.controlName = control;
 		this.refTrack = action.refTrack || action.active[0];
 		const times = [];
@@ -144,7 +163,7 @@ export class TrackManager {
 				track.onExit();
 			}
 		});
-		this.clock.set(mapClock[control], Clock.status);
+		// this.clock.set(mapClock[control], Clock.status);
 		this.times.set(control, sortUnique(times));
 	}
 
@@ -152,7 +171,6 @@ export class TrackManager {
 		const runs: Partial<RunEvents> = {};
 		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
 			eventsByChannel.forEach((events, channel) => {
-				console.log(channel, { events });
 				if (!events.size) return;
 				if (!runs[channel]) runs[channel] = [];
 				if (events.has(time)) {

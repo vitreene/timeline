@@ -14,6 +14,7 @@ export interface Status {
 	nextTime: number;
 	seekTime?: number;
 	seekAction?: string;
+	precTime: number;
 }
 export interface CbStatus extends Partial<Status> {
 	endClock?: boolean;
@@ -25,10 +26,11 @@ interface Props {
 	audioContext: { currentTime: number };
 }
 
-const defaultStatus: Status = {
+export const defaultStatus: Status = {
 	elapsed: 0,
 	pauseTime: 0,
 	headTime: 0,
+	precTime: -TIME_INTERVAL,
 	currentTime: 0,
 	action: PAUSE,
 	hasAborted: false,
@@ -37,7 +39,6 @@ const defaultStatus: Status = {
 };
 
 class Clock {
-	oldTime = 0;
 	raf: number;
 	status: Status = defaultStatus;
 	tick = new Set<Cb>();
@@ -54,8 +55,8 @@ class Clock {
 		this.subscribers.get(DEFAULT_TIMER).cb.add(this.onEndLoop(props.endsAt));
 	}
 
-	addTimer(track: string, guard: Guard) {
-		this.subscribers.set(track, { guard, cb: new Set<Cb>() });
+	addTimer(frequency: string, guard: Guard) {
+		this.subscribers.set(frequency, { guard, cb: new Set<Cb>() });
 	}
 
 	onEndLoop =
@@ -72,19 +73,19 @@ class Clock {
 		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
-	subscribe = (track: string = DEFAULT_TIMER, subcription: Cb) => {
-		if (track === TICK) return this.subscribeTick(subcription);
+	subscribe = (subcription: Cb, frequency: string = DEFAULT_TIMER) => {
+		if (frequency === TICK) return this.subscribeTick(subcription);
 
-		if (!this.subscribers.has(track)) return console.error(`Can't subscribe to ${track} : unknown track.`);
-		const { cb } = this.subscribers.get(track);
+		if (!this.subscribers.has(frequency)) return console.error(`Can't subscribe to ${frequency} : unknown frequency.`);
+		const { cb } = this.subscribers.get(frequency);
 
 		if (!cb.has(subcription)) {
 			cb.add(subcription);
-			return this.unSubscribe(track, subcription);
+			return this.unSubscribe(subcription, frequency);
 		} else console.warn('this subcription already exist', subcription.name);
 	};
 
-	unSubscribe = (track: string, fct: Cb) => () => this.subscribers.get(track).cb.delete(fct);
+	unSubscribe = (fct: Cb, frequency: string) => () => this.subscribers.get(frequency).cb.delete(fct);
 
 	subscribeTick = (subcription: Cb) => {
 		this.tick.add(subcription);
@@ -94,10 +95,11 @@ class Clock {
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
 	loop = (initial: number) => {
-		let oldTime = -10; // pour démarrer à 0
+		this.status.precTime = initial - TIME_INTERVAL; // pour démarrer à 0
+
 		const start = performance.now() - initial;
 
-		const _loop = () => {
+		const loop_ = () => {
 			if (this.status.hasAborted) {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
@@ -117,21 +119,23 @@ class Clock {
 				Si la différence entre _currentTime et oldTime n'est pas suffisante,
 				il n'y a pas d'actualisation.
 				*/
+
 						const currentTime = elapsed - this.status.pauseTime;
-						const cents = (currentTime - oldTime) / 10;
+						const cents = (currentTime - this.status.precTime) / 10;
 						for (let c = 1; c <= cents; c++) {
 							setTimeout(() => {
 								const _currentTime = currentTime - (cents - c) * 10;
 								this.status = {
 									...this.status,
-									timers,
+									timers, //
 									elapsed,
+									precTime: _currentTime,
 									currentTime: _currentTime,
-									nextTime: _currentTime + TIME_INTERVAL,
+									nextTime: _currentTime + TIME_INTERVAL, //
 									headTime: Math.max(this.status.headTime, _currentTime),
 								};
 
-								oldTime = this.status.currentTime;
+								this.status.precTime = this.status.currentTime;
 
 								this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 							});
@@ -149,7 +153,7 @@ class Clock {
 						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
 						this.tick.forEach((fn) => fn(this.status));
 
-						oldTime = this.status.currentTime;
+						this.status.precTime = this.status.currentTime;
 						this.status.action = SEEKING;
 					}
 					break;
@@ -166,17 +170,23 @@ class Clock {
 
 				case PAUSE:
 					{
-						this.status.pauseTime = elapsed - oldTime;
+						this.status.pauseTime = elapsed - this.status.precTime;
 						this.tick.forEach((fn) => fn(this.status));
 					}
 					break;
 			}
 
-			this.raf = requestAnimationFrame(_loop);
+			this.raf = requestAnimationFrame(loop_);
 		};
 
-		_loop();
+		loop_();
 	};
+
+	swap(newStatus: Status | undefined = defaultStatus) {
+		const status = this.status;
+		this.status = newStatus;
+		return status;
+	}
 }
 
 export class Timer extends Clock {
@@ -210,8 +220,8 @@ export class Timer extends Clock {
 		this.status.hasAborted = true;
 	}
 
-	on = (fct: Cb) => this.subscribe(DEFAULT_TIMER, fct);
-	off = (fct: Cb) => this.unSubscribe(DEFAULT_TIMER, fct);
+	on = (fct: Cb) => this.subscribe(fct, DEFAULT_TIMER);
+	off = (fct: Cb) => this.unSubscribe(fct, DEFAULT_TIMER);
 
 	onTick = this.subscribeTick;
 	offTick = this.unSubscribeTick;

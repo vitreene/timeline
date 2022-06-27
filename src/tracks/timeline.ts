@@ -8,7 +8,7 @@ import { StrapChannel } from '../channels/channel-strap';
 
 import { END_SEQUENCE, DEFAULT_CHANNEL_NAME, ROOT, INIT, SEEK, TIME_INTERVAL } from '../common/constants';
 
-import { Channel } from '../channels/channel';
+import { Channel, RunEvent } from '../channels/channel';
 import type { ChannelName, Eventime, Store } from '../types';
 
 type EventChannel = Map<number, Set<string>>;
@@ -42,11 +42,10 @@ export class Timeline {
 		this.seek = this.seek.bind(this);
 
 		this.tracks = new TrackManager(tracks, options);
-		const handler = this.tracks.addEvent.bind(this.tracks);
-		const store = createStore(persos, handler);
-		const channels = channelManager(store, handler);
-		this.channels = channels;
-		Clock.on(this.run);
+		const addEvent = this.tracks.addEvent.bind(this.tracks);
+		const store = createStore(persos, addEvent);
+		this.channels = channelManager(store, addEvent);
+		this.tracks.runs.add(this.run);
 	}
 
 	seek(status: CbStatus) {}
@@ -60,10 +59,10 @@ export class Timeline {
 
 		ti.forEach((time) => {
 			const runs = this.tracks.getEvents(time, status);
-			console.log('RUNS', runs);
 
 			for (const channel in runs) {
-				this.channels.has(channel as ChannelName) && this.channels.get(channel as ChannelName).run(runs[channel]);
+				this.channels.has(channel as ChannelName) &&
+					runs[channel].forEach((run: RunEvent) => this.channels.get(channel as ChannelName).run(run));
 			}
 		});
 
@@ -71,14 +70,16 @@ export class Timeline {
 			this.channels.forEach((channel) => channel.run({ name: 'end-clock', time: status.currentTime, status }));
 			console.log('//////////END CLOCK/////////////');
 			console.log('END', status.currentTime);
+			console.log(this.tracks);
+			const current = Array.from(this.tracks.current.values());
 			console.log(
 				'events:',
-				this.tracks.current.forEach(({ events }) => events)
+				current.map(({ events }) => events)
 			);
 			// console.log('times', this.times);
 			console.log(
 				'data',
-				this.tracks.current.forEach(({ data }) => data)
+				current.map(({ data }) => data)
 			);
 			// console.log('nextEvent', this.nextEvent);
 			console.log('///////////////////////////////');
@@ -99,6 +100,7 @@ function timeIndexes(times: number[], currentTime: number) {
 }
 
 /// CHANNELS
+
 function channelManager(store: PersoStore, handler: AddEvent) {
 	const channels: ChannelsMap = new Map();
 
@@ -121,12 +123,12 @@ function channelManager(store: PersoStore, handler: AddEvent) {
 }
 
 // PERSOS////////////
-type AddEvent = TrackManager['addEvent'];
+export type AddEvent = TrackManager['addEvent'];
 const root = document.getElementById('app');
 
-function createStore(persos: Store, handler: AddEvent): PersoStore {
-	addInitialEvents(persos, handler);
-	const store = new PersoStore(handler);
+function createStore(persos: Store, addEvent: AddEvent): PersoStore {
+	addInitialEvents(persos, addEvent);
+	const store = new PersoStore(addEvent);
 	for (const id in persos) {
 		const perso = store.add(id, persos[id]);
 
@@ -136,7 +138,7 @@ function createStore(persos: Store, handler: AddEvent): PersoStore {
 	return store;
 }
 
-function addInitialEvents(persos: Store, handler: AddEvent) {
+function addInitialEvents(persos: Store, addEvent: AddEvent) {
 	for (const id in persos) {
 		persos[id].actions[INIT] = persos[id].initial;
 	}
@@ -145,5 +147,5 @@ function addInitialEvents(persos: Store, handler: AddEvent) {
 		name: INIT,
 		startAt: 0,
 	};
-	handler(event);
+	addEvent(event);
 }

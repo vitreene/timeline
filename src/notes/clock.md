@@ -26,3 +26,8 @@ y-a t'il des transitions qui doivent se terminer de toutes facons ?
 -> cela crée une divergeance dans la timeline, pas génable pour le moment.
 -> cependant, chaque timeline n'est pas enregistrée ; un changmement d'état vers et depuis une timeline non enregistrable ne sera pas gardée en cas de relecture.
 -> un élément est interrompu dans sa transition et change d'état dans le nouveau control. Il doit pouvoir reprendre sa position au retour pour poursuivre.
+
+Channel n'utilise que les souscriptions de Clock :
+
+- subscribe
+- subscribeTick

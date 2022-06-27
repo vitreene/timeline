@@ -3,6 +3,7 @@ import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
 import type { Action, Eventime, PersoItem, PersoNode } from '../types';
+import { AddEvent } from 'src/tracks/timeline';
 
 export interface HandlerEmit {
 	e: Event;
@@ -10,17 +11,15 @@ export interface HandlerEmit {
 	id: string;
 }
 
-type HandlerEvent = (event: Eventime) => void;
-
 export type StorePerso = Map<string, PersoItem>;
 
 export class PersoStore {
 	persos: StorePerso = new Map();
 	zoom = 1;
 	removeResize: () => void;
-	handler: HandlerEvent = null;
+	handler: AddEvent = null;
 
-	constructor(handler: HandlerEvent) {
+	constructor(handler: AddEvent) {
 		this.handler = handler;
 		this.initResize();
 	}
