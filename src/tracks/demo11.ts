@@ -1,8 +1,11 @@
-import { Timeline } from './timeline';
-import { Clock } from '../tracks/timeline';
 import { MAIN, ROOT, STRAP } from '../common/constants';
+import { Clock } from '../tracks/timeline';
+import { Timeline } from './timeline';
 
-import { Eventime, PersoElementType, Store } from '../types';
+import { createTelco } from '../demos/telco';
+import { PersoElementType } from '../types';
+import type { Eventime, Store } from '../types';
+import { CbStatus } from 'src/clock';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -59,12 +62,16 @@ const pauseEvents: Eventime = {
 	name: 'pause',
 	channel: STRAP,
 	data: { toto: 1 },
+	events: [
+		{ startAt: 200, name: 'pause_enter', channel: MAIN },
+		{ startAt: 1500, name: 'pause_exit', channel: MAIN },
+	],
 };
 
 const englishEvents: Eventime = {
-	startAt: 1000,
+	startAt: 100,
 	name: 'english',
-	channel: STRAP,
+	channel: MAIN,
 	data: { tutu: 2 },
 };
 
@@ -88,6 +95,7 @@ type Time = number;
 export class Telco extends Timeline {
 	start() {
 		Clock.start();
+		this.play();
 	}
 	play() {
 		const action = {
@@ -98,7 +106,7 @@ export class Telco extends Timeline {
 		};
 
 		this.tracks.control('play', action);
-		console.log('play', this.tracks.current);
+		console.log('TELCO play', this.tracks.current);
 	}
 
 	pause() {
@@ -109,19 +117,26 @@ export class Telco extends Timeline {
 			clock: CLOCK_PAUSE,
 		};
 		this.tracks.control('pause', action);
-		console.log('pause', this.tracks.current);
+		console.log('TELCO pause', this.tracks.current);
 	}
 
-	_seek_(time: Time) {
+	seek(progress: Time) {
+		console.log(progress);
+
 		//TODO
+	}
+
+	onTick(fn) {
+		Clock.onTick(fn);
 	}
 }
 
-const Manager = new Telco({ persos, tracks, options });
-Manager.start();
-Manager.play();
-setTimeout(() => Manager.pause(), 500);
-setTimeout(() => Manager.play(), 1000);
+const telco = new Telco({ persos, tracks, options });
+createTelco(telco);
 
-const runs = Manager.tracks.getEvents(1000, Clock.status);
-console.log(runs);
+telco.start();
+setTimeout(() => telco.pause(), 500);
+// setTimeout(() => telco.play(), 1200);
+
+// const runs = Manager.tracks.getEvents(1000, Clock.status);
+// console.log(runs);

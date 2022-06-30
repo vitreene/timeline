@@ -39,7 +39,7 @@ export class Timeline {
 
 	constructor({ persos, tracks, options }: TimelineConfig) {
 		this.run = this.run.bind(this);
-		this.seek = this.seek.bind(this);
+		this.seek_ = this.seek_.bind(this);
 
 		this.tracks = new TrackManager(tracks, options);
 		const addEvent = this.tracks.addEvent.bind(this.tracks);
@@ -48,12 +48,13 @@ export class Timeline {
 		this.tracks.runs.add(this.run);
 	}
 
-	seek(status: CbStatus) {}
+	private seek_(status: CbStatus) {}
 
 	run(status: CbStatus) {
-		if (status.action === SEEK) return this.seek(status);
+		if (status.action === SEEK) return this.seek_(status);
 
 		const controlName = this.tracks.controlName;
+
 		const times = this.tracks.times.get(controlName);
 		const ti = timeIndexes(times, status.currentTime);
 

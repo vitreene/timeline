@@ -18,7 +18,6 @@ export class Strap {
 	next: (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => void;
 
 	constructor(options: StrapProps) {
-		console.log('Strap', options);
 		this.store = options.store;
 		this.queue = options.queue;
 		this.addEvent = options.addEvent;
