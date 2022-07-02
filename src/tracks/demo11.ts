@@ -5,7 +5,7 @@ import { Timeline } from './timeline';
 import { createTelco } from '../demos/telco';
 import { PersoElementType } from '../types';
 import type { Eventime, Store } from '../types';
-import { CbStatus } from 'src/clock';
+import '../style.css';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -16,7 +16,6 @@ const persos: Store = {
 		type: PersoElementType.LAYER,
 		initial: {
 			tag: 'div',
-			id: ROOT,
 			className: 'root',
 		},
 		actions: {},
@@ -136,7 +135,7 @@ createTelco(telco);
 
 telco.start();
 setTimeout(() => telco.pause(), 500);
-// setTimeout(() => telco.play(), 1200);
+setTimeout(() => telco.play(), 1200);
 
 // const runs = Manager.tracks.getEvents(1000, Clock.status);
 // console.log(runs);

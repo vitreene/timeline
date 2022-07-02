@@ -45,8 +45,8 @@ export class PersoStore {
 		});
 	}
 
-	add(id: string, _perso: PersoNode) {
-		const perso = this.createPerso(id, _perso);
+	add(id: string, perso_: PersoNode) {
+		const perso = this.createPerso(id, perso_);
 		this.persos.set(id, perso);
 		return perso;
 	}
@@ -81,6 +81,8 @@ export class PersoStore {
 		const node = document.createElement(tag || 'div');
 		node.id = id;
 		const spread = this.spread.bind(this, node);
+		console.log(_initial);
+
 		spread(_initial);
 
 		const child = createContent(type, node);
@@ -108,6 +110,8 @@ export class PersoStore {
 			update,
 			//add/remove/Listener ?
 		};
+
+		console.log(id, node);
 
 		if (emit) {
 			node.dataset.id = id;
