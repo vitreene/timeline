@@ -5,7 +5,16 @@ import { PersoChannel } from '../channels/channel-perso';
 import { StrapChannel } from '../channels/channel-strap';
 import { PersoStore } from '../render/create-perso';
 
-import { DEFAULT_CHANNEL_NAME, END_SEQUENCE, INIT, ROOT, SEEK, TIME_INTERVAL } from '../common/constants';
+import {
+	BACKWARD,
+	DEFAULT_CHANNEL_NAME,
+	END_SEQUENCE,
+	FORWARD,
+	INIT,
+	ROOT,
+	SEEK,
+	TIME_INTERVAL,
+} from '../common/constants';
 
 import type { CbStatus } from '../clock';
 import type { Channel, RunEvent } from '../channels/channel';
@@ -13,7 +22,6 @@ import type { ChannelName, Eventime, Store } from '../types';
 
 type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
-type CasualEvent = [string, Eventime];
 
 type TrackName = string;
 type EventTracks = Record<TrackName, Eventime>;
@@ -45,6 +53,21 @@ export class Timeline {
 		this.channels = channelManager(store, addEvent);
 		this.tracks.runs.add(this.run);
 	}
+
+	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
+		if (status.currentTime < status.seekTime) {
+			const time = status.currentTime + TIME_INTERVAL;
+			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
+			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
+		} else {
+			this.tracks.setNext(name, { ...event, startAt: status.seekTime + TIME_INTERVAL });
+		}
+	};
+
+	runNext = (status: CbStatus) => {
+		const casuals = this.tracks.getNext(status);
+		casuals.forEach(({ channel, ...casual }) => this.channels.get(channel).run(casual));
+	};
 
 	private seek_(status: CbStatus) {}
 

@@ -2,7 +2,7 @@ import { Clock } from '../tracks/timeline';
 import { CbStatus, Status } from 'src/clock';
 import { Options } from './timeline';
 
-import { channelsName, DEFAULT_CHANNEL_NAME, STRAP, TIME_INTERVAL } from '../common/constants';
+import { BACKWARD, channelsName, DEFAULT_CHANNEL_NAME, FORWARD, STRAP, TIME_INTERVAL } from '../common/constants';
 
 import type { ChannelName, Eventime } from '../types';
 import { RunEvent } from 'src/channels/channel';
@@ -26,9 +26,10 @@ const mapClock = {
 
 export class Track {
 	name: TrackName;
-	events = new Map<ChannelName, EventChannel>();
-	data = new Map<string, EventData>();
 	times: number[] = [];
+	data = new Map<string, EventData>();
+	events = new Map<ChannelName, EventChannel>();
+	nextEvent = new Map<number, CasualEvent[]>();
 
 	constructor({ name, events, channels }: TracksProps) {
 		this.name = name;
@@ -81,10 +82,13 @@ export class Track {
 type ControlName = string;
 type ClockName = string;
 interface TrackManagerCurrentProps {
-	events: Track['events'];
 	data: Track['data'];
+	events: Track['events'];
+	nextEvent: Track['nextEvent'];
 }
 type RunEvents = Record<ChannelName, RunEvent[]>;
+type CasualEvent = [string, Eventime];
+
 interface ControlAction {
 	clock: ClockName;
 	active: TrackName[];
@@ -104,7 +108,6 @@ export class TrackManager {
 	// elements générés : un par controleur
 	times = new Map<ControlName, Time[]>();
 
-	nextEvent;
 	runs = new Set<(status: CbStatus) => void>();
 
 	// collection : Clock.status
@@ -139,7 +142,6 @@ export class TrackManager {
 	}
 
 	control(control: string, action: ControlAction) {
-		//
 		const newRefClock = this.clock.has(action.clock) ? (this.clock.get(action.clock) as Status) : undefined;
 		const oldStatus = Clock.swap(newRefClock);
 		this.refClock && this.clock.set(this.refClock, oldStatus);
@@ -151,8 +153,9 @@ export class TrackManager {
 		action.active.forEach((name) => {
 			const track = this.tracks.get(name);
 			if (track) {
+				const { events, data, nextEvent } = track;
 				track.onEnter();
-				this.current.set(name, { events: track.events, data: track.data });
+				this.current.set(name, { events, data, nextEvent });
 				times.push(...track.times);
 			}
 		});
@@ -163,8 +166,33 @@ export class TrackManager {
 				track.onExit();
 			}
 		});
-		// this.clock.set(mapClock[control], Clock.status);
 		this.times.set(control, sortUnique(times));
+	}
+
+	getNext(status: CbStatus) {
+		if (status.seekAction === BACKWARD) return;
+		status.seekAction === FORWARD && (status.currentTime += TIME_INTERVAL);
+		const { currentTime: time } = status;
+
+		const casuals = [];
+		this.current.forEach(({ nextEvent }) => {
+			if (nextEvent.has(time)) {
+				nextEvent
+					.get(time)
+					.forEach(([name, event]) => casuals.push({ name, time, status, data: event.data, channel: event.channel }));
+				nextEvent.delete(time);
+			}
+		});
+		return casuals;
+	}
+
+	setNext(name: string, event: Eventime) {
+		const time = event.startAt;
+		this.current.forEach(({ nextEvent }) => {
+			if (!nextEvent.has(time)) nextEvent.set(time, []);
+			const casual = nextEvent.get(time);
+			casual.push([name, event]);
+		});
 	}
 
 	getEvents(time: number, status: CbStatus) {
