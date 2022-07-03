@@ -2,8 +2,8 @@ import { calculateZoom } from './zoom';
 import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
-import type { Action, Eventime, PersoItem, PersoNode } from '../types';
-import { AddEvent } from 'src/tracks/timeline';
+import type { AddEvent } from '../tracks';
+import type { Action, PersoItem, PersoNode } from '../types';
 
 export interface HandlerEmit {
 	e: Event;
@@ -141,7 +141,7 @@ export class PersoStore {
 		}
 
 		for (const name in attributes) {
-			if (['content', 'tag'].includes(name)) continue;
+			if (['content', 'tag', 'id'].includes(name)) continue;
 			const value = attributes[name];
 			if (name in node) node[name] = value;
 			else node.setAttribute(name, value);

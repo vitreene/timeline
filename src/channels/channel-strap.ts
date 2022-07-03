@@ -1,12 +1,12 @@
 import * as straps from '../straps';
-import { Channel } from './channel';
+import { Channel, RunEvent } from './channel';
 import { ChannelName } from '../types';
 import { PLAY, FORWARD, TIME_INTERVAL } from '../common/constants';
 
 import type { Eventime } from '../types';
 import type { CbStatus } from '../clock';
 import type { PersoStore } from '../render/create-perso';
-import type { ChannelOptions, ChannelProps } from './channel';
+import type { ChannelOptions } from './channel';
 
 export class StrapChannel extends Channel {
 	name = ChannelName.STRAP;
@@ -18,10 +18,10 @@ export class StrapChannel extends Channel {
 	}
 
 	registerStrap = (straps) => {
-		const options = { queue: this.queue, addEvent: this._addEvent };
+		const options = { queue: this.queue, addEvent: this.addEvent_ };
 		for (const name in straps) {
 			const Strap = straps[name];
-			const next = this._next(Strap.publicName);
+			const next = this.next_(Strap.publicName);
 			const op = Object.assign({}, options, { next });
 
 			this.strap.set(Strap.publicName, new Strap(op));
@@ -30,7 +30,7 @@ export class StrapChannel extends Channel {
 		console.log('registerStrap', this.strap);
 	};
 
-	_addEvent = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
+	addEvent_ = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = {
 			startAt: status.currentTime + TIME_INTERVAL,
 			..._event,
@@ -38,28 +38,28 @@ export class StrapChannel extends Channel {
 		this.addEvent(event);
 	};
 
-	_next = (strapName: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
+	next_ = (strapName: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = { startAt: status.nextTime, ..._event };
 
 		if (status.action === PLAY) {
-			this.next(event, strapName);
+			this.next(strapName, event);
 		}
 		if (status.seekAction === FORWARD) {
 			this.executeEvent(event, event.name, status);
 		}
 	};
 
-	run({ name, status, data }: ChannelProps): void {
+	run({ name, status, data }: RunEvent): void {
 		if (this.strap.has(name)) {
-			const Strap = this.strap.get(name);
+			const strap = this.strap.get(name);
 
 			name === 'move' && console.log({ name, status, data });
 
 			if (status.action === PLAY && status.headTime === status.currentTime) {
-				Strap.run(status, data);
+				strap.run(status, data);
 			}
 			if (status.seekAction === FORWARD) {
-				Strap.run(status, data);
+				strap.run(status, data);
 			}
 		}
 	}

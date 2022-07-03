@@ -18,6 +18,8 @@ interface TracksProps {
 	events: Eventime;
 	channels: ChannelName[];
 }
+export type AddEvent = TrackManager['addEvent'];
+
 const mapClock = {
 	play: 1,
 	pause: 2,
@@ -211,6 +213,38 @@ export class TrackManager {
 		});
 		return runs;
 	}
+
+	getSeekEvents(status: CbStatus) {
+		const { currentTime, seekTime } = status;
+		status.seekAction = currentTime < seekTime ? FORWARD : BACKWARD;
+
+		const pastTimes = timeBefore(this.times.get(this.controlName), seekTime);
+		const forwardTimes =
+			status.seekAction === FORWARD && timeAfter(this.times.get(this.controlName), currentTime, seekTime);
+
+		const allEvents: Partial<RunEvents>[] = [];
+		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
+			[pastTimes, forwardTimes].filter(Boolean).forEach((times) => {
+				const runs: Partial<RunEvents> = {};
+				for (const time of times) {
+					eventsByChannel.forEach((events, channel) => {
+						if (!events.size) return;
+						if (!runs[channel]) runs[channel] = [];
+						if (events.has(time)) {
+							events.get(time).forEach((name) => {
+								const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
+								runs[channel].push({ name, time, data, status });
+							});
+						}
+					});
+				}
+				allEvents.push(runs);
+			});
+		});
+		return allEvents;
+	}
+
+	///END CLASS
 }
 
 // sort array of numbers , numbers must be unique
@@ -219,18 +253,6 @@ function sortUnique(numbers: number[]): number[] {
 	const sorted = numbers.sort((a, b) => a - b);
 	const unique = new Set(sorted);
 	return Array.from(unique);
-}
-
-function timeInInterval(times: Time[], currentTime: Time, interval = TIME_INTERVAL) {
-	const timeIndexes: Time[] = [];
-	let i = times.findIndex((t) => t === currentTime);
-
-	if (i > -1)
-		while (times[i] < currentTime + interval) {
-			times[i] !== undefined && timeIndexes.push(times[i]);
-			i++;
-		}
-	return timeIndexes;
 }
 
 function timeBefore(times: Time[], seekTime: Time) {
@@ -248,4 +270,16 @@ function timeAfter(times: Time[], currentTime: Time, seekTime: Time) {
 		if (time > currentTime && time < seekTime) after.push(time);
 	}
 	return after;
+}
+
+export function timeInInterval(times: Time[], currentTime: Time, interval = TIME_INTERVAL) {
+	const timeIndexes: Time[] = [];
+	let i = times.findIndex((t) => t === currentTime);
+
+	if (i > -1)
+		while (times[i] < currentTime + interval) {
+			times[i] !== undefined && timeIndexes.push(times[i]);
+			i++;
+		}
+	return timeIndexes;
 }

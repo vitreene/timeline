@@ -182,39 +182,43 @@ const _persos: Store = {
 	},
 };
 
-createTelco();
-
-const playEvents: Eventime = events;
-// const playEvents: Eventime = {
-// 	startAt: 500,
-// 	name: 'play',
-// 	channel: MAIN,
-// 	events: [
-// 		{ startAt: 400, name: 'enter', channel: MAIN },
-// 		{ startAt: 401, name: 'action01', channel: MAIN },
-// 		{ startAt: 500, name: 'action04', channel: MAIN },
-// 	],
-// };
+const playEvents: Eventime = {
+	startAt: 500,
+	name: 'play',
+	channel: MAIN,
+	events: [
+		{ startAt: 400, name: 'enter', channel: MAIN },
+		{ startAt: 401, name: 'action01', channel: MAIN },
+		{ startAt: 500, name: 'action04', channel: MAIN },
+	],
+};
 
 const pauseEvents: Eventime = {
 	startAt: 0,
 	name: 'pause',
 	channel: STRAP,
 	data: { toto: 1 },
+	events: [
+		{ startAt: 200, name: 'pause_enter', channel: MAIN },
+		{ startAt: 1500, name: 'pause_exit', channel: MAIN },
+	],
 };
 
 const englishEvents: Eventime = {
-	startAt: 1000,
+	startAt: 100,
 	name: 'english',
-	channel: STRAP,
+	channel: MAIN,
 	data: { tutu: 2 },
 };
 
+const CLOCK_PLAY = 'clockPlay';
+const CLOCK_PAUSE = 'clockPause';
 const TRACK_PLAY = 'trackPlay';
 const TRACK_PAUSE = 'trackPause';
 const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
-	[TRACK_PLAY]: playEvents,
+	// [TRACK_PLAY]: playEvents,
+	[TRACK_PLAY]: events,
 	[TRACK_PAUSE]: pauseEvents,
 	[TRACK_ENGLISH]: englishEvents,
 };
@@ -224,19 +228,23 @@ const options = {
 };
 
 const persos = _persos;
-
 // EXECUTE PLAN
 type Time = number;
 export class Telco extends Timeline {
+	start() {
+		Clock.start();
+		this.play();
+	}
 	play() {
 		const action = {
 			active: [TRACK_PLAY, TRACK_ENGLISH],
 			inactive: [TRACK_PAUSE],
 			refTrack: TRACK_PLAY,
+			clock: CLOCK_PLAY,
 		};
 
 		this.tracks.control('play', action);
-		console.log('play', this.tracks.current);
+		console.log('TELCO play', this.tracks.current);
 	}
 
 	pause() {
@@ -244,20 +252,26 @@ export class Telco extends Timeline {
 			active: [TRACK_PAUSE],
 			inactive: [TRACK_PLAY, TRACK_ENGLISH], //TODO  others
 			refTrack: TRACK_PAUSE,
+			clock: CLOCK_PAUSE,
 		};
 		this.tracks.control('pause', action);
-		console.log('pause', this.tracks.current);
+		console.log('TELCO pause', this.tracks.current);
 	}
 
-	_seek_(time: Time) {
+	seek(progress: Time) {
+		console.log(progress);
+
 		//TODO
+	}
+
+	onTick(fn) {
+		Clock.onTick(fn);
 	}
 }
 
-const Manager = new Telco({ persos, tracks, options });
-Manager.play();
-Clock.start();
-Manager.pause();
-Manager.play();
-const runs = Manager.tracks.getEvents(1000, Clock.status);
-console.log(runs);
+const telco = new Telco({ persos, tracks, options });
+createTelco(telco);
+
+telco.start();
+setTimeout(() => telco.pause(), 500);
+setTimeout(() => telco.play(), 1200);

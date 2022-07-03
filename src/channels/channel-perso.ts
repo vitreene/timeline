@@ -1,11 +1,11 @@
 import { Channel } from './channel';
-import { ChannelName } from '../types';
-import type { CbStatus } from '../clock';
+import type { RunEvent } from './channel';
 import { Layer } from '../render/components/layer';
 import { FORWARD, PLAY, SEEK } from '../common/constants';
 
+import { ChannelName } from '../types';
+import type { CbStatus } from '../clock';
 import type { Transition, Move, PersoItem } from '../types';
-import type { RunEvent } from './channel';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
