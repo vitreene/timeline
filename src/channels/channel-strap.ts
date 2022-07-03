@@ -30,16 +30,16 @@ export class StrapChannel extends Channel {
 		console.log('registerStrap', this.strap);
 	};
 
-	addEvent_ = (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
+	addEvent_ = (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = {
 			startAt: status.currentTime + TIME_INTERVAL,
-			..._event,
+			...event_,
 		};
 		this.addEvent(event);
 	};
 
-	next_ = (strapName: string) => (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		const event = { startAt: status.nextTime, ..._event };
+	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
+		const event = { startAt: status.nextTime, ...event_ };
 
 		if (status.action === PLAY) {
 			this.next(strapName, event);

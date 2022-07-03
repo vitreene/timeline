@@ -16,16 +16,15 @@ interface ChannelManagerProps {
 }
 export function channelManager({ store, addEvent, next, executeEvent }: ChannelManagerProps) {
 	const channels: ChannelsMap = new Map();
-
 	const render = createRender(store);
 	const queue = new QueueActions(render);
 	channelList.forEach((Channel) => {
 		const channel = new Channel({ queue, timer: Clock });
-		channel.addStore(store);
 		addChannel(channel);
 	});
 
 	function addChannel(channel: Channel) {
+		channel.addStore(store);
 		channel.next = next;
 		channel.addEvent = addEvent;
 		channel.executeEvent = executeEvent;

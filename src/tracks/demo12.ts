@@ -213,12 +213,13 @@ const englishEvents: Eventime = {
 
 const CLOCK_PLAY = 'clockPlay';
 const CLOCK_PAUSE = 'clockPause';
+
 const TRACK_PLAY = 'trackPlay';
 const TRACK_PAUSE = 'trackPause';
 const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
-	// [TRACK_PLAY]: playEvents,
 	[TRACK_PLAY]: events,
+	// [TRACK_PLAY]: playEvents,
 	[TRACK_PAUSE]: pauseEvents,
 	[TRACK_ENGLISH]: englishEvents,
 };

@@ -4,17 +4,17 @@ export type Cb = (status?: CbStatus) => void;
 export type Guard = (status?: Status) => boolean;
 
 export interface Status {
-	elapsed: number;
-	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
+	currentTime: number;
 	pauseTime: number;
 	headTime: number;
-	currentTime: number;
-	action: string;
-	hasAborted: boolean;
+	precTime: number;
 	nextTime: number;
 	seekTime?: number;
+	elapsed: number;
+	action: string;
 	seekAction?: string;
-	precTime: number;
+	hasAborted: boolean;
+	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 }
 export interface CbStatus extends Partial<Status> {
 	endClock?: boolean;

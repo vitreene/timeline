@@ -12,8 +12,6 @@ export function createStore(persos: Store, addEvent: AddEvent): PersoStore {
 	const store = new PersoStore(addEvent);
 	for (const id in persos) {
 		const perso = store.add(id, persos[id]);
-		console.log(perso.node);
-
 		// Provisoire
 		id === ROOT && root.appendChild(perso.node);
 	}

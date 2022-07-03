@@ -36,7 +36,7 @@ export class Track {
 	constructor({ name, events, channels }: TracksProps) {
 		this.name = name;
 		channels.forEach((channel) => this.events.set(channel, new Map()));
-		this.addEvent(events);
+		this.addEvent({ track: name, ...events });
 	}
 
 	addEvent = (event: Eventime, offset = 0) => {
@@ -189,12 +189,14 @@ export class TrackManager {
 	}
 
 	setNext(name: string, event: Eventime) {
+		const track = event.track || this.refTrack;
+		if (!this.current.has(track)) return;
 		const time = event.startAt;
-		this.current.forEach(({ nextEvent }) => {
-			if (!nextEvent.has(time)) nextEvent.set(time, []);
-			const casual = nextEvent.get(time);
-			casual.push([name, event]);
-		});
+		const { nextEvent } = this.current.get(track);
+
+		if (!nextEvent.has(time)) nextEvent.set(time, []);
+		const casual = nextEvent.get(time);
+		casual.push([name, event]);
 	}
 
 	getEvents(time: number, status: CbStatus) {

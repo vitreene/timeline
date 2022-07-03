@@ -81,8 +81,6 @@ export class PersoStore {
 		const node = document.createElement(tag || 'div');
 		node.id = id;
 		const spread = this.spread.bind(this, node);
-		console.log(_initial);
-
 		spread(_initial);
 
 		const child = createContent(type, node);
@@ -110,8 +108,6 @@ export class PersoStore {
 			update,
 			//add/remove/Listener ?
 		};
-
-		console.log(id, node);
 
 		if (emit) {
 			node.dataset.id = id;
