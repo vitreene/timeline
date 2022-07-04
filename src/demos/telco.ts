@@ -51,7 +51,8 @@ export function createTelco(commande) {
 		if (status.action === PLAY) {
 			const progression = (status.currentTime * 100) / END_SEQUENCE;
 			slider.value = String(progression);
-			progress.textContent = Math.round(progression) + '%';
+			progress.textContent = Math.round(status.currentTime) + 'ms';
+			// progress.textContent = Math.round(progression) + '%';
 		}
 	});
 }

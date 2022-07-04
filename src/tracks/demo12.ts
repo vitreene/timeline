@@ -152,10 +152,6 @@ const _persos: Store = {
 			action01: { className: 'action01-' + ID03 },
 			action04: {
 				transition: {
-					// from: { 'background-color': 'rgb(10,128,255)' },
-					// to: { 'background-color': 'rgb(255,50,50)' },
-					// from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
-					// to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
 					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
 					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
 					duration: 1000,
@@ -245,7 +241,9 @@ export class Telco extends Timeline {
 		};
 
 		this.tracks.control('play', action);
+		console.log('————————————————————————————————');
 		console.log('TELCO play', this.tracks.current);
+		console.log('————————————————————————————————');
 	}
 
 	pause() {
@@ -256,7 +254,9 @@ export class Telco extends Timeline {
 			clock: CLOCK_PAUSE,
 		};
 		this.tracks.control('pause', action);
+		console.log('————————————————————————————————');
 		console.log('TELCO pause', this.tracks.current);
+		console.log('————————————————————————————————');
 	}
 
 	seek(progress: Time) {

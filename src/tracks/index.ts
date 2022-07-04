@@ -127,6 +127,8 @@ export class TrackManager {
 		this.runs.forEach((run) => run(status));
 	}
 
+	onTick(fn) {}
+
 	addTrack(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
 		for (const name in tracks) {
 			const track = new Track({ name, events: tracks[name], channels });
@@ -143,11 +145,17 @@ export class TrackManager {
 		this.tracks.has(track) && this.tracks.get(track).addEvent(event);
 	}
 
-	control(control: string, action: ControlAction) {
+	private setClockStatus(control: string, action: ControlAction) {
 		const newRefClock = this.clock.has(action.clock) ? (this.clock.get(action.clock) as Status) : undefined;
 		const oldStatus = Clock.swap(newRefClock);
 		this.refClock && this.clock.set(this.refClock, oldStatus);
 		this.refClock = action.clock;
+		console.log('setClockStatus action', action);
+		console.log(this.refClock, newRefClock, oldStatus);
+	}
+
+	control(control: string, action: ControlAction) {
+		this.setClockStatus(control, action);
 
 		this.controlName = control;
 		this.refTrack = action.refTrack || action.active[0];
