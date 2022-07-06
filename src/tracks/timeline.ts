@@ -33,6 +33,7 @@ export class Timeline {
 
 	constructor({ persos, tracks, options }: TimelineConfig) {
 		this.run = this.run.bind(this);
+		this.runNext = this.runNext.bind(this);
 		this.seek_ = this.seek_.bind(this);
 		this.executeEvent = this.executeEvent.bind(this);
 
@@ -43,9 +44,12 @@ export class Timeline {
 		const store = createStore(persos, addEvent);
 		this.channels = channelManager({ store, addEvent, next, executeEvent: this.executeEvent });
 		this.tracks.runs.add(this.run);
+		this.tracks.runs.add(this.runNext);
 	}
 
 	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
+		// console.log('executeEvent', name, event, { ...status });
+
 		if (status.currentTime < status.seekTime) {
 			const time = status.currentTime + TIME_INTERVAL;
 			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };

@@ -197,6 +197,8 @@ export class TrackManager {
 	}
 
 	setNext(name: string, event: Eventime) {
+		// console.log('setNext====>', name, event);
+
 		const track = event.track || this.refTrack;
 		if (!this.current.has(track)) return;
 		const time = event.startAt;

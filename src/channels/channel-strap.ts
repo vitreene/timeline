@@ -40,6 +40,7 @@ export class StrapChannel extends Channel {
 
 	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = { startAt: status.nextTime, ...event_ };
+		console.log('strap next', strapName, status.action, event_, { ...status });
 
 		if (status.action === PLAY) {
 			this.next(strapName, event);
