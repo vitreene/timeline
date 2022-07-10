@@ -89,7 +89,9 @@ export class Timeline {
 			const runs = this.tracks.getEvents(time, status);
 			for (const channel in runs) {
 				this.channels.has(channel as ChannelName) &&
-					runs[channel].forEach((run: RunEvent) => this.channels.get(channel as ChannelName).run(run));
+					runs[channel].forEach((run: RunEvent) => {
+						this.channels.get(channel as ChannelName).run(run);
+					});
 			}
 		});
 

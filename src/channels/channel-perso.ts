@@ -16,8 +16,6 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		console.log('RUN PERSO', { time, name, data, status });
-
 		if (status.seekAction === FORWARD) return;
 		if (status.action === SEEK) {
 			status.currentTime = status.seekTime;

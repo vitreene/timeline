@@ -145,10 +145,8 @@ const _persos: Store = {
 	[ID03]: {
 		type: PersoElementType.TEXT,
 
-		initial: initialID03,
+		initial: { ...initialID03, move: ROOT },
 		actions: {
-			initial: { move: ROOT },
-
 			action01: { className: 'action01-' + ID03 },
 			action04: {
 				transition: {

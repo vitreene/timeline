@@ -13,7 +13,6 @@ export interface Status {
 	elapsed: number;
 	action: string;
 	seekAction?: string;
-	hasAborted: boolean;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 }
 export interface CbStatus extends Partial<Status> {
@@ -33,7 +32,6 @@ export const defaultStatus: Status = {
 	precTime: -TIME_INTERVAL,
 	currentTime: 0,
 	action: PAUSE,
-	hasAborted: false,
 	nextTime: TIME_INTERVAL,
 	timers: _timers(0),
 };
@@ -42,6 +40,8 @@ class Clock {
 	raf: number;
 	status: Status = defaultStatus;
 	tick = new Set<Cb>();
+	hasAborted = false;
+
 	// AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
 
@@ -63,8 +63,8 @@ class Clock {
 		(endClock: number = MAX_ENDS) =>
 		({ currentTime }: CbStatus) => {
 			if (currentTime >= endClock) {
-				this.status.hasAborted = true;
-				console.log('endLOOP', currentTime, endClock, this.status.hasAborted);
+				this.hasAborted = true;
+				console.log('endLOOP', currentTime, endClock, this.hasAborted);
 			}
 		};
 	onComplete = () => {
@@ -100,7 +100,7 @@ class Clock {
 		const start = performance.now() - initial;
 
 		const loop_ = () => {
-			if (this.status.hasAborted) {
+			if (this.hasAborted) {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
@@ -183,7 +183,7 @@ class Clock {
 	};
 
 	swap(newStatus: Status | undefined = defaultStatus) {
-		const status = this.status;
+		const status = { ...this.status };
 		this.status = newStatus;
 		return status;
 	}
@@ -217,7 +217,7 @@ export class Timer extends Clock {
 
 	rewind() {}
 	stop() {
-		this.status.hasAborted = true;
+		this.hasAborted = true;
 	}
 
 	on = (fct: Cb) => this.subscribe(fct, DEFAULT_TIMER);

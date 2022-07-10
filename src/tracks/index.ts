@@ -28,10 +28,10 @@ const mapClock = {
 
 export class Track {
 	name: TrackName;
-	times: number[] = [];
+	times = new Set<Time>();
 	data = new Map<string, EventData>();
 	events = new Map<ChannelName, EventChannel>();
-	nextEvent = new Map<number, CasualEvent[]>();
+	nextEvent = new Map<Time, CasualEvent[]>();
 
 	constructor({ name, events, channels }: TracksProps) {
 		this.name = name;
@@ -42,10 +42,10 @@ export class Track {
 	addEvent = (event: Eventime, offset = 0) => {
 		this.registerEvent(event, offset);
 		if (event.events) event.events.map((e) => this.addEvent(e, event.startAt));
-		else {
-			// trier, puis ref unique // optimiser le tri
-			this.times = sortUnique(this.times);
-		}
+		// else {
+		// 	// trier, puis ref unique // optimiser le tri
+		// 	this.times = sortUnique(this.times);
+		// }
 	};
 
 	private registerEvent(event: Eventime, offset: number) {
@@ -63,7 +63,7 @@ export class Track {
 		} else {
 			channelEvent.set(startAt, new Set<string>([event.name]));
 		}
-		if (!this.times.includes(startAt)) this.times.push(startAt);
+		this.times.add(startAt);
 		if (event.data) this.addData(event);
 	}
 
@@ -81,15 +81,16 @@ export class Track {
 	}
 }
 
-type ControlName = string;
 type ClockName = string;
+type ControlName = string;
+type CasualEvent = [string, Eventime];
+type RunEvents = Record<ChannelName, RunEvent[]>;
+
 interface TrackManagerCurrentProps {
 	data: Track['data'];
 	events: Track['events'];
 	nextEvent: Track['nextEvent'];
 }
-type RunEvents = Record<ChannelName, RunEvent[]>;
-type CasualEvent = [string, Eventime];
 
 interface ControlAction {
 	clock: ClockName;
@@ -104,17 +105,14 @@ export class TrackManager {
 	// données importées : un par track
 	tracks = new Map<TrackName, Track>();
 	current = new Map<TrackName, TrackManagerCurrentProps>();
-
 	// control en cours
 	controlName: ControlName;
 	// elements générés : un par controleur
 	times = new Map<ControlName, Time[]>();
-
-	runs = new Set<(status: CbStatus) => void>();
-
 	// collection : Clock.status
-	clock = new Map<ClockName, CbStatus>();
 	refClock: ClockName;
+	clock = new Map<ClockName, CbStatus>();
+	runs = new Set<(status: CbStatus) => void>();
 
 	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
 		this.refTrack = options.defaultTrackName;
@@ -124,6 +122,8 @@ export class TrackManager {
 	}
 
 	run(status: CbStatus) {
+		console.log('TM-RUN', status?.currentTime);
+
 		this.runs.forEach((run) => run(status));
 	}
 
@@ -137,24 +137,28 @@ export class TrackManager {
 	}
 
 	addEvent(event_: Eventime) {
-		const track = event_.track || this.refTrack;
+		const trackName = event_.track || this.refTrack;
 		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : Clock.status.currentTime + TIME_INTERVAL;
-		const event = { ...event_, track, startAt };
-		console.log('TM addEvent', event);
-
-		this.tracks.has(track) && this.tracks.get(track).addEvent(event);
+		const event = { ...event_, track: trackName, startAt };
+		console.log('TM addEvent', trackName, event.data?.content);
+		this.tracks.has(trackName) && this.tracks.get(trackName).addEvent(event);
+		let times = this.times.get(this.controlName);
+		if (times) {
+			times.push(startAt);
+			times = sortUnique(times);
+		}
 	}
 
-	private setClockStatus(control: string, action: ControlAction) {
-		const newRefClock = this.clock.has(action.clock) ? (this.clock.get(action.clock) as Status) : undefined;
-		const oldStatus = Clock.swap(newRefClock);
+	private setClockStatus(control: ControlName, action: ControlAction) {
+		const newStatus = this.clock.has(action.clock) ? this.clock.get(action.clock) : undefined;
+		const oldStatus = Clock.swap(newStatus as Status);
 		this.refClock && this.clock.set(this.refClock, oldStatus);
 		this.refClock = action.clock;
-		console.log('setClockStatus action', action);
-		console.log(this.refClock, newRefClock, oldStatus);
+		// console.log('setClockStatus action', action);
+		console.log('SWAP CLOCK', this.refClock, newStatus?.currentTime, oldStatus?.currentTime);
 	}
 
-	control(control: string, action: ControlAction) {
+	control(control: ControlName, action: ControlAction) {
 		this.setClockStatus(control, action);
 
 		this.controlName = control;
@@ -177,6 +181,11 @@ export class TrackManager {
 			}
 		});
 		this.times.set(control, sortUnique(times));
+
+		console.log('______', control, '______');
+		this.current.forEach((track) => {
+			console.log(...track.nextEvent);
+		});
 	}
 
 	getNext(status: CbStatus) {
@@ -195,7 +204,7 @@ export class TrackManager {
 		});
 		return casuals;
 	}
-
+	// FIXME les events ont lieu correctement, mais le status semble perdu plus loin ?
 	setNext(name: string, event: Eventime) {
 		// console.log('setNext====>', name, event);
 
