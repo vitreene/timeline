@@ -26,8 +26,9 @@ export class PersoChannel extends Channel {
 			const action = perso.actions[name];
 
 			if (action) {
-				if (typeof action === 'boolean') this.queue.add(id, data);
-				else {
+				if (typeof action === 'boolean') {
+					this.queue.add(id, data);
+				} else {
 					const { move, transition, ..._action } = action;
 					transition && this.transition({ id, time, status, transition });
 					move && this.move(move, perso);

@@ -239,9 +239,6 @@ export class Telco extends Timeline {
 		};
 
 		this.tracks.control('play', action);
-		console.log('————————————————————————————————');
-		console.log('TELCO play', this.tracks.current);
-		console.log('————————————————————————————————');
 	}
 
 	pause() {
@@ -252,9 +249,6 @@ export class Telco extends Timeline {
 			clock: CLOCK_PAUSE,
 		};
 		this.tracks.control('pause', action);
-		console.log('————————————————————————————————');
-		console.log('TELCO pause', this.tracks.current);
-		console.log('————————————————————————————————');
 	}
 
 	seek(progress: Time) {
@@ -272,5 +266,7 @@ const telco = new Telco({ persos, tracks, options });
 createTelco(telco);
 
 telco.start();
-// setTimeout(() => telco.pause(), 500);
-// setTimeout(() => telco.play(), 1200);
+setTimeout(() => telco.pause(), 1100);
+setTimeout(() => telco.play(), 2000);
+setTimeout(() => telco.pause(), 2900);
+setTimeout(() => telco.play(), 3500);

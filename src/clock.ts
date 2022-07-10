@@ -11,6 +11,7 @@ export interface Status {
 	nextTime: number;
 	seekTime?: number;
 	elapsed: number;
+	paused: number;
 	action: string;
 	seekAction?: string;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
@@ -34,6 +35,7 @@ export const defaultStatus: Status = {
 	action: PAUSE,
 	nextTime: TIME_INTERVAL,
 	timers: _timers(0),
+	paused: 0,
 };
 
 class Clock {
@@ -41,6 +43,7 @@ class Clock {
 	status: Status = defaultStatus;
 	tick = new Set<Cb>();
 	hasAborted = false;
+	totalElapsed: number;
 
 	// AC: Props['audioContext'] = null;
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
@@ -94,6 +97,7 @@ class Clock {
 
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
+	// LOOP ///////
 	loop = (initial: number) => {
 		this.status.precTime = initial - TIME_INTERVAL; // pour démarrer à 0
 
@@ -105,8 +109,8 @@ class Clock {
 				return cancelAnimationFrame(this.raf);
 			}
 
-			const startTime = performance.now() - start;
-			const elapsed = Math.round(startTime);
+			this.totalElapsed = Math.round(performance.now() - start);
+			const elapsed = this.totalElapsed - this.status.paused;
 			const timers = _timers(elapsed);
 
 			switch (this.status.action) {
@@ -122,6 +126,7 @@ class Clock {
 
 						const currentTime = elapsed - this.status.pauseTime;
 						const cents = (currentTime - this.status.precTime) / 10;
+
 						for (let c = 1; c <= cents; c++) {
 							setTimeout(() => {
 								const _currentTime = currentTime - (cents - c) * 10;
@@ -183,8 +188,8 @@ class Clock {
 	};
 
 	swap(newStatus: Status | undefined = defaultStatus) {
-		const status = { ...this.status };
-		this.status = newStatus;
+		const status = { ...this.status, paused: this.status.elapsed };
+		this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
 		return status;
 	}
 }

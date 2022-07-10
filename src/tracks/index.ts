@@ -122,8 +122,6 @@ export class TrackManager {
 	}
 
 	run(status: CbStatus) {
-		console.log('TM-RUN', status?.currentTime);
-
 		this.runs.forEach((run) => run(status));
 	}
 
@@ -154,7 +152,7 @@ export class TrackManager {
 		const oldStatus = Clock.swap(newStatus as Status);
 		this.refClock && this.clock.set(this.refClock, oldStatus);
 		this.refClock = action.clock;
-		// console.log('setClockStatus action', action);
+
 		console.log('SWAP CLOCK', this.refClock, newStatus?.currentTime, oldStatus?.currentTime);
 	}
 
@@ -182,9 +180,13 @@ export class TrackManager {
 		});
 		this.times.set(control, sortUnique(times));
 
-		console.log('______', control, '______');
-		this.current.forEach((track) => {
-			console.log(...track.nextEvent);
+		console.log('————————————————————————————————');
+		console.log('TELCO', control, this.current);
+		console.log('————————————————————————————————');
+		this.current.forEach((track, name) => {
+			track.nextEvent.forEach(([nextEvent, value]) => {
+				console.log(name, value, nextEvent);
+			});
 		});
 	}
 
@@ -206,8 +208,6 @@ export class TrackManager {
 	}
 	// FIXME les events ont lieu correctement, mais le status semble perdu plus loin ?
 	setNext(name: string, event: Eventime) {
-		// console.log('setNext====>', name, event);
-
 		const track = event.track || this.refTrack;
 		if (!this.current.has(track)) return;
 		const time = event.startAt;
