@@ -13,16 +13,16 @@
 	"author": "vitreene",
 	"license": "ISC",
 	"devDependencies": {
-		"babel-preset-solid": "^1.3.6",
-		"happy-dom": "^2.39.1",
-		"typescript": "^4.5.5",
-		"vite": "^2.8.4",
-		"vite-plugin-solid": "^2.2.5",
-		"vitest": "^0.4.2"
+		"babel-preset-solid": "^1.4.6",
+		"happy-dom": "^6.0.3",
+		"typescript": "^4.7.4",
+		"vite": "^3.0.0",
+		"vite-plugin-solid": "^2.3.0",
+		"vitest": "^0.18.0"
 	},
 	"dependencies": {
-		"csstype": "^3.0.10",
-		"solid-js": "^1.3.7"
+		"csstype": "^3.1.0",
+		"solid-js": "^1.4.7"
 	},
 	"prettier": {
 		"trailingComma": "es5",
