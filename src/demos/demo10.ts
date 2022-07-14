@@ -1,5 +1,6 @@
-import { Tracks } from '.';
-import { Clock } from '../timeline';
+import { Tracks } from '../tracks';
+import { Clock } from '../tracks/timeline';
+
 import { MAIN, STRAP } from '../common/constants';
 
 import type { Eventime } from '../types';

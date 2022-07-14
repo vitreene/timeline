@@ -3,7 +3,7 @@ import type { RunEvent } from './channel';
 import { Layer } from '../render/components/layer';
 import { FORWARD, PLAY, SEEK } from '../common/constants';
 
-import { ChannelName } from '../types';
+import { ChannelName, Eventime } from '../types';
 import type { CbStatus } from '../clock';
 import type { Transition, Move, PersoItem } from '../types';
 
@@ -37,6 +37,18 @@ export class PersoChannel extends Channel {
 			}
 		});
 	}
+
+	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
+		const event = { startAt: status.nextTime, ...event_ };
+		// console.log('PERSO next', strapName, status.action, status.currentTime);
+
+		if (status.action === PLAY) {
+			this.next(strapName, event);
+		}
+		if (status.seekAction === FORWARD) {
+			this.executeEvent(event, event.name, status);
+		}
+	};
 
 	transitionCache = new Set();
 	transition = (props: { id: string; time: number; transition: Transition; status: CbStatus }) => {
@@ -112,6 +124,7 @@ interface InterpolateProps {
 
 export const interpolate = (props: InterpolateProps) => {
 	const { from, to, parses } = prepareInterpolate(props);
+
 	return (time: number, start: number, end: number): FromTo => {
 		if (time >= end) return to;
 		const progress = (time - start) / (end - start);

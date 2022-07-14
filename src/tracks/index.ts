@@ -181,12 +181,14 @@ export class TrackManager {
 		this.times.set(control, sortUnique(times));
 
 		console.log('————————————————————————————————');
-		console.log('TELCO', control, this.current);
+		console.log('TELCO', control, this.current.size);
 		console.log('————————————————————————————————');
 		this.current.forEach((track, name) => {
-			track.nextEvent.forEach(([nextEvent, value]) => {
-				console.log(name, value, nextEvent);
-			});
+			console.log(track.events);
+
+			// track.nextEvent.forEach(([nextEvent, value]) => {
+			// 	console.log(name, value, nextEvent);
+			// });
 		});
 	}
 

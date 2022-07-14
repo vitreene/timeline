@@ -179,3 +179,43 @@ chaque controle doit permettre l'accès aux events via une interface
 
 revoir la fonction de la recherche d'event dans timeline.run pour qu'elle renvoie les données dont this.channel a besoin
 -> pas besoin de data ou event dans timeline
+
+fixes 11/07
+[-] seek
+seek presume de mettre le lecteur sur "pause" avant.
+
+- il n'y a plus de concept de pause à proprement parler, il faut designer un nouvel état – controle –
+- seek pilote un track, mais en laisse un autre se jouer. c'est complexe ! cela necessite de revoir en profondeur le système : plus de track.current au profit de pointeurs.
+  comment jouer deux pistes simultanément avec deux status ?
+  Est-ce vraiment utile ? on peut imaginer un freeze pendant le seek.
+  un move commencé dans play se poursuit lorsque passé en pause. Ou sera enregistré le move ?
+
+[-] transitition comme un strap
+[-] status consignés dans clock
+
+## revoir le status de Track
+
+associer un status à un groupe est une source de complications qui ne permet pas de traiter certains besoins :
+
+- une animation dans une story peut etre déroulée indépendament de la timiline générale,
+- une video dans une scene
+  si j'associe un status à un track, il est possible de lire ces tracks simultanément dans un groupe, comme c'est le cas en ce moment
+
+L'interface de Clock ne garde que :
+
+- start,
+- stop,
+- pause
+
+Chaque track aura l'interface telco :
+
+- play,
+- pause,
+- stop,
+- seek
+
+TrackManager permet de piloter des groupes de tracks, de déterminer les modes de pause et de reprise
+exemple: une story passe en mode seek, puis la scène se poursuit : cette stroy reste-t-elle figée, reprend-t-elle là ou elle se trouve, reprend-elle de zéro ?
+
+comment fonctionne Clock et tracks ensemble, comment passent les données et les réactions ?
+dans Clock, on boucle sur tous les status disponibles dans loop ;

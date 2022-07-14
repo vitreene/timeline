@@ -1,6 +1,5 @@
 import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
-import { Timeline } from './timeline';
-import { Clock } from '../tracks/timeline';
+import { Clock, Timeline } from '../tracks/timeline';
 
 import { Eventime, Initial, PersoElementType, Store } from '../types';
 
@@ -148,13 +147,27 @@ const _persos: Store = {
 		initial: { ...initialID03, move: ROOT },
 		actions: {
 			action01: { className: 'action01-' + ID03 },
-			action04: {
+			// action04: {
+			// 	transition: {
+			// 		from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
+			// 		to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
+			// 		duration: 1000,
+			// 		repeat: 4,
+			// 		yoyo: true,
+			// 	},
+			// },
+			pause_enter: {
 				transition: {
-					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
-					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-					duration: 1000,
-					repeat: 4,
-					yoyo: true,
+					from: { scale: 1 },
+					to: { scale: 2 },
+					duration: 600,
+				},
+			},
+			pause_exit: {
+				transition: {
+					from: { scale: 2 },
+					to: { scale: 1 },
+					duration: 600,
 				},
 			},
 			/* 	['end_' + ID_COUNTER_02]: {
@@ -194,7 +207,7 @@ const pauseEvents: Eventime = {
 	data: { toto: 1 },
 	events: [
 		{ startAt: 200, name: 'pause_enter', channel: MAIN },
-		{ startAt: 1500, name: 'pause_exit', channel: MAIN },
+		{ startAt: 1000, name: 'pause_exit', channel: MAIN },
 	],
 };
 
