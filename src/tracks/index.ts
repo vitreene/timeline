@@ -1,103 +1,33 @@
-import { Clock } from '../tracks/timeline';
-import { CbStatus, Status } from 'src/clock';
-import { Options } from './timeline';
+import { Track } from './track';
+import { Timer } from '../clock';
 
-import { BACKWARD, channelsName, DEFAULT_CHANNEL_NAME, FORWARD, STRAP, TIME_INTERVAL } from '../common/constants';
+import { BACKWARD, channelsName, END_SEQUENCE, FORWARD, TIME_INTERVAL } from '../common/constants';
 
+import type { Options } from './timeline';
+import type { CbStatus, Status } from '../clock';
+import type { RunEvent } from '../channels/channel';
 import type { ChannelName, Eventime } from '../types';
-import { RunEvent } from 'src/channels/channel';
 
-type Time = number;
-type TrackName = string;
-
-type EventChannel = Map<Time, Set<string>>;
-type EventData = Map<Time, Map<number, any>>;
-
-interface TracksProps {
-	name: TrackName;
-	events: Eventime;
-	channels: ChannelName[];
-}
+export type Time = number;
+export type TrackName = string;
 export type AddEvent = TrackManager['addEvent'];
-
-const mapClock = {
-	play: 1,
-	pause: 2,
-	seek: 1,
-};
-
-export class Track {
-	name: TrackName;
-	times = new Set<Time>();
-	data = new Map<string, EventData>();
-	events = new Map<ChannelName, EventChannel>();
-	nextEvent = new Map<Time, CasualEvent[]>();
-
-	constructor({ name, events, channels }: TracksProps) {
-		this.name = name;
-		channels.forEach((channel) => this.events.set(channel, new Map()));
-		this.addEvent({ track: name, ...events });
-	}
-
-	addEvent = (event: Eventime, offset = 0) => {
-		this.registerEvent(event, offset);
-		if (event.events) event.events.map((e) => this.addEvent(e, event.startAt));
-		// else {
-		// 	// trier, puis ref unique // optimiser le tri
-		// 	this.times = sortUnique(this.times);
-		// }
-	};
-
-	private registerEvent(event: Eventime, offset: number) {
-		const channel = event.channel || DEFAULT_CHANNEL_NAME;
-		if (!this.events.has(channel)) {
-			console.warn(`Channel ${channel} has not been declared`);
-			return;
-		}
-		const startAt = event.startAt + offset;
-		const channelEvent = this.events.get(channel);
-		if (channelEvent.has(startAt)) {
-			const _events = channelEvent.get(startAt);
-			_events.add(event.name);
-			channelEvent.set(startAt, _events);
-		} else {
-			channelEvent.set(startAt, new Set<string>([event.name]));
-		}
-		this.times.add(startAt);
-		if (event.data) this.addData(event);
-	}
-
-	private addData = (event: Eventime) => {
-		!this.data.has(event.name) && this.data.set(event.name, new Map());
-		const eventData = this.data.get(event.name);
-		eventData.set(event.startAt, event.data);
-	};
-
-	onEnter() {
-		console.log(`Track ${this.name} entered`);
-	}
-	onExit() {
-		console.log(`Track ${this.name} exited`);
-	}
-}
+export type CasualEvent = [string, Eventime];
 
 type ClockName = string;
 type ControlName = string;
-type CasualEvent = [string, Eventime];
 type RunEvents = Record<ChannelName, RunEvent[]>;
-
 interface TrackManagerCurrentProps {
 	data: Track['data'];
 	events: Track['events'];
 	nextEvent: Track['nextEvent'];
 }
-
 interface ControlAction {
 	clock: ClockName;
 	active: TrackName[];
 	inactive: TrackName[];
 	refTrack?: string;
 }
+export const Clock = new Timer({ endsAt: END_SEQUENCE });
 
 export class TrackManager {
 	// track par défaut où sont rajoutés les events dynamiques
@@ -124,8 +54,6 @@ export class TrackManager {
 	run(status: CbStatus) {
 		this.runs.forEach((run) => run(status));
 	}
-
-	onTick(fn) {}
 
 	addTrack(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
 		for (const name in tracks) {
@@ -208,7 +136,7 @@ export class TrackManager {
 		});
 		return casuals;
 	}
-	// FIXME les events ont lieu correctement, mais le status semble perdu plus loin ?
+
 	setNext(name: string, event: Eventime) {
 		const track = event.track || this.refTrack;
 		if (!this.current.has(track)) return;

@@ -1,12 +1,13 @@
 import { Channel } from './channel';
 import { QueueActions } from '../queue';
+import { Clock } from '../tracks';
+import { channelList } from '../tracks/timeline';
 import { createRender } from '../render/render-DOM';
-import { channelList, Clock } from '../tracks/timeline';
 
-import type { PersoStore } from '../render/create-perso';
-import type { ChannelsMap } from '../tracks/timeline';
-import type { AddEvent } from '../tracks';
 import type { Eventime } from '../types';
+import type { AddEvent } from '../tracks';
+import type { ChannelsMap } from '../tracks/timeline';
+import type { PersoStore } from '../render/create-perso';
 
 interface ChannelManagerProps {
 	store: PersoStore;
@@ -19,6 +20,7 @@ export function channelManager({ store, addEvent, next, executeEvent }: ChannelM
 	const render = createRender(store);
 	const queue = new QueueActions(render);
 	channelList.forEach((Channel) => {
+		// FIXME retirer timer des channels
 		const channel = new Channel({ queue, timer: Clock });
 		addChannel(channel);
 	});

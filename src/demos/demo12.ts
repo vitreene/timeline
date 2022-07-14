@@ -1,9 +1,12 @@
-import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
-import { Clock, Timeline } from '../tracks/timeline';
-
-import { Eventime, Initial, PersoElementType, Store } from '../types';
-
+import { Clock } from '../tracks';
 import { createTelco } from '../demos/telco';
+import { Timeline } from '../tracks/timeline';
+
+import { PersoElementType } from '../types';
+import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
+
+import type { Eventime, Initial, Store } from '../types';
+
 import '../style.css';
 
 const ID01 = 'hello';

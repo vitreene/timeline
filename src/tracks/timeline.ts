@@ -1,5 +1,5 @@
 import { timeInInterval, TrackManager } from '.';
-import { Timer } from '../clock';
+
 import { createStore } from '../render/create-store';
 import { channelManager } from '../channels';
 import { PersoChannel } from '../channels/channel-perso';
@@ -15,7 +15,6 @@ type TrackName = string;
 type EventTracks = Record<TrackName, Eventime>;
 export type ChannelsMap = Map<ChannelName, Channel>;
 
-export const Clock = new Timer({ endsAt: END_SEQUENCE });
 export const channelList = [PersoChannel, StrapChannel];
 
 export interface Options {
