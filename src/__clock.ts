@@ -2,7 +2,7 @@ import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVA
 import { TrackName } from './tracks';
 
 export type Cb = (status?: CbStatus) => void;
-export type Guard = (status?: CbStatus) => boolean;
+export type Guard = (status?: Status) => boolean;
 
 export interface Status {
 	currentTime: number;
@@ -10,16 +10,14 @@ export interface Status {
 	headTime: number;
 	precTime: number;
 	nextTime: number;
+	seekTime?: number;
 	elapsed: number;
 	paused: number;
 	action: string;
-	seekTime?: number;
 	seekAction?: string;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 }
 export interface CbStatus extends Partial<Status> {
-	trackName?: TrackName;
-	duration?: number;
 	endClock?: boolean;
 }
 
@@ -71,12 +69,9 @@ class Clock {
 			}
 		};
 	onComplete = () => {
-		this.timers.forEach((timer) => {
-			timer.endClock = true;
-			this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(timer)));
-		});
-		this.subscribers.clear();
-		this.tick.clear();
+		const status = { ...this.status, endClock: true };
+
+		this.subscribers.forEach(({ cb }) => cb.forEach((c) => c(status)));
 	};
 
 	// SUBSCRIPTIONS ///////
@@ -103,8 +98,7 @@ class Clock {
 
 	// LOOP ////////////////
 	loop = (initial: number) => {
-		// pour démarrer à 0
-		this.timers.forEach((timer) => (timer.precTime = initial - TIME_INTERVAL));
+		this.status.precTime = initial - TIME_INTERVAL; // pour démarrer à 0
 
 		const start = performance.now() - initial;
 
@@ -113,85 +107,78 @@ class Clock {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
+
 			this.totalElapsed = Math.round(performance.now() - start);
+			const elapsed = this.totalElapsed - this.status.paused;
+			const timers = _timers(elapsed);
 
-			this.timers.forEach((timer) => {
-				console.log(timer.trackName, timer.currentTime);
-
-				const elapsed = this.totalElapsed - timer.paused;
-				const timers = _timers(elapsed);
-
-				switch (timer.action) {
-					default:
-					case PLAY:
-						{
-							/* 
+			switch (this.status.action) {
+				default:
+				case PLAY:
+					{
+						/* 
 				A cause de la différence de fréquence, des trames peuvent etre perdues ;
 				cette boucle force l'exécution de chacune.
 				Si la différence entre _currentTime et oldTime n'est pas suffisante,
 				il n'y a pas d'actualisation.
 				*/
 
-							const currentTime = elapsed - timer.pauseTime;
-							const cents = (currentTime - timer.precTime) / 10;
+						const currentTime = elapsed - this.status.pauseTime;
+						const cents = (currentTime - this.status.precTime) / 10;
 
-							for (let c = 1; c <= cents; c++) {
-								setTimeout(() => {
-									const _currentTime = currentTime - (cents - c) * 10;
-									timer = {
-										...timer,
-										timers, //
-										elapsed,
-										precTime: _currentTime,
-										currentTime: _currentTime,
-										nextTime: _currentTime + TIME_INTERVAL, //
-										headTime: Math.max(timer.headTime, _currentTime),
-									};
+						for (let c = 1; c <= cents; c++) {
+							setTimeout(() => {
+								const _currentTime = currentTime - (cents - c) * 10;
+								this.status = {
+									...this.status,
+									timers, //
+									elapsed,
+									precTime: _currentTime,
+									currentTime: _currentTime,
+									nextTime: _currentTime + TIME_INTERVAL, //
+									headTime: Math.max(this.status.headTime, _currentTime),
+								};
 
-									timer.precTime = timer.currentTime;
-									this.timers.set(timer.trackName, timer);
-									this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
-								});
-							}
+								this.status.precTime = this.status.currentTime;
 
-							const tickStatus = { ...timer, currentTime };
-							this.tick.forEach((fn) => fn(tickStatus));
+								this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
+							});
 						}
-						break;
 
-					case SEEK:
-						{
-							// console.log(SEEK, timer.seekTime, timer.currentTime, { ...timer });
+						const tickStatus = { ...this.status, currentTime };
+						this.tick.forEach((fn) => fn(tickStatus));
+					}
+					break;
 
-							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
-							this.tick.forEach((fn) => fn(timer));
+				case SEEK:
+					{
+						// console.log(SEEK, this.status.seekTime, this.status.currentTime, { ...this.status });
 
-							timer.precTime = timer.currentTime;
-							timer.action = SEEKING;
-							this.timers.set(timer.trackName, timer);
-						}
-						break;
+						this.subscribers.forEach(({ guard, cb }) => guard(this.status) && cb.forEach((c) => c(this.status)));
+						this.tick.forEach((fn) => fn(this.status));
 
-					case SEEKING:
-						{
-							// console.log('** ', SEEKING, { ...timer });
+						this.status.precTime = this.status.currentTime;
+						this.status.action = SEEKING;
+					}
+					break;
 
-							timer.seekAction = undefined;
-							timer.currentTime = timer.seekTime;
-							timer.action = PAUSE;
-							this.timers.set(timer.trackName, timer);
-						}
-						break;
+				case SEEKING:
+					{
+						// console.log('** ', SEEKING, { ...this.status });
 
-					case PAUSE:
-						{
-							timer.pauseTime = elapsed - timer.precTime;
-							this.timers.set(timer.trackName, timer);
-							this.tick.forEach((fn) => fn(timer));
-						}
-						break;
-				}
-			});
+						this.status.seekAction = undefined;
+						this.status.currentTime = this.status.seekTime;
+						this.status.action = PAUSE;
+					}
+					break;
+
+				case PAUSE:
+					{
+						this.status.pauseTime = elapsed - this.status.precTime;
+						this.tick.forEach((fn) => fn(this.status));
+					}
+					break;
+			}
 
 			this.raf = requestAnimationFrame(loop_);
 		};
@@ -200,15 +187,9 @@ class Clock {
 	};
 
 	swap(newStatus: Status | undefined = defaultStatus) {
-		// const status = { ...this.status, paused: this.status.elapsed };
-		// this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
-		// return status;
-		return newStatus;
-	}
-
-	addTimer(trackName: TrackName, timer: CbStatus | undefined) {
-		// TODO initialiser certaines propriétés
-		this.timers.set(trackName, { ...defaultStatus, ...timer, trackName });
+		const status = { ...this.status, paused: this.status.elapsed };
+		this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
+		return status;
 	}
 }
 
@@ -218,21 +199,22 @@ export class Timer extends Clock {
 	}
 
 	[PLAY]() {
-		this.timers.forEach((timer) => (timer.action = PLAY));
-		console.log(PLAY, this.timers);
+		this.status.action = PLAY;
+		console.log(PLAY, this.status);
 	}
 	[PAUSE]() {
-		this.timers.forEach((timer) => (timer.action = PAUSE));
+		this.status.action = PAUSE;
 	}
 
 	[SEEK](time: number) {
-		// const headTime = Math.max(this.status.headTime, time);
-		// const currentTime = this.status.currentTime;
-		// this.status = { ...this.status, action: SEEK, currentTime, headTime, seekTime: time };
+		const headTime = Math.max(this.status.headTime, time);
+		const currentTime = this.status.currentTime;
+		this.status = { ...this.status, action: SEEK, currentTime, headTime, seekTime: time };
 	}
 
 	start(initial = 0) {
 		console.log('START', this);
+		this.status = defaultStatus;
 		this[PLAY]();
 		this.loop(initial);
 	}

@@ -46,7 +46,7 @@ export class Timeline {
 		this.tracks.runs.add(this.runNext);
 	}
 
-	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
+	executeEvent = (name: string, event: Eventime, status: CbStatus) => {
 		// console.log('executeEvent', name, event, { ...status });
 
 		if (status.currentTime < status.seekTime) {
@@ -60,7 +60,10 @@ export class Timeline {
 
 	runNext = (status: CbStatus) => {
 		const casuals = this.tracks.getNext(status);
-		casuals.forEach(({ channel, ...casual }) => this.channels.get(channel).run(casual));
+		casuals.forEach(({ channel, ...casual }) => {
+			// console.log('runNext CASUALS', status.trackName, { ...status });
+			this.channels.get(channel).run(casual);
+		});
 	};
 
 	private seek_(status: CbStatus) {
@@ -79,6 +82,8 @@ export class Timeline {
 
 	run(status: CbStatus) {
 		if (status.action === SEEK) return this.seek_(status);
+
+		console.log('RUN', status.trackName);
 
 		const controlName = this.tracks.controlName;
 		const times = this.tracks.times.get(controlName);

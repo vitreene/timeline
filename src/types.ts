@@ -10,6 +10,7 @@ export interface Eventime {
 	channel?: ChannelName;
 	track?: string;
 	data?: any;
+	duration?: number;
 	events?: Eventime[];
 }
 

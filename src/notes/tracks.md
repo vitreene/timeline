@@ -219,3 +219,11 @@ exemple: une story passe en mode seek, puis la scène se poursuit : cette stroy 
 
 comment fonctionne Clock et tracks ensemble, comment passent les données et les réactions ?
 dans Clock, on boucle sur tous les status disponibles dans loop ;
+
+en associant un status à chaque Track, se pose la question du début et fin de la piste.
+
+- le début est identifiable, il faut définir un état "non commencé" au track. que faire lors du seek ?
+- la fin est déclarée de façon arbitraire, car il n'y a pas nécessairement de moyen fiable de l'établir automatiquement. La valeur doit etre déclarée, elle peut etre calculée en amont de l'exécution en lisant les actions par exemple.
+  La valeur peut etre ouverte, mais il n'y aura pas de sens à lire une telle timeline.
+  representer un slider comme un curseur sur une timeline ouverte à la façon d'un éditeur de sons par exemple.
+  Une durée ouverte est liée à des composants intéractifs, ou l'intervention de l'utilisateur détermine la durée.

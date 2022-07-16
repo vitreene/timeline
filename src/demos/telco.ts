@@ -1,7 +1,7 @@
 // import { Clock } from '../tracks/timeline';
 
 import { END_SEQUENCE, PLAY } from '../common/constants';
-import { CbStatus } from 'src/clock';
+import { CbStatus } from '../clock';
 
 //SLIDER////////////
 export function createTelco(commande) {

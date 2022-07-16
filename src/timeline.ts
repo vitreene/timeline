@@ -111,17 +111,17 @@ export class Timeline {
 		eventData.set(event.startAt, event.data);
 	};
 
-	executeEvent = (event: Eventime, name: string, status: CbStatus) => {
+	executeEvent = (name: string, event: Eventime, status: CbStatus) => {
 		if (status.currentTime < status.seekTime) {
 			const time = status.currentTime + TIME_INTERVAL;
 			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
 			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
 		} else {
-			this.next({ ...event, startAt: status.seekTime + TIME_INTERVAL }, name);
+			this.next(name, { ...event, startAt: status.seekTime + TIME_INTERVAL });
 		}
 	};
 
-	next = (event: Eventime, name: string) => {
+	next = (name: string, event: Eventime) => {
 		const time = event.startAt;
 		if (!this.nextEvent.has(time)) this.nextEvent.set(time, []);
 		const casual = this.nextEvent.get(time);

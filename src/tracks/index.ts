@@ -34,15 +34,17 @@ export class TrackManager {
 	refTrack: string;
 	// données importées : un par track
 	tracks = new Map<TrackName, Track>();
-	current = new Map<TrackName, TrackManagerCurrentProps>();
 	// control en cours
 	controlName: ControlName;
 	// elements générés : un par controleur
 	times = new Map<ControlName, Time[]>();
+	runs = new Set<(status: CbStatus) => void>();
+
+	// à deprecier
 	// collection : Clock.status
 	refClock: ClockName;
 	clock = new Map<ClockName, CbStatus>();
-	runs = new Set<(status: CbStatus) => void>();
+	current = new Map<TrackName, TrackManagerCurrentProps>();
 
 	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
 		this.refTrack = options.defaultTrackName;
@@ -57,8 +59,11 @@ export class TrackManager {
 
 	addTrack(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
 		for (const name in tracks) {
-			const track = new Track({ name, events: tracks[name], channels });
-			this.tracks.set(track.name, track);
+			const events = tracks[name];
+			const track = new Track({ name, events, channels });
+			const timer = Object.assign({}, events.duration && { duration: events.duration });
+			this.tracks.set(name, track);
+			Clock.addTimer(name, timer);
 		}
 	}
 
@@ -66,7 +71,7 @@ export class TrackManager {
 		const trackName = event_.track || this.refTrack;
 		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : Clock.status.currentTime + TIME_INTERVAL;
 		const event = { ...event_, track: trackName, startAt };
-		console.log('TM addEvent', trackName, event.data?.content);
+		console.log('TM addEvent', trackName, startAt, event.data?.content);
 		this.tracks.has(trackName) && this.tracks.get(trackName).addEvent(event);
 		let times = this.times.get(this.controlName);
 		if (times) {
@@ -149,6 +154,8 @@ export class TrackManager {
 	}
 
 	getEvents(time: number, status: CbStatus) {
+		console.log('GET EVENTS', status.trackName);
+
 		const runs: Partial<RunEvents> = {};
 		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
 			eventsByChannel.forEach((events, channel) => {
