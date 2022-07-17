@@ -22,7 +22,7 @@ type EventChannel = Map<number, Set<string>>;
 type EventData = Map<number, Map<number, any>>;
 type CasualEvent = [string, Eventime];
 
-export class Timeline {
+class Timeline {
 	channels = new Map();
 
 	data = new Map<string, EventData>();
@@ -144,7 +144,7 @@ export class Timeline {
 	};
 
 	run = (status: CbStatus) => {
-		if (status.action === SEEK) return this.seek(status);
+		if (status.statement === SEEK) return this.seek(status);
 		/* 
 			recoit un time
 			- cherche dans les events les correspondances

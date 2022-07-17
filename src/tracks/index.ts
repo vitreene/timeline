@@ -1,10 +1,10 @@
 import { Track } from './track';
 import { Timer } from '../clock';
 
-import { BACKWARD, channelsName, END_SEQUENCE, FORWARD, TIME_INTERVAL } from '../common/constants';
+import { BACKWARD, channelsName, END_SEQUENCE, FORWARD, PAUSE, PLAY, TIME_INTERVAL } from '../common/constants';
 
 import type { Options } from './timeline';
-import type { CbStatus, Status } from '../clock';
+import type { CbStatus } from '../clock';
 import type { RunEvent } from '../channels/channel';
 import type { ChannelName, Eventime } from '../types';
 
@@ -37,18 +37,12 @@ export class TrackManager {
 	// control en cours
 	controlName: ControlName;
 	// elements générés : un par controleur
-	times = new Map<ControlName, Time[]>();
-	runs = new Set<(status: CbStatus) => void>();
 
-	// à deprecier
-	// collection : Clock.status
-	refClock: ClockName;
-	clock = new Map<ClockName, CbStatus>();
-	current = new Map<TrackName, TrackManagerCurrentProps>();
+	runs = new Set<(status: CbStatus) => void>();
 
 	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
 		this.refTrack = options.defaultTrackName;
-		tracks && this.addTrack(tracks, channelsName);
+		tracks && this.addTracks(tracks, channelsName);
 		this.run = this.run.bind(this);
 		Clock.subscribe(this.run);
 	}
@@ -57,7 +51,7 @@ export class TrackManager {
 		this.runs.forEach((run) => run(status));
 	}
 
-	addTrack(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
+	addTracks(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
 		for (const name in tracks) {
 			const events = tracks[name];
 			const track = new Track({ name, events, channels });
@@ -71,58 +65,52 @@ export class TrackManager {
 		const trackName = event_.track || this.refTrack;
 		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : Clock.status.currentTime + TIME_INTERVAL;
 		const event = { ...event_, track: trackName, startAt };
-		console.log('TM addEvent', trackName, startAt, event.data?.content);
-		this.tracks.has(trackName) && this.tracks.get(trackName).addEvent(event);
-		let times = this.times.get(this.controlName);
-		if (times) {
-			times.push(startAt);
-			times = sortUnique(times);
+		// console.log('TM addEvent', trackName, event_, startAt, event.data?.content);
+
+		const track = this.tracks.get(trackName);
+		if (track) {
+			track.addEvent(event);
+			this.tracks.set(trackName, track);
+			track.times.add(startAt);
+			track.times = sortUnique(track.times);
 		}
 	}
 
-	private setClockStatus(control: ControlName, action: ControlAction) {
-		const newStatus = this.clock.has(action.clock) ? this.clock.get(action.clock) : undefined;
-		const oldStatus = Clock.swap(newStatus as Status);
-		this.refClock && this.clock.set(this.refClock, oldStatus);
-		this.refClock = action.clock;
-
-		console.log('SWAP CLOCK', this.refClock, newStatus?.currentTime, oldStatus?.currentTime);
-	}
-
 	control(control: ControlName, action: ControlAction) {
-		this.setClockStatus(control, action);
-
 		this.controlName = control;
 		this.refTrack = action.refTrack || action.active[0];
-		const times = [];
+
 		action.active.forEach((name) => {
 			const track = this.tracks.get(name);
 			if (track) {
 				const { events, data, nextEvent } = track;
 				track.onEnter();
-				this.current.set(name, { events, data, nextEvent });
-				times.push(...track.times);
+				Clock.setTimer(name, PLAY);
+				track.play();
 			}
 		});
 		action.inactive.forEach((name) => {
 			const track = this.tracks.get(name);
 			if (track) {
-				this.current.delete(name);
+				Clock.setTimer(name, PAUSE);
 				track.onExit();
+				track.pause();
 			}
 		});
-		this.times.set(control, sortUnique(times));
+
+		// LOGS /////////////
+		let statements = [];
+		Clock.timers.forEach((timer, name) => statements.push(`${name} : ${timer.statement}`));
 
 		console.log('————————————————————————————————');
-		console.log('TELCO', control, this.current.size);
-		console.log('————————————————————————————————');
-		this.current.forEach((track, name) => {
-			console.log(track.events);
-
-			// track.nextEvent.forEach(([nextEvent, value]) => {
-			// 	console.log(name, value, nextEvent);
-			// });
+		console.log('TELCO', control);
+		this.tracks.forEach((track, name) => {
+			if (track.statement === PLAY) {
+				console.log(name, track.events);
+			}
 		});
+		console.log('Clock.timers', statements);
+		console.log('————————————————————————————————');
 	}
 
 	getNext(status: CbStatus) {
@@ -131,12 +119,15 @@ export class TrackManager {
 		const { currentTime: time } = status;
 
 		const casuals = [];
-		this.current.forEach(({ nextEvent }) => {
-			if (nextEvent.has(time)) {
-				nextEvent
-					.get(time)
-					.forEach(([name, event]) => casuals.push({ name, time, status, data: event.data, channel: event.channel }));
-				nextEvent.delete(time);
+		this.tracks.forEach((track) => {
+			if (track.statement === PLAY) {
+				const { nextEvent } = track;
+				if (nextEvent.has(time)) {
+					nextEvent
+						.get(time)
+						.forEach(([name, event]) => casuals.push({ name, time, status, data: event.data, channel: event.channel }));
+					nextEvent.delete(time);
+				}
 			}
 		});
 		return casuals;
@@ -144,9 +135,9 @@ export class TrackManager {
 
 	setNext(name: string, event: Eventime) {
 		const track = event.track || this.refTrack;
-		if (!this.current.has(track)) return;
+		if (!this.tracks.has(track)) return;
 		const time = event.startAt;
-		const { nextEvent } = this.current.get(track);
+		const { nextEvent } = this.tracks.get(track);
 
 		if (!nextEvent.has(time)) nextEvent.set(time, []);
 		const casual = nextEvent.get(time);
@@ -154,20 +145,23 @@ export class TrackManager {
 	}
 
 	getEvents(time: number, status: CbStatus) {
-		console.log('GET EVENTS', status.trackName);
+		console.log('GET EVENTS', time, status.trackName);
 
 		const runs: Partial<RunEvents> = {};
-		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
-			eventsByChannel.forEach((events, channel) => {
-				if (!events.size) return;
-				if (!runs[channel]) runs[channel] = [];
-				if (events.has(time)) {
-					events.get(time).forEach((name) => {
-						const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
-						runs[channel].push({ name, time, data, status });
-					});
-				}
-			});
+		this.tracks.forEach((track) => {
+			if (track.statement === PLAY) {
+				const { events: eventsByChannel, data: dataByChannel } = track;
+				eventsByChannel.forEach((events, channel) => {
+					if (!events.size) return;
+					if (!runs[channel]) runs[channel] = [];
+					if (events.has(time)) {
+						events.get(time).forEach((name) => {
+							const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
+							runs[channel].push({ name, time, data, status });
+						});
+					}
+				});
+			}
 		});
 		return runs;
 	}
@@ -176,28 +170,33 @@ export class TrackManager {
 		const { currentTime, seekTime } = status;
 		status.seekAction = currentTime < seekTime ? FORWARD : BACKWARD;
 
-		const pastTimes = timeBefore(this.times.get(this.controlName), seekTime);
+		// const pastTimes = timeBefore(this.times.get(this.controlName), seekTime);
+		const pastTimes = timeBefore(this.tracks.get(status.trackName).times, seekTime);
 		const forwardTimes =
-			status.seekAction === FORWARD && timeAfter(this.times.get(this.controlName), currentTime, seekTime);
+			status.seekAction === FORWARD && timeAfter(this.tracks.get(status.trackName).times, currentTime, seekTime);
 
 		const allEvents: Partial<RunEvents>[] = [];
-		this.current.forEach(({ events: eventsByChannel, data: dataByChannel }) => {
-			[pastTimes, forwardTimes].filter(Boolean).forEach((times) => {
-				const runs: Partial<RunEvents> = {};
-				for (const time of times) {
-					eventsByChannel.forEach((events, channel) => {
-						if (!events.size) return;
-						if (!runs[channel]) runs[channel] = [];
-						if (events.has(time)) {
-							events.get(time).forEach((name) => {
-								const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
-								runs[channel].push({ name, time, data, status });
-							});
-						}
-					});
-				}
-				allEvents.push(runs);
-			});
+		this.tracks.forEach((track) => {
+			if (track.statement === PLAY) {
+				const { events: eventsByChannel, data: dataByChannel } = track;
+
+				[pastTimes, forwardTimes].filter(Boolean).forEach((times) => {
+					const runs: Partial<RunEvents> = {};
+					for (const time of times) {
+						eventsByChannel.forEach((events, channel) => {
+							if (!events.size) return;
+							if (!runs[channel]) runs[channel] = [];
+							if (events.has(time)) {
+								events.get(time).forEach((name) => {
+									const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
+									runs[channel].push({ name, time, data, status });
+								});
+							}
+						});
+					}
+					allEvents.push(runs);
+				});
+			}
 		});
 		return allEvents;
 	}
@@ -207,37 +206,39 @@ export class TrackManager {
 
 // sort array of numbers , numbers must be unique
 // peut etre optimisée
-function sortUnique(numbers: number[]): number[] {
-	const sorted = numbers.sort((a, b) => a - b);
-	const unique = new Set(sorted);
-	return Array.from(unique);
+function sortUnique(numbers: Set<number>): Set<number> {
+	const sorted = Array.from(numbers).sort((a, b) => a - b);
+	return new Set(sorted);
 }
 
-function timeBefore(times: Time[], seekTime: Time) {
+function timeBefore(times: Set<Time>, seekTime: Time) {
 	const before: Time[] = [];
-	for (const time of times) {
-		if (time > seekTime) break;
-		before.push(time);
-	}
+	times.forEach((time) => {
+		if (time <= seekTime) before.push(time);
+	});
 	return before;
 }
 
-function timeAfter(times: Time[], currentTime: Time, seekTime: Time) {
+function timeAfter(times: Set<Time>, currentTime: Time, seekTime: Time) {
 	const after = [];
-	for (const time of times) {
+	times.forEach((time) => {
 		if (time > currentTime && time < seekTime) after.push(time);
-	}
+	});
 	return after;
 }
 
-export function timeInInterval(times: Time[], currentTime: Time, interval = TIME_INTERVAL) {
-	const timeIndexes: Time[] = [];
+export function timeInInterval(times_: Set<Time>, currentTime: Time, interval = TIME_INTERVAL) {
+	const timeIndexes = new Set<Time>();
+	const times = [...times_];
+
 	let i = times.findIndex((t) => t === currentTime);
 
-	if (i > -1)
+	if (i > -1) {
 		while (times[i] < currentTime + interval) {
-			times[i] !== undefined && timeIndexes.push(times[i]);
+			times[i] !== undefined && timeIndexes.add(times[i]);
 			i++;
 		}
-	return timeIndexes;
+	}
+
+	return Array.from(timeIndexes);
 }

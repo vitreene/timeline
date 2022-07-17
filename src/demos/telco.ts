@@ -48,7 +48,7 @@ export function createTelco(commande) {
 	document.body.appendChild(telco);
 
 	commande.onTick((status: CbStatus) => {
-		if (status.action === PLAY) {
+		if (status.statement === PLAY) {
 			const progression = (status.currentTime * 100) / END_SEQUENCE;
 			slider.value = String(progression);
 			progress.textContent = Math.round(status.currentTime) + 'ms';

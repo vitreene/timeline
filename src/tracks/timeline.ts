@@ -81,12 +81,11 @@ export class Timeline {
 	}
 
 	run(status: CbStatus) {
-		if (status.action === SEEK) return this.seek_(status);
+		if (status.statement === SEEK) return this.seek_(status);
 
-		console.log('RUN', status.trackName);
+		// console.log('RUN', status.trackName);
 
-		const controlName = this.tracks.controlName;
-		const times = this.tracks.times.get(controlName);
+		const times = this.tracks.tracks.get(status.trackName).times;
 		const ti = timeInInterval(times, status.currentTime);
 
 		ti.forEach((time) => {
@@ -107,7 +106,7 @@ export class Timeline {
 		console.log('//////////END CLOCK/////////////');
 		console.log('END', status.currentTime);
 		console.log(this.tracks);
-		const current = Array.from(this.tracks.current.values());
+		const current = Array.from(this.tracks.tracks.values());
 		console.log(
 			'events:',
 			current.map(({ events }) => events)

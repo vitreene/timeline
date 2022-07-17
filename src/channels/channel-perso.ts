@@ -17,7 +17,7 @@ export class PersoChannel extends Channel {
 
 	run({ name, time, status, data }: RunEvent): void {
 		if (status.seekAction === FORWARD) return;
-		if (status.action === SEEK) {
+		if (status.statement === SEEK) {
 			status.currentTime = status.seekTime;
 			this.queue.resetState();
 		}
@@ -40,9 +40,9 @@ export class PersoChannel extends Channel {
 
 	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = { startAt: status.nextTime, ...event_ };
-		// console.log('PERSO next', strapName, status.action, status.currentTime);
+		// console.log('PERSO next', strapName, status.statement, status.currentTime);
 
-		if (status.action === PLAY) {
+		if (status.statement === PLAY) {
 			this.next(strapName, event);
 		}
 		if (status.seekAction === FORWARD) {
@@ -80,11 +80,11 @@ export class PersoChannel extends Channel {
 			}
 		};
 
-		if (status.action !== SEEK && !this.transitionCache.has(props)) {
+		if (status.statement !== SEEK && !this.transitionCache.has(props)) {
 			this.transitionCache.add(props);
 			this.timer.subscribeTick((status) => {
 				const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
-				if (status.action === PLAY && onTransition) doProgress(status);
+				if (status.statement === PLAY && onTransition) doProgress(status);
 			});
 		}
 

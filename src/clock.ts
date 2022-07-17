@@ -12,7 +12,7 @@ export interface Status {
 	nextTime: number;
 	elapsed: number;
 	paused: number;
-	action: string;
+	statement: string;
 	seekTime?: number;
 	seekAction?: string;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
@@ -35,7 +35,7 @@ export const defaultStatus: Status = {
 	headTime: 0,
 	precTime: -TIME_INTERVAL,
 	currentTime: 0,
-	action: PAUSE,
+	statement: PAUSE,
 	nextTime: TIME_INTERVAL,
 	timers: _timers(0),
 	paused: 0,
@@ -116,22 +116,17 @@ class Clock {
 			this.totalElapsed = Math.round(performance.now() - start);
 
 			this.timers.forEach((timer) => {
-				console.log(timer.trackName, timer.currentTime);
-
 				const elapsed = this.totalElapsed - timer.paused;
 				const timers = _timers(elapsed);
 
-				switch (timer.action) {
+				switch (timer.statement) {
 					default:
 					case PLAY:
 						{
 							/* 
-				A cause de la différence de fréquence, des trames peuvent etre perdues ;
-				cette boucle force l'exécution de chacune.
-				Si la différence entre _currentTime et oldTime n'est pas suffisante,
-				il n'y a pas d'actualisation.
-				*/
-
+							A cause de la différence de fréquence, des trames peuvent etre perdues ; cette boucle force l'exécution de chacune.
+							Si la différence entre _currentTime et oldTime n'est pas suffisante, il n'y a pas d'actualisation.
+							*/
 							const currentTime = elapsed - timer.pauseTime;
 							const cents = (currentTime - timer.precTime) / 10;
 
@@ -167,7 +162,7 @@ class Clock {
 							this.tick.forEach((fn) => fn(timer));
 
 							timer.precTime = timer.currentTime;
-							timer.action = SEEKING;
+							timer.statement = SEEKING;
 							this.timers.set(timer.trackName, timer);
 						}
 						break;
@@ -178,7 +173,7 @@ class Clock {
 
 							timer.seekAction = undefined;
 							timer.currentTime = timer.seekTime;
-							timer.action = PAUSE;
+							timer.statement = PAUSE;
 							this.timers.set(timer.trackName, timer);
 						}
 						break;
@@ -199,16 +194,25 @@ class Clock {
 		loop_();
 	};
 
-	swap(newStatus: Status | undefined = defaultStatus) {
-		// const status = { ...this.status, paused: this.status.elapsed };
-		// this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
-		// return status;
-		return newStatus;
-	}
+	// swap(newStatus: Status | undefined = defaultStatus) {
+	// 	// const status = { ...this.status, paused: this.status.elapsed };
+	// 	// this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
+	// 	// return status;
+	// 	return newStatus;
+	// }
 
 	addTimer(trackName: TrackName, timer: CbStatus | undefined) {
 		// TODO initialiser certaines propriétés
 		this.timers.set(trackName, { ...defaultStatus, ...timer, trackName });
+	}
+
+	setTimer(trackName: TrackName, statement: string) {
+		const timer = this.timers.get(trackName);
+		if (!timer) {
+			console.warn(`Pas de timer à ce nom : ${trackName}`);
+			return;
+		}
+		this.timers.set(trackName, { ...timer, statement });
 	}
 }
 
@@ -217,23 +221,23 @@ export class Timer extends Clock {
 		super(props);
 	}
 
-	[PLAY]() {
-		this.timers.forEach((timer) => (timer.action = PLAY));
-		console.log(PLAY, this.timers);
-	}
-	[PAUSE]() {
-		this.timers.forEach((timer) => (timer.action = PAUSE));
-	}
+	// [PLAY]() {
+	// 	this.timers.forEach((timer) => (timer.statement = PLAY));
+	// 	console.log('CLOCK ALL PLAY', this.timers);
+	// }
+	// [PAUSE]() {
+	// 	this.timers.forEach((timer) => (timer.statement = PAUSE));
+	// 	console.log('CLOCK ALL PAUSE', this.timers);
+	// }
 
 	[SEEK](time: number) {
 		// const headTime = Math.max(this.status.headTime, time);
 		// const currentTime = this.status.currentTime;
-		// this.status = { ...this.status, action: SEEK, currentTime, headTime, seekTime: time };
+		// this.status = { ...this.status, statement: SEEK, currentTime, headTime, seekTime: time };
 	}
 
 	start(initial = 0) {
-		console.log('START', this);
-		this[PLAY]();
+		console.log('START', ...this.timers);
 		this.loop(initial);
 	}
 

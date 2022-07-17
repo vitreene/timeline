@@ -10,12 +10,15 @@ interface TracksProps {
 	channels: ChannelName[];
 }
 
+type TrackStatement = typeof PLAY | typeof PAUSE | typeof SEEK;
+
 export class TrackComponent {
 	name: TrackName;
 	times = new Set<Time>();
 	data = new Map<string, EventData>();
 	events = new Map<ChannelName, EventChannel>();
 	nextEvent = new Map<Time, CasualEvent[]>();
+	statement: TrackStatement;
 
 	constructor({ name, events, channels }: TracksProps) {
 		this.name = name;
@@ -59,10 +62,16 @@ export class TrackComponent {
 }
 
 export class Track extends TrackComponent {
-	[PLAY]() {}
-	[PAUSE]() {}
+	[PLAY]() {
+		this.statement = PLAY;
+	}
+	[PAUSE]() {
+		this.statement = PAUSE;
+	}
 
-	[SEEK](time: number) {}
+	[SEEK](time: number) {
+		this.statement = SEEK;
+	}
 
 	onEnter() {
 		console.log(`Track ${this.name} entered`);

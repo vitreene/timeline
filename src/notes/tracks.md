@@ -227,3 +227,5 @@ en associant un status à chaque Track, se pose la question du début et fin de 
   La valeur peut etre ouverte, mais il n'y aura pas de sens à lire une telle timeline.
   representer un slider comme un curseur sur une timeline ouverte à la façon d'un éditeur de sons par exemple.
   Une durée ouverte est liée à des composants intéractifs, ou l'intervention de l'utilisateur détermine la durée.
+
+les tracks sont mis en pause ou play, un par un
