@@ -78,7 +78,7 @@ export class Transition extends Strap {
 				},
 				status
 			);
-			console.log(console.log('TRANSITION->END'));
+			console.log('TRANSITION->END');
 		} else {
 			// console.log('TRANSITION.EXE',  status, state);
 			this.progress(status, state);
@@ -276,4 +276,16 @@ function parseStringToArray(text: { [k: string]: string }) {
 		textArray,
 		props,
 	};
+}
+
+// take numbers form rgb, rgba, hsl, hsla
+function parseColor(value: string) {
+	const match = value.match(/^(rgb|hsl|hwb)a?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+	console.log('parseColor', value, match);
+
+	// if (!match) throw new Error(`invalid color ${value}`);
+	const [, type, r, g, b, a] = match;
+	if (type === 'rgb') return { r: parseInt(r), g: parseInt(g), b: parseInt(b) };
+	if (type === 'hsl') return { h: parseInt(r), s: parseInt(g), l: parseInt(b) };
+	if (type === 'hsla') return { h: parseInt(r), s: parseInt(g), l: parseInt(b), a: parseFloat(a) };
 }

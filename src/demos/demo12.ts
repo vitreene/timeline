@@ -163,7 +163,7 @@ const _persos: Store = {
 				transition: {
 					from: { scale: 1 },
 					to: { scale: 2 },
-					duration: 600,
+					duration: 100,
 				},
 			},
 			pause_exit: {
@@ -209,7 +209,7 @@ const pauseEvents: Eventime = {
 	channel: STRAP,
 	data: { toto: 1 },
 	events: [
-		{ startAt: 200, name: 'pause_enter', channel: MAIN },
+		{ startAt: 100, name: 'pause_enter', channel: MAIN },
 		{ startAt: 1000, name: 'pause_exit', channel: MAIN },
 	],
 };
@@ -239,12 +239,14 @@ const options = {
 };
 
 const persos = _persos;
-// EXECUTE PLAN
+
+// EXECUTE PLAN /////////
 type Time = number;
+
 export class Telco extends Timeline {
 	start() {
-		Clock.start();
 		this.play();
+		Clock.start();
 	}
 	play() {
 		const action = {
@@ -253,7 +255,6 @@ export class Telco extends Timeline {
 			refTrack: TRACK_PLAY,
 			clock: CLOCK_PLAY,
 		};
-
 		this.tracks.control('play', action);
 	}
 
@@ -282,10 +283,10 @@ const telco = new Telco({ persos, tracks, options });
 createTelco(telco);
 
 telco.start();
-setTimeout(() => telco.pause(), 600);
-setTimeout(() => telco.play(), 1000);
-setTimeout(() => telco.pause(), 2000);
-setTimeout(() => telco.play(), 3500);
+// setTimeout(() => telco.pause(), 800);
+// setTimeout(() => telco.play(), 1400);
+// setTimeout(() => telco.pause(), 2000);
+// setTimeout(() => telco.play(), 3500);
 
 // setTimeout(() => {
 // 	debugger;

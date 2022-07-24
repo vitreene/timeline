@@ -83,7 +83,7 @@ export class TrackManager {
 		action.active.forEach((name) => {
 			const track = this.tracks.get(name);
 			if (track) {
-				const { events, data, nextEvent } = track;
+				// const { events, data, nextEvent } = track;
 				track.onEnter();
 				Clock.setTimer(name, PLAY);
 				track.play();
@@ -119,8 +119,10 @@ export class TrackManager {
 		const { currentTime: time } = status;
 
 		const casuals = [];
-		this.tracks.forEach((track) => {
-			if (status.statement === PLAY) {
+		if (status.statement === PLAY) {
+			// console.log(status.trackName, status.currentTime, status.statement);
+			const track = this.tracks.get(status.trackName);
+			if (track) {
 				const { nextEvent } = track;
 				if (nextEvent.has(time)) {
 					nextEvent
@@ -129,7 +131,7 @@ export class TrackManager {
 					nextEvent.delete(time);
 				}
 			}
-		});
+		}
 		return casuals;
 	}
 
