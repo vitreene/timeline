@@ -65,6 +65,8 @@ export class StrapChannel extends Channel {
 			}
 		}
 	}
+
+	// utile ?
 	addStore(store: PersoStore) {
 		super.addStore(store);
 		this.strap.forEach((strap) => strap.addStore(store));

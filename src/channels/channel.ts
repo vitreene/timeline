@@ -16,6 +16,7 @@ export interface ChannelOptions {
 	timer: Timer;
 	name?: ChannelName;
 	queue?: QueueActions;
+	addEvent: (event_: Eventime) => void;
 }
 
 // timer et store sont injectés par le parent
@@ -31,6 +32,8 @@ export class Channel {
 	constructor(options: ChannelOptions) {
 		this.timer = options.timer;
 		options.name && (this.name = options.name);
+		this.addEvent = options.addEvent;
+
 		if (options.queue) {
 			this.queue = options.queue;
 			this.timer.subscribeTick(this.queue.flush);
@@ -43,6 +46,9 @@ export class Channel {
 
 	run(props: RunEvent): void {
 		console.warn(`\x1b[34m Channel \x1b[35m${this.constructor['name']} \x1b[34m  must define a "run" property`);
+	}
+	runNext(props: RunEvent): void {
+		this.run(props);
 	}
 
 	init() {}

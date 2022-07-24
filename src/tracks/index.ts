@@ -120,7 +120,7 @@ export class TrackManager {
 
 		const casuals = [];
 		this.tracks.forEach((track) => {
-			if (track.statement === PLAY) {
+			if (status.statement === PLAY) {
 				const { nextEvent } = track;
 				if (nextEvent.has(time)) {
 					nextEvent
@@ -135,6 +135,7 @@ export class TrackManager {
 
 	setNext(name: string, event: Eventime) {
 		const track = event.track || this.refTrack;
+
 		if (!this.tracks.has(track)) return;
 		const time = event.startAt;
 		const { nextEvent } = this.tracks.get(track);
@@ -142,10 +143,11 @@ export class TrackManager {
 		if (!nextEvent.has(time)) nextEvent.set(time, []);
 		const casual = nextEvent.get(time);
 		casual.push([name, event]);
+		// console.log('setNext', this.tracks.get(track).nextEvent.get(time));
 	}
 
 	getEvents(time: number, status: CbStatus) {
-		console.log('GET EVENTS', time, status.trackName);
+		// console.log('GET EVENTS', time, status.trackName);
 
 		const runs: Partial<RunEvents> = {};
 		this.tracks.forEach((track) => {

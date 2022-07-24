@@ -21,14 +21,14 @@ export function channelManager({ store, addEvent, next, executeEvent }: ChannelM
 	const queue = new QueueActions(render);
 	channelList.forEach((Channel) => {
 		// FIXME retirer timer des channels
-		const channel = new Channel({ queue, timer: Clock });
+		const channel = new Channel({ queue, timer: Clock, addEvent });
+
 		addChannel(channel);
 	});
 
 	function addChannel(channel: Channel) {
 		channel.addStore(store);
 		channel.next = next;
-		channel.addEvent = addEvent;
 		channel.executeEvent = executeEvent;
 
 		channel.init();

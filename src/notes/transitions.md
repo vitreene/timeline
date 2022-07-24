@@ -61,3 +61,16 @@ Avantages
 - cela rend le systeme moins modulable.
 
 les fonctions d'ajout - retrait peuvent etre placées dans le composant Layer, et activés dans move.
+
+Transition comme un strap.
+Sans avoir à tout remanier, il y a deux type d'evaluation des events :
+
+- les events réguliers, consignés,
+- et les events transitoires, notamment dans les strap
+
+Jusqu'à présent, les channels strap et persos ne se mélangent pas. Mais transition se prete à un emploi comme strap, mais lu depuis channel.persos.
+Tenter deux flux disctinct à la place du seul run :
+
+- run pour les events réguliers,
+- runNext pour les transitoires.
+  -> modifier dans channel-strap

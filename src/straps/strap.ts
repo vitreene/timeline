@@ -15,13 +15,13 @@ export class Strap {
 
 	queue: QueueActions;
 	addEvent: (event: Partial<Eventime>, status: CbStatus) => void;
-	next: (_event: Omit<Eventime, 'startAt'>, status: CbStatus) => void;
+	next: (event: Omit<Eventime, 'startAt'>, status: CbStatus) => void;
 
 	constructor(options: StrapProps) {
 		this.store = options.store;
 		this.queue = options.queue;
-		this.addEvent = options.addEvent;
 		this.next = options.next;
+		this.addEvent = options.addEvent;
 	}
 
 	run = (props, state) => {

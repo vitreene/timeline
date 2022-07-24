@@ -1,16 +1,36 @@
 import { Channel } from './channel';
-import type { RunEvent } from './channel';
+import { Transition } from './transition';
 import { Layer } from '../render/components/layer';
+
+import { ChannelName } from '../types';
 import { FORWARD, PLAY, SEEK } from '../common/constants';
 
-import { ChannelName, Eventime } from '../types';
+import type { Eventime } from '../types';
 import type { CbStatus } from '../clock';
-import type { Transition, Move, PersoItem } from '../types';
+import type { RunEvent, ChannelOptions } from './channel';
+import type { Transition as TransitionProps, Move, PersoItem } from '../types';
+import { StrapProps } from 'src/straps/strap';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
 	name = ChannelName.MAIN;
+	transition: Transition;
+	constructor(options: ChannelOptions) {
+		super(options);
+
+		console.log('PersoChannel', this.addEvent);
+
+		const props: StrapProps = {
+			store: this.store,
+			queue: options.queue,
+			addEvent: this.addEvent,
+			next: this.next_('transition'),
+		};
+
+		this.transition = new Transition(props);
+	}
+
 	reset(): void {
 		this.store.persos.forEach((perso) => perso.reset());
 	}
@@ -30,7 +50,11 @@ export class PersoChannel extends Channel {
 					this.queue.add(id, data);
 				} else {
 					const { move, transition, ..._action } = action;
-					transition && this.transition({ id, time, status, transition });
+					// transition && this.transition({ id, time, status, transition });
+					if (transition) {
+						this.transition.addStore(this.store);
+						this.transition.run(status, { id, time, transition });
+					}
 					move && this.move(move, perso);
 					this.queue.add(id, { ..._action, ...data });
 				}
@@ -38,67 +62,23 @@ export class PersoChannel extends Channel {
 		});
 	}
 
+	runNext({ name, status, data }: RunEvent): void {
+		if (name === 'transition') {
+			this.transition.run(status, data);
+		}
+	}
+
 	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = { startAt: status.nextTime, ...event_ };
 		// console.log('PERSO next', strapName, status.statement, status.currentTime);
 
 		if (status.statement === PLAY) {
+			// this.tracks.setNext
 			this.next(strapName, event);
 		}
 		if (status.seekAction === FORWARD) {
 			this.executeEvent(event.name, event, status);
 		}
-	};
-
-	transitionCache = new Set();
-	transition = (props: { id: string; time: number; transition: Transition; status: CbStatus }) => {
-		// console.log('transition', props.time, props.status.currentTime);
-
-		const { id, time, transition, status } = props;
-
-		const state = this.queue.stack.get(id) || this.store.getPerso(id).initial;
-		const from = (transition.from || state.style) as FromTo;
-		const to = transition.to as FromTo;
-		const firstStart = time;
-		const duration = transition.duration || 0;
-		const repeat = transition.repeat || 1;
-		const lastEnd = firstStart + duration * repeat;
-
-		const progress: ProgressInterpolation = interpolate({ from, to });
-		const inverseProgress: ProgressInterpolation = transition.yoyo && interpolate({ from: to, to: from });
-
-		const doProgress = (status: CbStatus) => {
-			const currentTime = status.currentTime - firstStart;
-			const elapsed = status.currentTime < lastEnd ? currentTime % transition.duration : transition.duration;
-
-			if (inverseProgress) {
-				const yoyo = currentTime % (transition.duration * 2) > transition.duration;
-				const iProgress = yoyo ? inverseProgress : progress;
-				this.renderTransition(id, iProgress(elapsed, 0, transition.duration));
-			} else {
-				this.renderTransition(id, progress(elapsed, 0, transition.duration));
-			}
-		};
-
-		if (status.statement !== SEEK && !this.transitionCache.has(props)) {
-			this.transitionCache.add(props);
-			this.timer.subscribeTick((status) => {
-				const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
-				if (status.statement === PLAY && onTransition) doProgress(status);
-			});
-		}
-
-		doProgress(status);
-	};
-
-	renderTransition = (id: string, result) => {
-		const style = {};
-		for (const prop in result) {
-			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];
-			style[prop] = value;
-		}
-
-		this.queue.add(id, { style });
 	};
 
 	move = (move: string | Move, perso: PersoItem) => {

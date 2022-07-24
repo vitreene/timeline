@@ -62,9 +62,8 @@ export class Counter extends Strap {
 				},
 				status
 			);
+			// console.log(console.log('NEXT->END'))
 		} else {
-			if (canEnd) console.log(console.log('NEXT->END'));
-
 			// console.log('COUNTER', canEvent, counter, state);
 
 			canEvent &&
