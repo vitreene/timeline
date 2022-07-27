@@ -1,12 +1,16 @@
-// import { Clock } from '../tracks/timeline';
-
 import { END_SEQUENCE, PLAY } from '../common/constants';
-import { CbStatus } from '../clock';
+import type { CbStatus } from '../clock';
+import type { Telco } from './demo13';
+
+interface ControlProps {
+	duration: number;
+	trackName: string;
+}
 
 //SLIDER////////////
-export function createTelco(commande) {
-	const telco = document.createElement('div');
-	telco.id = 'telco';
+export function createTelco(telco: Telco, { duration, trackName }: ControlProps) {
+	const command = document.createElement('div');
+	command.id = 'telco';
 	const slider = document.createElement('input');
 	slider.setAttribute('type', 'range');
 	slider.addEventListener('mousedown', () => {
@@ -17,21 +21,20 @@ export function createTelco(commande) {
 	});
 
 	function mousemove(): void {
-		const p = (Number(slider.value) * END_SEQUENCE) / 100 - 100;
+		const p = (Number(slider.value) * duration) / 100 - 100;
 		const progression = p > 0 ? p : 0;
 		progress.textContent = Math.round(Number(slider.value)) + '%';
-
-		commande.seek(progression);
+		telco.seek(progression, trackName);
 	}
 
 	let toggle = true;
 	function togglePlay(): void {
 		if (toggle) {
-			commande.pause();
+			telco.pause();
 			playButton.innerText = 'play';
 			toggle = false;
 		} else {
-			commande.play();
+			telco.play();
 			playButton.innerText = 'pause';
 			toggle = true;
 		}
@@ -42,16 +45,19 @@ export function createTelco(commande) {
 
 	const progress = document.createElement('span');
 
-	telco.appendChild(playButton);
-	telco.appendChild(slider);
-	telco.appendChild(progress);
-	document.body.appendChild(telco);
+	command.appendChild(playButton);
+	command.appendChild(slider);
+	command.appendChild(progress);
+	document.body.appendChild(command);
 
-	commande.onTick((status: CbStatus) => {
+	telco.onTick((status: CbStatus) => {
+		if (status.trackName !== trackName) return;
+
 		if (status.statement === PLAY) {
-			const progression = (status.currentTime * 100) / END_SEQUENCE;
+			const p = Math.min(status.currentTime, duration);
+			const progression = (p * 100) / duration;
 			slider.value = String(progression);
-			progress.textContent = Math.round(status.currentTime) + 'ms';
+			progress.textContent = Math.round(p) + 'ms';
 			// progress.textContent = Math.round(progression) + '%';
 		}
 	});

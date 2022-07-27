@@ -5,7 +5,7 @@ import { channelManager } from '../channels';
 import { PersoChannel } from '../channels/channel-perso';
 import { StrapChannel } from '../channels/channel-strap';
 
-import { BACKWARD, END_SEQUENCE, SEEK, TIME_INTERVAL } from '../common/constants';
+import { BACKWARD, END_SEQUENCE, FORWARD, SEEK, TIME_INTERVAL } from '../common/constants';
 
 import type { CbStatus } from '../clock';
 import type { ChannelName, Eventime, Store } from '../types';
@@ -33,7 +33,7 @@ export class Timeline {
 	constructor({ persos, tracks, options }: TimelineConfig) {
 		this.run = this.run.bind(this);
 		this.runNext = this.runNext.bind(this);
-		this.seek_ = this.seek_.bind(this);
+		this.runSeek = this.runSeek.bind(this);
 		this.executeEvent = this.executeEvent.bind(this);
 
 		this.tracks = new TrackManager(tracks, options);
@@ -59,29 +59,39 @@ export class Timeline {
 	};
 
 	runNext = (status: CbStatus) => {
+		if (status.seekAction === BACKWARD) return;
 		const casuals = this.tracks.getNext(status);
+		status.seekAction && casuals.length && console.log('------> runNext', casuals, status);
+
 		casuals.forEach(({ channel, ...casual }) => {
-			// console.log('runNext CASUALS', status.trackName, { ...status });
 			this.channels.get(channel).runNext(casual);
 		});
 	};
 
-	private seek_(status: CbStatus) {
+	private runSeek(status: CbStatus) {
 		const [pastEvents, forwardEvents] = this.tracks.getSeekEvents(status);
+
+		console.log('RUNSEEK', forwardEvents, status);
+		// console.log('pastEvents', pastEvents);
+
 		if (forwardEvents) {
 			for (const channelName in forwardEvents) {
-				this.channels.get(channelName as ChannelName).run(forwardEvents[channelName]);
-				this.runNext(status);
-				status.seekAction = BACKWARD;
+				forwardEvents[channelName].forEach((runEvent: RunEvent) => {
+					this.channels.get(channelName as ChannelName).run(runEvent);
+				});
 			}
+			this.runNext({ ...status, seekAction: FORWARD });
+			// status.seekAction = BACKWARD;
 		}
 		for (const channelName in pastEvents) {
-			this.channels.get(channelName as ChannelName).run(pastEvents[channelName]);
+			pastEvents[channelName].forEach((runEvent: RunEvent) => {
+				this.channels.get(channelName as ChannelName).run(runEvent);
+			});
 		}
 	}
 
 	run(status: CbStatus) {
-		if (status.statement === SEEK) return this.seek_(status);
+		if (status.statement === SEEK) return this.runSeek(status);
 
 		// console.log('RUN', status.trackName);
 
@@ -89,11 +99,11 @@ export class Timeline {
 		const ti = timeInInterval(times, status.currentTime);
 
 		ti.forEach((time) => {
-			const runs = this.tracks.getEvents(time, status);
-			for (const channel in runs) {
-				this.channels.has(channel as ChannelName) &&
-					runs[channel].forEach((run: RunEvent) => {
-						this.channels.get(channel as ChannelName).run(run);
+			const runEvents = this.tracks.getEvents(time, status);
+			for (const channelName in runEvents) {
+				this.channels.has(channelName as ChannelName) &&
+					runEvents[channelName].forEach((runEvent: RunEvent) => {
+						this.channels.get(channelName as ChannelName).run(runEvent);
 					});
 			}
 		});

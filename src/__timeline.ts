@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Channel } from './channels/channel';
 import { CbStatus, Timer } from './clock';
 import { Eventime, Store } from './types';

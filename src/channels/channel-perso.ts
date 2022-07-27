@@ -53,6 +53,7 @@ export class PersoChannel extends Channel {
 						this.transition.run(status, { id, time, transition });
 					}
 					move && this.move(move, perso);
+
 					this.queue.add(id, { ..._action, ...data });
 				}
 			}
@@ -67,6 +68,7 @@ export class PersoChannel extends Channel {
 
 	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const event = { startAt: status.nextTime, ...event_ };
+		// status.seekAction && console.log('next_------>', status.statement, status.seekAction, event.name, event, status);
 
 		if (status.statement === PLAY) {
 			// this.tracks.setNext

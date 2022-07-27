@@ -49,7 +49,6 @@ export class QueueActions {
 			update[id] = reduces;
 			this.state.set(id, reduces);
 		});
-
 		return update;
 	};
 

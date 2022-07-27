@@ -1,9 +1,9 @@
-import { Clock } from '../tracks';
-import { createTelco } from '../demos/telco';
+import { Clock, TrackName } from '../tracks';
+import { createTelco } from './telco';
 import { Timeline } from '../tracks/timeline';
 
 import { PersoElementType } from '../types';
-import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
+import { ROOT, MAIN, STRAP, END_SEQUENCE, SEEK } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 
@@ -35,6 +35,7 @@ const events: Eventime = {
 	startAt: 0,
 	name: 'initial',
 	channel: MAIN,
+	duration: 4000,
 	events: [
 		{ startAt: 400, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
@@ -52,7 +53,7 @@ const events: Eventime = {
 			data: counter02,
 		},
 		{ startAt: 1500, name: 'action02', channel: MAIN },
-		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
+		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'THE END' } },
 	],
 };
 
@@ -150,15 +151,15 @@ const _persos: Store = {
 		initial: { ...initialID03, move: ROOT },
 		actions: {
 			action01: { className: 'action01-' + ID03 },
-			// action04: {
-			// 	transition: {
-			// 		from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
-			// 		to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-			// 		duration: 1000,
-			// 		repeat: 4,
-			// 		yoyo: true,
-			// 	},
-			// },
+			action04: {
+				transition: {
+					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
+					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
+					duration: 1000,
+					repeat: 4,
+					yoyo: true,
+				},
+			},
 			pause_enter: {
 				transition: {
 					from: { scale: 1 },
@@ -268,10 +269,10 @@ export class Telco extends Timeline {
 		this.tracks.control('pause', action);
 	}
 
-	seek(progress: Time) {
-		console.log(progress);
-
-		//TODO
+	seek(progress: Time, trackName: TrackName) {
+		console.log(trackName, progress);
+		// this.pause();
+		Clock[SEEK](trackName, progress);
 	}
 
 	onTick(fn) {
@@ -279,8 +280,13 @@ export class Telco extends Timeline {
 	}
 }
 
+const control = {
+	duration: events.duration || END_SEQUENCE,
+	trackName: TRACK_PLAY,
+};
+
 const telco = new Telco({ persos, tracks, options });
-createTelco(telco);
+createTelco(telco, control);
 
 telco.start();
 // setTimeout(() => telco.pause(), 800);

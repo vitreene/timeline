@@ -1,5 +1,5 @@
 import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
-import { TrackName } from './tracks';
+import { Time, TrackName } from './tracks';
 
 export type Cb = (status?: CbStatus) => void;
 export type Guard = (status?: CbStatus) => boolean;
@@ -194,13 +194,6 @@ class Clock {
 		loop_();
 	};
 
-	// swap(newStatus: Status | undefined = defaultStatus) {
-	// 	// const status = { ...this.status, paused: this.status.elapsed };
-	// 	// this.status = { ...newStatus, paused: this.totalElapsed - newStatus.paused };
-	// 	// return status;
-	// 	return newStatus;
-	// }
-
 	addTimer(trackName: TrackName, timer: CbStatus | undefined) {
 		// TODO initialiser certaines propriétés
 		this.timers.set(trackName, { ...defaultStatus, ...timer, trackName });
@@ -213,6 +206,20 @@ class Clock {
 			return;
 		}
 		this.timers.set(trackName, { ...timer, statement });
+	}
+
+	[SEEK](trackName: TrackName, seekTime: Time) {
+		const timer = this.timers.get(trackName);
+		if (!timer) {
+			console.warn(`Pas de timer à ce nom : ${trackName}`);
+			return;
+		}
+		if (timer.seekTime === seekTime) return;
+		const headTime = Math.max(timer.headTime, seekTime);
+
+		console.log(trackName, seekTime);
+
+		this.timers.set(trackName, { ...timer, statement: SEEK, headTime, seekTime });
 	}
 }
 
@@ -230,11 +237,11 @@ export class Timer extends Clock {
 	// 	console.log('CLOCK ALL PAUSE', this.timers);
 	// }
 
-	[SEEK](time: number) {
-		// const headTime = Math.max(this.status.headTime, time);
-		// const currentTime = this.status.currentTime;
-		// this.status = { ...this.status, statement: SEEK, currentTime, headTime, seekTime: time };
-	}
+	// [SEEK](time: number) {
+	// const headTime = Math.max(this.status.headTime, time);
+	// const currentTime = this.status.currentTime;
+	// this.status = { ...this.status, statement: SEEK, currentTime, headTime, seekTime: time };
+	// }
 
 	start(initial = 0) {
 		console.log('START', ...this.timers);

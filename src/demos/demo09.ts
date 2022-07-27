@@ -1,5 +1,7 @@
+// @ts-nocheck
 import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
-import { Clock, Timeline } from '../timeline';
+import { Clock } from '../tracks';
+import { Timeline } from '../tracks/timeline';
 import { Tracks } from '../tracks/__tracks';
 
 import { Eventime, Initial, PersoElementType, Store } from '../types';

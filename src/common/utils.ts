@@ -27,7 +27,7 @@ export function stringSnakeToCamel(str: string) {
 
 // recursive diff between two objects
 export function diff(prec: any, next: any) {
-	if (next.content) return next;
+	if (next && next.content) return next;
 	if (prec === next) return null;
 	if (typeof prec === 'object' && typeof next === 'object') {
 		const keys = Object.keys(prec);

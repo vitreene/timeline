@@ -6,7 +6,7 @@ export const { MAIN, STRAP } = ChannelName;
 export const ROOT = 'root';
 export const INIT = '_initial_';
 
-export const END_SEQUENCE = 6000;
+export const END_SEQUENCE = 26000;
 export const MAX_ENDS = 10000;
 export const TIME_INTERVAL = 10;
 export const DEFAULT_TIMER = '1/10';

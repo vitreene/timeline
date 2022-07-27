@@ -35,6 +35,7 @@ export class Transition extends Strap {
 
 	run = (status: CbStatus, state: TransitionState) => {
 		const newState = !state?.startTime ? this.init(status, state) : (state as any);
+
 		this.exe(status, newState);
 	};
 
@@ -81,7 +82,6 @@ export class Transition extends Strap {
 			console.log('TRANSITION->END');
 		} else {
 			// console.log('TRANSITION.EXE',  status, state);
-			this.progress(status, state);
 			this.next(
 				{
 					name: 'transition',
@@ -91,6 +91,7 @@ export class Transition extends Strap {
 				status
 			);
 		}
+		this.progress(status, state);
 	};
 
 	private progress = (
@@ -115,7 +116,6 @@ export class Transition extends Strap {
 			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];
 			style[prop] = value;
 		}
-
 		this.queue.add(id, { style });
 	}
 }
