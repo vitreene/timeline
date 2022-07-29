@@ -1,7 +1,7 @@
 import * as straps from '../straps';
 import { Channel, RunEvent } from './channel';
 import { ChannelName } from '../types';
-import { PLAY, FORWARD, TIME_INTERVAL } from '../common/constants';
+import { PLAY, FORWARD, TIME_INTERVAL, BACKWARD } from '../common/constants';
 
 import type { Eventime } from '../types';
 import type { CbStatus } from '../clock';
@@ -46,16 +46,19 @@ export class StrapChannel extends Channel {
 		if (status.statement === PLAY) {
 			this.next(strapName, event);
 		}
+		// console.log('--->STRAP executeEvent', status.seekAction);
 		if (status.seekAction === FORWARD) {
 			this.executeEvent(event.name, event, status);
 		}
 	};
 
 	run({ name, status, data }: RunEvent): void {
+		console.log('--->STRAP run', name, status.seekAction);
+
 		if (this.strap.has(name)) {
 			const strap = this.strap.get(name);
 
-			name === 'move' && console.log({ name, status, data });
+			// name === 'move' && console.log({ name, status, data });
 
 			if (status.statement === PLAY && status.headTime === status.currentTime) {
 				strap.run(status, data);

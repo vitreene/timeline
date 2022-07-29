@@ -119,18 +119,20 @@ export class TrackManager {
 		status.seekAction === FORWARD && (status.currentTime += TIME_INTERVAL);
 		const { currentTime: time } = status;
 
-		if (status.statement === PLAY) {
-			// console.log(status.trackName, status.currentTime, status.statement);
-			const track = this.tracks.get(status.trackName);
-			if (track) {
-				const { nextEvent } = track;
-				if (nextEvent.has(time)) {
-					nextEvent
-						.get(time)
-						.forEach(([name, event]) => casuals.push({ name, time, status, data: event.data, channel: event.channel }));
-					nextEvent.delete(time);
-				}
+		// if (status.statement === PLAY) {
+		// console.log(status.trackName, status.currentTime, status.statement);
+		const track = this.tracks.get(status.trackName);
+		if (track) {
+			const { nextEvent } = track;
+			status.statement === SEEK && console.log('getNext', time, nextEvent);
+
+			if (nextEvent.has(time)) {
+				nextEvent
+					.get(time)
+					.forEach(([name, event]) => casuals.push({ name, time, status, data: event.data, channel: event.channel }));
+				nextEvent.delete(time);
 			}
+			// }
 		}
 		return casuals;
 	}
@@ -145,7 +147,7 @@ export class TrackManager {
 		if (!nextEvent.has(time)) nextEvent.set(time, []);
 		const casual = nextEvent.get(time);
 		casual.push([name, event]);
-		// console.log('setNext', this.tracks.get(track).nextEvent.get(time));
+		console.log('setNext', time, casual);
 	}
 
 	getEvents(time: number, status: CbStatus) {
