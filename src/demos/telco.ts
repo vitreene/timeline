@@ -13,12 +13,16 @@ export function createTelco(telco: Telco, { duration, trackName }: ControlProps)
 	command.id = 'telco';
 	const slider = document.createElement('input');
 	slider.setAttribute('type', 'range');
+	slider.setAttribute('min', '0');
+	slider.setAttribute('max', '100');
+	slider.setAttribute('step', '1');
 	slider.addEventListener('mousedown', () => {
 		slider.addEventListener('mousemove', mousemove);
 	});
 	slider.addEventListener('mouseup', () => {
 		slider.removeEventListener('mousemove', mousemove);
 	});
+	slider.addEventListener('click', mousemove);
 
 	function mousemove(): void {
 		const p = (Number(slider.value) * duration) / 100 - 100;

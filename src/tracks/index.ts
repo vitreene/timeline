@@ -115,6 +115,8 @@ export class TrackManager {
 
 	getNext(status: CbStatus) {
 		const casuals = [];
+		// console.log('getNext--->', status.seekAction);
+
 		if (status.seekAction === BACKWARD) return casuals;
 		status.seekAction === FORWARD && (status.currentTime += TIME_INTERVAL);
 		const { currentTime: time } = status;
@@ -124,7 +126,7 @@ export class TrackManager {
 		const track = this.tracks.get(status.trackName);
 		if (track) {
 			const { nextEvent } = track;
-			status.statement === SEEK && console.log('getNext', time, nextEvent);
+			// status.statement === SEEK && console.log('getNext', time, nextEvent);
 
 			if (nextEvent.has(time)) {
 				nextEvent
@@ -147,7 +149,7 @@ export class TrackManager {
 		if (!nextEvent.has(time)) nextEvent.set(time, []);
 		const casual = nextEvent.get(time);
 		casual.push([name, event]);
-		console.log('setNext', time, casual);
+		// console.log('setNext', time, casual);
 	}
 
 	getEvents(time: number, status: CbStatus) {

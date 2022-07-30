@@ -138,7 +138,10 @@ const telco = new Telco({ persos, tracks, options });
 createTelco(telco, control);
 
 telco.start();
-setTimeout(() => telco.pause(), 1000);
+setTimeout(() => {
+	console.clear();
+	telco.pause();
+}, 1000);
 // setTimeout(() => telco.play(), 1400);
 // setTimeout(() => telco.pause(), 2000);
 // setTimeout(() => telco.play(), 3500);

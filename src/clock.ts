@@ -1,4 +1,4 @@
-import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
+import { DEFAULT_TIMER, FORWARD, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
 import { Time, TrackName } from './tracks';
 
 export type Cb = (status?: CbStatus) => void;
@@ -37,7 +37,7 @@ export const defaultStatus: Status = {
 	currentTime: 0,
 	statement: PAUSE,
 	nextTime: TIME_INTERVAL,
-	timers: _timers(0),
+	timers: getTimers(0),
 	paused: 0,
 };
 
@@ -117,7 +117,7 @@ class Clock {
 
 			this.timers.forEach((timer) => {
 				const elapsed = this.totalElapsed - timer.paused;
-				const timers = _timers(elapsed);
+				const timers = getTimers(elapsed);
 
 				switch (timer.statement) {
 					default:
@@ -137,7 +137,7 @@ class Clock {
 										...timer,
 										timers, //
 										elapsed,
-										precTime: _currentTime,
+										precTime: _currentTime - TIME_INTERVAL,
 										currentTime: _currentTime,
 										nextTime: _currentTime + TIME_INTERVAL, //
 										headTime: Math.max(timer.headTime, _currentTime),
@@ -156,12 +156,39 @@ class Clock {
 
 					case SEEK:
 						{
-							// console.log(SEEK, timer.seekTime, timer.currentTime, { ...timer });
+							if (timer.headTime < timer.seekTime) {
+								/* 
+								executer en acceleré (sans timeout) tous les events qui se produisent entre la position headtime et seektime
+								 */
 
-							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
+								const cents = (timer.seekTime - timer.precTime) / 10;
+								console.log(timer.currentTime, cents);
+
+								for (let c = 1; c <= cents; c++) {
+									const _currentTime = timer.seekTime - (cents - c) * 10;
+									console.log(timer.seekTime, _currentTime);
+
+									timer = {
+										...timer,
+										timers, //
+										elapsed,
+										precTime: _currentTime - TIME_INTERVAL,
+										currentTime: _currentTime,
+										nextTime: _currentTime + TIME_INTERVAL, //
+										headTime: _currentTime,
+										// seekAction: FORWARD,
+									};
+
+									this.timers.set(timer.trackName, timer);
+									this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
+								}
+							} else {
+								this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
+							}
 							this.tick.forEach((fn) => fn(timer));
 
 							timer.precTime = timer.currentTime;
+							timer.headTime = Math.max(timer.headTime, timer.seekTime);
 							timer.statement = SEEKING;
 							this.timers.set(timer.trackName, timer);
 						}
@@ -172,7 +199,7 @@ class Clock {
 							// console.log('** ', SEEKING, { ...timer });
 
 							timer.seekAction = undefined;
-							timer.currentTime = timer.seekTime;
+							// timer.currentTime = timer.seekTime;
 							timer.statement = PAUSE;
 							this.timers.set(timer.trackName, timer);
 						}
@@ -208,18 +235,18 @@ class Clock {
 		this.timers.set(trackName, { ...timer, statement });
 	}
 
-	[SEEK](trackName: TrackName, seekTime: Time) {
+	[SEEK](trackName: TrackName, seekTime_: Time) {
+		console.log(SEEK, seekTime_);
+
 		const timer = this.timers.get(trackName);
 		if (!timer) {
 			console.warn(`Pas de timer à ce nom : ${trackName}`);
 			return;
 		}
-		if (timer.seekTime === seekTime) return;
-		const headTime = Math.max(timer.headTime, seekTime);
+		const seekTime = getTimers(seekTime_).milliemes;
+		if (timer.statement === SEEK && timer.seekTime === seekTime) return;
 
-		console.log(trackName, seekTime);
-
-		this.timers.set(trackName, { ...timer, statement: SEEK, headTime, seekTime });
+		this.timers.set(trackName, { ...timer, statement: SEEK, seekTime });
 	}
 }
 
@@ -256,6 +283,7 @@ export class Timer extends Clock {
 	on = (fct: Cb) => this.subscribe(fct, DEFAULT_TIMER);
 	off = (fct: Cb) => this.unSubscribe(fct, DEFAULT_TIMER);
 
+	// tick pour Telco et Queue.flush
 	onTick = this.subscribeTick;
 	offTick = this.unSubscribeTick;
 }
@@ -263,9 +291,9 @@ export class Timer extends Clock {
 function _milliseconds(time: number) {
 	return Math.floor(time * 100) * 10;
 }
-function _timers(elapsed: number) {
+function getTimers(elapsed: number) {
 	return {
-		milliemes: elapsed,
+		milliemes: Math.floor(elapsed / 10) * 10,
 		centiemes: Math.floor(elapsed / 100) * 10,
 		diziemes: Math.floor(elapsed / 100),
 		seconds: Math.floor(elapsed / 1000),

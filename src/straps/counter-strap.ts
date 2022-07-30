@@ -64,7 +64,7 @@ export class Counter extends Strap {
 			);
 			// console.log(console.log('NEXT->END'))
 		} else {
-			// console.log('COUNTER', canEvent, counter, state);
+			console.log('COUNTER', canEvent, counter, state);
 
 			canEvent &&
 				this.addEvent(

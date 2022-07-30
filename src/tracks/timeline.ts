@@ -47,15 +47,17 @@ export class Timeline {
 	}
 
 	private executeEvent(name: string, event: Eventime, status: CbStatus) {
-		console.log('-->executeEvent', status.currentTime < status.seekTime, event.startAt);
+		console.log('-->executeEvent', status.currentTime, status.seekTime);
 
-		if (status.currentTime < status.seekTime) {
-			const time = status.currentTime + TIME_INTERVAL;
-			const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
-			this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
-		} else {
-			this.tracks.setNext(name, { ...event, startAt: status.seekTime + TIME_INTERVAL });
-		}
+		this.tracks.setNext(name, { ...event, startAt: status.seekTime + TIME_INTERVAL });
+
+		// if (status.currentTime < status.seekTime) {
+		// 	const time = status.currentTime + TIME_INTERVAL;
+		// 	const currentStatus: CbStatus = { ...status, currentTime: time, nextTime: time + TIME_INTERVAL };
+		// 	this.channels.get(event.channel).run({ name: event.name, time, status: currentStatus, data: event.data });
+		// } else {
+		// 	this.tracks.setNext(name, { ...event, startAt: status.seekTime + TIME_INTERVAL });
+		// }
 	}
 
 	private runNext(status: CbStatus) {
@@ -63,7 +65,6 @@ export class Timeline {
 
 		if (status.seekAction === BACKWARD) return;
 		const casuals = this.tracks.getNext(status);
-		// 	status.seekAction && casuals.length &&
 		casuals.length && console.log('------> casuals', casuals);
 
 		casuals.forEach(({ channel, ...casual }) => {
@@ -74,7 +75,7 @@ export class Timeline {
 	private runSeek(status: CbStatus) {
 		const [pastEvents, forwardEvents] = this.tracks.getSeekEvents(status);
 
-		console.log('RUNSEEK', status.currentTime, forwardEvents);
+		// console.log('RUNSEEK', status.currentTime, forwardEvents);
 		// console.log('pastEvents', pastEvents);
 
 		if (forwardEvents) {
