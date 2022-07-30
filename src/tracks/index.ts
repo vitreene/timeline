@@ -27,6 +27,11 @@ interface ControlAction {
 	inactive: TrackName[];
 	refTrack?: string;
 }
+
+interface NextStatus extends RunEvent {
+	channel: ChannelName;
+}
+
 export const Clock = new Timer({ endsAt: END_SEQUENCE });
 
 export class TrackManager {
@@ -52,17 +57,17 @@ export class TrackManager {
 	}
 
 	addTracks(tracks: Record<TrackName, Eventime>, channels: ChannelName[]) {
-		for (const name in tracks) {
-			const events = tracks[name];
-			const track = new Track({ name, events, channels });
+		for (const trackName in tracks) {
+			const events = tracks[trackName];
+			const track = new Track({ name: trackName, events, channels });
 			const timer = Object.assign({}, events.duration && { duration: events.duration });
-			this.tracks.set(name, track);
-			Clock.addTimer(name, timer);
+			this.tracks.set(trackName, track);
+			Clock.addTimer(trackName, timer);
 		}
 	}
 
 	addEvent(event_: Eventime) {
-		const trackName = event_.track || this.refTrack;
+		const trackName: TrackName = event_.track || this.refTrack;
 		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : Clock.status.currentTime + TIME_INTERVAL;
 		const event = { ...event_, track: trackName, startAt };
 		// console.log('TM addEvent', trackName, event_, startAt, event.data?.content);
@@ -113,7 +118,7 @@ export class TrackManager {
 		console.log('————————————————————————————————');
 	}
 
-	getNext(status: CbStatus) {
+	getNext(status: CbStatus): NextStatus[] {
 		const casuals = [];
 		// console.log('getNext--->', status.seekAction);
 
@@ -140,7 +145,10 @@ export class TrackManager {
 	}
 
 	setNext(name: string, event: Eventime) {
-		const track = event.track || this.refTrack;
+		// pas de track !!
+		const track = event.track || event.data?.track || this.refTrack;
+
+		// console.log('setNext', track, name, event);
 
 		if (!this.tracks.has(track)) return;
 		const time = event.startAt;
@@ -149,42 +157,45 @@ export class TrackManager {
 		if (!nextEvent.has(time)) nextEvent.set(time, []);
 		const casual = nextEvent.get(time);
 		casual.push([name, event]);
-		// console.log('setNext', time, casual);
+
+		// console.log('setNext', time, name, casual);
 	}
 
 	getEvents(time: number, status: CbStatus) {
 		// console.log('GET EVENTS', time, status.trackName);
 
 		const runs: Partial<RunEvents> = {};
-		this.tracks.forEach((track) => {
-			if (track.statement === PLAY) {
-				const { events: eventsByChannel, data: dataByChannel } = track;
-				eventsByChannel.forEach((events, channel) => {
-					if (!events.size) return;
-					if (!runs[channel]) runs[channel] = [];
-					if (events.has(time)) {
-						events.get(time).forEach((name) => {
-							const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
-							runs[channel].push({ name, time, data, status });
-						});
-					}
-				});
-			}
-		});
+		const track = this.tracks.get(status.trackName);
+
+		if (status.statement !== PAUSE) {
+			const { events: eventsByChannel, data: dataByChannel } = track;
+			eventsByChannel.forEach((events, channel) => {
+				if (!events.size) return;
+				if (!runs[channel]) runs[channel] = [];
+				if (events.has(time)) {
+					events.get(time).forEach((name) => {
+						const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
+						runs[channel].push({ name, time, data, status });
+					});
+				}
+			});
+		}
+
 		return runs;
 	}
 
 	getSeekEvents(status: CbStatus) {
-		const { currentTime, seekTime } = status;
+		const { precTime, seekTime } = status;
 
 		const trackTimes = this.tracks.get(status.trackName).times;
 
 		const pastTimes = timeBefore(trackTimes, seekTime);
-		const forwardTimes = currentTime < seekTime && timeAfter(trackTimes, currentTime, seekTime);
+		// FIXME utile ?
+		const forwardTimes = precTime < seekTime && timeAfter(trackTimes, precTime, seekTime);
 
-		// console.log('trackTimes', trackTimes);
+		// console.log('trackTimes', precTime, seekTime, trackTimes);
 		// console.log('pastTimes--->', currentTime, pastTimes);
-		// console.log('forwardTimes--->', currentTime, forwardTimes);
+		// console.log('forwardTimes--->', seekTime, forwardTimes);
 
 		const track = this.tracks.get(status.trackName);
 		if (!track) return [];

@@ -51,13 +51,14 @@ export class TrackComponent {
 			channelEvent.set(startAt, new Set<string>([event.name]));
 		}
 		this.times.add(startAt);
-		if (event.data) this.addData(event);
+		this.addData(event);
 	}
 
 	private addData = (event: Eventime) => {
 		!this.data.has(event.name) && this.data.set(event.name, new Map());
 		const eventData = this.data.get(event.name);
-		eventData.set(event.startAt, event.data);
+		const data = { ...event.data, track: this.name };
+		eventData.set(event.startAt, data);
 	};
 }
 

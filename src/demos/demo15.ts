@@ -13,7 +13,7 @@ const ID01 = 'hello';
 const ID_COUNTER_01 = 'counter01';
 const counter01 = {
 	id: ID_COUNTER_01,
-	duration: 2000,
+	duration: 1000,
 	start: 0,
 	end: 10,
 	complete: { lost: 'PERDU', win: 'GAGNE' },

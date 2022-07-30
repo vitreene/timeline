@@ -33,9 +33,10 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		if (status.seekAction === FORWARD) return;
+		// if (status.seekAction === FORWARD) return;
 		if (status.statement === SEEK) {
-			status.currentTime = status.seekTime;
+			// console.log('RUN:::', name, time, status, data);
+			// status.currentTime = status.seekTime;
 			this.queue.resetState();
 		}
 

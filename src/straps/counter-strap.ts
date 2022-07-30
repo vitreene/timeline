@@ -4,6 +4,7 @@ import { Strap } from './strap';
 import { MAIN, STRAP } from '../common/constants';
 
 interface StrapMinuteurProps {
+	track?: string;
 	id: string;
 	start: number;
 	end: number;
@@ -41,7 +42,7 @@ export class Counter extends Strap {
 		const startTime = status.currentTime;
 		const endTime = startTime + state.duration;
 		const initState = { ...defaultState, ...state, frequency, startTime, endTime };
-		// console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
+		console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
 
 		return initState;
 	};
@@ -62,15 +63,16 @@ export class Counter extends Strap {
 				},
 				status
 			);
-			// console.log(console.log('NEXT->END'))
+			console.log('NEXT->END');
 		} else {
-			console.log('COUNTER', canEvent, counter, state);
+			canEvent && console.log('@@@@@@@COUNTER', status.currentTime, canEvent, counter, state);
 
 			canEvent &&
 				this.addEvent(
 					{
 						name: state.id,
 						channel: MAIN,
+						track: state.track,
 						data: { content: counter },
 					},
 					status

@@ -156,41 +156,41 @@ class Clock {
 
 					case SEEK:
 						{
+							timer.precTime = timer.currentTime;
+							timer.currentTime = timer.seekTime;
+							const totoTimer = {
+								...timer,
+								toto: 'toto',
+							};
+							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(totoTimer)));
+
 							if (timer.headTime < timer.seekTime) {
 								/* 
 								executer en acceleré (sans timeout) tous les events qui se produisent entre la position headtime et seektime
+								en mode PLAY
 								 */
+								const cents = (timer.seekTime - timer.headTime) / 10;
 
-								const cents = (timer.seekTime - timer.precTime) / 10;
-								console.log(timer.currentTime, cents);
-
-								for (let c = 1; c <= cents; c++) {
+								for (let c = 1, timer_ = timer; c <= cents; c++) {
 									const _currentTime = timer.seekTime - (cents - c) * 10;
-									console.log(timer.seekTime, _currentTime);
-
-									timer = {
-										...timer,
-										timers, //
-										elapsed,
-										precTime: _currentTime - TIME_INTERVAL,
+									timer_ = {
+										...timer_,
+										precTime: _currentTime,
 										currentTime: _currentTime,
 										nextTime: _currentTime + TIME_INTERVAL, //
 										headTime: _currentTime,
-										// seekAction: FORWARD,
+										statement: PLAY,
 									};
 
-									this.timers.set(timer.trackName, timer);
-									this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
+									// this.timers.set(timer.trackName, timer);
+									this.subscribers.forEach(({ guard, cb }) => guard(timer_) && cb.forEach((c) => c(timer_)));
 								}
-							} else {
-								this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
 							}
-							this.tick.forEach((fn) => fn(timer));
 
-							timer.precTime = timer.currentTime;
 							timer.headTime = Math.max(timer.headTime, timer.seekTime);
 							timer.statement = SEEKING;
 							this.timers.set(timer.trackName, timer);
+							this.tick.forEach((fn) => fn(timer));
 						}
 						break;
 
@@ -236,16 +236,14 @@ class Clock {
 	}
 
 	[SEEK](trackName: TrackName, seekTime_: Time) {
-		console.log(SEEK, seekTime_);
-
 		const timer = this.timers.get(trackName);
 		if (!timer) {
 			console.warn(`Pas de timer à ce nom : ${trackName}`);
 			return;
 		}
 		const seekTime = getTimers(seekTime_).milliemes;
-		if (timer.statement === SEEK && timer.seekTime === seekTime) return;
-
+		if (timer.seekTime === seekTime) return;
+		console.log(SEEK, seekTime);
 		this.timers.set(trackName, { ...timer, statement: SEEK, seekTime });
 	}
 }

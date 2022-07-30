@@ -27,7 +27,8 @@ export function createTelco(telco: Telco, { duration, trackName }: ControlProps)
 	function mousemove(): void {
 		const p = (Number(slider.value) * duration) / 100 - 100;
 		const progression = p > 0 ? p : 0;
-		progress.textContent = Math.round(Number(slider.value)) + '%';
+		// progress.textContent = Math.round(Number(slider.value)) + '%';
+		progress.textContent = Math.round(progression) + 'ms';
 		telco.seek(progression, trackName);
 	}
 
