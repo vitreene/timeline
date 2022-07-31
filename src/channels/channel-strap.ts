@@ -54,14 +54,14 @@ export class StrapChannel extends Channel {
 	};
 
 	run({ name, status, data }: RunEvent): void {
-		// console.log('--->STRAP run', name, status.seekAction);
+		// console.log('--->STRAP run', name, status.statement, data.startTime);
 
 		if (this.strap.has(name)) {
 			const strap = this.strap.get(name);
 
 			// console.log(name, status.statement, data);
-			strap.run(status, data);
 
+			if (status.statement === PLAY) strap.run(status, data);
 			// if (status.statement !== PAUSE && status.headTime === status.currentTime) {
 			// }
 			// if (status.statement === PLAY && status.headTime === status.currentTime) {

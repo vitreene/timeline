@@ -156,13 +156,14 @@ class Clock {
 
 					case SEEK:
 						{
-							timer.precTime = timer.currentTime;
-							timer.currentTime = timer.seekTime;
-							const totoTimer = {
-								...timer,
-								toto: 'toto',
-							};
-							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(totoTimer)));
+							// const totoTimer = {
+							// 	...timer,
+							// 	// statement: PLAY,
+							// 	toto: 'toto',
+							// };
+							// console.log(timer.seekTime, timer.headTime);
+
+							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
 
 							if (timer.headTime < timer.seekTime) {
 								/* 
@@ -181,11 +182,12 @@ class Clock {
 										headTime: _currentTime,
 										statement: PLAY,
 									};
-
-									// this.timers.set(timer.trackName, timer);
 									this.subscribers.forEach(({ guard, cb }) => guard(timer_) && cb.forEach((c) => c(timer_)));
 								}
 							}
+
+							timer.precTime = timer.currentTime;
+							timer.currentTime = timer.seekTime;
 
 							timer.headTime = Math.max(timer.headTime, timer.seekTime);
 							timer.statement = SEEKING;
