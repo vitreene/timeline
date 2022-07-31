@@ -79,9 +79,9 @@ export class Transition extends Strap {
 				},
 				status
 			);
-			console.log('TRANSITION->END');
+			// console.log('TRANSITION->END');
 		} else {
-			// console.log('TRANSITION.EXE',  status, state);
+			// console.log('TRANSITION.NEXT', status.currentTime - state.startTime);
 			this.next(
 				{
 					name: 'transition',
@@ -118,63 +118,6 @@ export class Transition extends Strap {
 		}
 		this.queue.add(id, { style });
 	}
-}
-
-function transition_(props: { id: string; time: number; transition: TransitionProps; status: CbStatus }) {
-	// console.log('transition', props.time, props.status.currentTime);
-
-	const { id, time, transition, status } = props;
-
-	const state = this.queue.stack.get(id) || this.store.getPerso(id).initial;
-	const from = (transition.from || state.style) as FromTo;
-
-	const to = transition.to as FromTo;
-	const firstStart = time;
-	const duration = transition.duration || 0;
-	const repeat = transition.repeat || 1;
-	const lastEnd = firstStart + duration * repeat;
-
-	const progress: ProgressInterpolation = interpolate({ from, to });
-	const inverseProgress: ProgressInterpolation = transition.yoyo && interpolate({ from: to, to: from });
-
-	const doProgress = (status: CbStatus) => {
-		const currentTime = status.currentTime - firstStart;
-		const elapsed = status.currentTime < lastEnd ? currentTime % transition.duration : transition.duration;
-
-		if (inverseProgress) {
-			const yoyo = currentTime % (transition.duration * 2) > transition.duration;
-			const iProgress = yoyo ? inverseProgress : progress;
-			renderTransition(id, iProgress(elapsed, 0, transition.duration));
-		} else {
-			renderTransition(id, progress(elapsed, 0, transition.duration));
-		}
-	};
-
-	if (status.statement !== SEEK && !transitionCache.has(props)) {
-		transitionCache.add(props);
-
-		// à remplacer par this.next_
-		this.timer.subscribeTick((status) => {
-			const onTransition = status.currentTime < lastEnd && status.currentTime >= firstStart;
-			if (status.statement === PLAY && onTransition) doProgress(status);
-		});
-	}
-
-	/* 
-  le premier appel à la transition se fait dans Channel.perso , puis la transition elle-meme se poursuit dans strap
-  */
-
-	doProgress(status);
-}
-
-function renderTransition(id: string, result) {
-	const style = {};
-	for (const prop in result) {
-		const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];
-		style[prop] = value;
-	}
-
-	this.queue.add(id, { style });
 }
 
 export const interpolate = (props: InterpolateProps) => {

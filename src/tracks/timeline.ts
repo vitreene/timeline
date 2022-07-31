@@ -67,7 +67,7 @@ export class Timeline {
 		const casuals = this.tracks.getNext(status);
 
 		casuals.forEach(({ channel, ...casual }) => {
-			console.log('------> casuals', channel, status.currentTime, casual);
+			// console.log('------> casuals', channel, status.currentTime, casual);
 			this.channels.get(channel).runNext(casual);
 		});
 	}
