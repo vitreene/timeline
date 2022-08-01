@@ -12,7 +12,7 @@ export interface StrapProps {
 
 export class Strap {
 	store: PersoStore;
-
+	publicName: string;
 	queue: QueueActions;
 	addEvent: (event: Partial<Eventime>, status: CbStatus) => void;
 	next: (event: Omit<Eventime, 'startAt'>, status: CbStatus) => void;

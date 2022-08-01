@@ -8,13 +8,13 @@ export interface Status {
 	currentTime: number;
 	pauseTime: number;
 	headTime: number;
-	precTime: number;
-	nextTime: number;
+	// precTime: number;
+	// nextTime: number;
 	elapsed: number;
 	paused: number;
 	statement: string;
 	seekTime?: number;
-	seekAction?: string;
+	// seekAction?: string;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
 }
 export interface CbStatus extends Partial<Status> {
@@ -33,10 +33,10 @@ export const defaultStatus: Status = {
 	elapsed: 0,
 	pauseTime: 0,
 	headTime: 0,
-	precTime: -TIME_INTERVAL,
+	// precTime: -TIME_INTERVAL,
 	currentTime: 0,
 	statement: PAUSE,
-	nextTime: TIME_INTERVAL,
+	// nextTime: TIME_INTERVAL,
 	timers: getTimers(0),
 	paused: 0,
 };
@@ -104,7 +104,8 @@ class Clock {
 	// LOOP ////////////////
 	loop = (initial: number) => {
 		// pour démarrer à 0
-		this.timers.forEach((timer) => (timer.precTime = initial - TIME_INTERVAL));
+		// this.timers.forEach((timer) => (timer.precTime = initial - TIME_INTERVAL));
+		this.timers.forEach((timer) => (timer.currentTime = initial - TIME_INTERVAL));
 
 		const start = performance.now() - initial;
 
@@ -128,7 +129,8 @@ class Clock {
 							Si la différence entre _currentTime et oldTime n'est pas suffisante, il n'y a pas d'actualisation.
 							*/
 							const currentTime = elapsed - timer.pauseTime;
-							const cents = (currentTime - timer.precTime) / 10;
+							const cents = (currentTime - timer.currentTime) / 10;
+							// const cents = (currentTime - timer.precTime) / 10;
 
 							for (let c = 1; c <= cents; c++) {
 								setTimeout(() => {
@@ -137,13 +139,13 @@ class Clock {
 										...timer,
 										timers, //
 										elapsed,
-										precTime: _currentTime - TIME_INTERVAL,
+										// precTime: _currentTime - TIME_INTERVAL,
 										currentTime: _currentTime,
-										nextTime: _currentTime + TIME_INTERVAL, //
+										// nextTime: _currentTime + TIME_INTERVAL, //
 										headTime: Math.max(timer.headTime, _currentTime),
 									};
 
-									timer.precTime = timer.currentTime;
+									// timer.precTime = timer.currentTime;
 									this.timers.set(timer.trackName, timer);
 									this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
 								});
@@ -156,14 +158,14 @@ class Clock {
 
 					case SEEK:
 						{
-							// const totoTimer = {
-							// 	...timer,
-							// 	// statement: PLAY,
-							// 	toto: 'toto',
-							// };
+							const totoTimer = {
+								...timer,
+								// statement: PLAY,
+								toto: 'toto',
+							};
 							// console.log(timer.seekTime, timer.headTime);
 
-							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(timer)));
+							this.subscribers.forEach(({ guard, cb }) => guard(timer) && cb.forEach((c) => c(totoTimer)));
 
 							if (timer.headTime < timer.seekTime) {
 								/* 
@@ -176,9 +178,9 @@ class Clock {
 									const _currentTime = timer.seekTime - (cents - c) * 10;
 									timer_ = {
 										...timer_,
-										precTime: _currentTime,
+										// precTime: _currentTime,
 										currentTime: _currentTime,
-										nextTime: _currentTime + TIME_INTERVAL, //
+										// nextTime: _currentTime + TIME_INTERVAL, //
 										headTime: _currentTime,
 										statement: PLAY,
 									};
@@ -186,7 +188,7 @@ class Clock {
 								}
 							}
 
-							timer.precTime = timer.currentTime;
+							// timer.precTime = timer.currentTime;
 							timer.currentTime = timer.seekTime;
 
 							timer.headTime = Math.max(timer.headTime, timer.seekTime);
@@ -200,7 +202,7 @@ class Clock {
 						{
 							// console.log('** ', SEEKING, { ...timer });
 
-							timer.seekAction = undefined;
+							// timer.seekAction = undefined;
 							// timer.currentTime = timer.seekTime;
 							timer.statement = PAUSE;
 							this.timers.set(timer.trackName, timer);
@@ -209,7 +211,8 @@ class Clock {
 
 					case PAUSE:
 						{
-							timer.pauseTime = elapsed - timer.precTime;
+							timer.pauseTime = elapsed - timer.currentTime;
+							// timer.pauseTime = elapsed - timer.precTime;
 							this.timers.set(timer.trackName, timer);
 							this.tick.forEach((fn) => fn(timer));
 						}

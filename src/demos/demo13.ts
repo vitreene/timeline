@@ -25,10 +25,10 @@ const counter01 = {
 const ID_COUNTER_02 = 'counter02';
 const counter02 = {
 	id: ID_COUNTER_02,
-	duration: 2500,
-	start: 100,
-	end: 50,
-	complete: { lost: 'LOST' /* , win: 'WON' */ },
+	duration: 1500,
+	start: 20,
+	end: 10,
+	complete: { lost: 'LOST', win: 'WON' },
 };
 
 const events: Eventime = {
@@ -47,7 +47,7 @@ const events: Eventime = {
 			data: counter01,
 		},
 		{
-			startAt: 860,
+			startAt: 900,
 			name: 'counter',
 			channel: STRAP,
 			data: counter02,
@@ -174,13 +174,13 @@ const _persos: Store = {
 					duration: 600,
 				},
 			},
-			/* 	['end_' + ID_COUNTER_02]: {
+			['end_' + ID_COUNTER_02]: {
 				transition: {
 					from: { opacity: 1 },
 					to: { opacity: 0.7 },
 					duration: 500,
 				},
-			}, */
+			},
 			[ID_COUNTER_02]: true,
 		},
 		emit: {
@@ -270,8 +270,6 @@ export class Telco extends Timeline {
 	}
 
 	seek(progress: Time, trackName: TrackName) {
-		console.log(trackName, progress);
-		// this.pause();
 		Clock[SEEK](trackName, progress);
 	}
 
@@ -289,7 +287,7 @@ const telco = new Telco({ persos, tracks, options });
 createTelco(telco, control);
 
 telco.start();
-// setTimeout(() => telco.pause(), 800);
+// setTimeout(() => telco.pause(), 900);
 // setTimeout(() => telco.play(), 1400);
 // setTimeout(() => telco.pause(), 2000);
 // setTimeout(() => telco.play(), 3500);

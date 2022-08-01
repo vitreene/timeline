@@ -1,7 +1,7 @@
+import { Strap } from '../straps/strap';
 import { SEEK, PLAY, MAIN } from '../common/constants';
 import type { CbStatus } from '../clock';
 import type { Transition as TransitionProps } from '../types';
-import { Strap } from '../straps/strap';
 
 export type FromTo = { [x: string]: number };
 export type FromToProps = { [x: string]: number | string };
@@ -26,6 +26,7 @@ interface ProgressState {
 	startTime: number;
 	endTime: number;
 	duration: number;
+	track: string;
 	inverseProgress: ProgressInterpolation;
 	progress: ProgressInterpolation;
 }
@@ -41,6 +42,7 @@ export class Transition extends Strap {
 
 	init = (status: CbStatus, state: TransitionState) => {
 		const { id, time, transition } = state;
+		const track = status.trackName;
 
 		const perso = this.queue.stack.get(id) || this.store.getPerso(id).initial;
 		const from = (transition.from || perso.style) as FromTo;
@@ -59,6 +61,7 @@ export class Transition extends Strap {
 			startTime,
 			endTime,
 			duration,
+			track,
 			inverseProgress,
 			progress,
 		};

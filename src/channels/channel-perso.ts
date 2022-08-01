@@ -3,7 +3,7 @@ import { Transition } from './transition';
 import { Layer } from '../render/components/layer';
 
 import { ChannelName } from '../types';
-import { FORWARD, PLAY, SEEK } from '../common/constants';
+import { FORWARD, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
 
 import type { FromTo } from './transition';
 import type { RunEvent, ChannelOptions } from './channel';
@@ -33,10 +33,7 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		// if (status.seekAction === FORWARD) return;
 		if (status.statement === SEEK) {
-			// console.log('RUN:::', name, time, status, data);
-			// status.currentTime = status.seekTime;
 			this.queue.resetState();
 		}
 
@@ -51,6 +48,7 @@ export class PersoChannel extends Channel {
 					if (transition) {
 						// mieux : si store est modifié, propager la modif.
 						this.transition.addStore(this.store);
+
 						this.transition.run(status, { id, time, transition });
 					}
 					move && this.move(move, perso);
@@ -68,15 +66,9 @@ export class PersoChannel extends Channel {
 	}
 
 	next_ = (strapName: string) => (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
-		const event = { startAt: status.nextTime, ...event_ };
-		// status.seekAction && console.log('next_------>', status.statement, status.seekAction, event.name, event, status);
-
+		const event = { startAt: status.currentTime + TIME_INTERVAL, ...event_ };
 		if (status.statement === PLAY) {
-			// this.tracks.setNext
-			this.next(strapName, event);
-		}
-		if (status.seekAction === FORWARD) {
-			this.executeEvent(event.name, event, status);
+			this.next(strapName, event); // @ this.tracks.setNext
 		}
 	};
 

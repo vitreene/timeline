@@ -26,7 +26,7 @@ export class Channel {
 	timer: Timer;
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
-	executeEvent: (name: string, event: Eventime, status: CbStatus) => void;
+	// executeEvent: (name: string, event: Eventime, status: CbStatus) => void;
 	next: (name: string, event: Eventime) => void;
 
 	constructor(options: ChannelOptions) {

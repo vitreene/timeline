@@ -13,9 +13,9 @@ interface ChannelManagerProps {
 	store: PersoStore;
 	addEvent: AddEvent;
 	next: (name: string, event: Eventime) => void;
-	executeEvent: any;
+	// executeEvent: any;
 }
-export function channelManager({ store, addEvent, next, executeEvent }: ChannelManagerProps) {
+export function channelManager({ store, addEvent, next /* , executeEvent */ }: ChannelManagerProps) {
 	const channels: ChannelsMap = new Map();
 	const render = createRender(store);
 	const queue = new QueueActions(render);
@@ -29,7 +29,7 @@ export function channelManager({ store, addEvent, next, executeEvent }: ChannelM
 	function addChannel(channel: Channel) {
 		channel.addStore(store);
 		channel.next = next;
-		channel.executeEvent = executeEvent;
+		// channel.executeEvent = executeEvent;
 
 		channel.init();
 		channels.set(channel.name, channel);
