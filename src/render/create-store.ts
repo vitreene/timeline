@@ -1,6 +1,6 @@
 import { PersoStore } from './create-perso';
 
-import { ROOT, INIT, DEFAULT_CHANNEL_NAME } from '../common/constants';
+import { ROOT, INITIAL, DEFAULT_CHANNEL_NAME } from '../common/constants';
 
 import type { AddEvent } from 'src/tracks';
 import type { Store, Eventime } from '../types';
@@ -20,11 +20,11 @@ export function createStore(persos: Store, addEvent: AddEvent): PersoStore {
 
 function addInitialEvents(persos: Store, addEvent: AddEvent) {
 	for (const id in persos) {
-		persos[id].actions[INIT] = persos[id].initial;
+		persos[id].actions[INITIAL] = persos[id].initial;
 	}
 	const event: Eventime = {
 		channel: DEFAULT_CHANNEL_NAME,
-		name: INIT,
+		name: INITIAL,
 		startAt: 0,
 	};
 	addEvent(event);

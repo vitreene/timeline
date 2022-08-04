@@ -126,6 +126,7 @@ export class PersoStore {
 		switch (typeof style) {
 			case 'object':
 				const _style = resolveStyles(style, this.zoom);
+				node.id === 'third' && console.log(_style);
 				for (const key in _style) node.style[key] = _style[key];
 				break;
 			case 'string':

@@ -3,7 +3,7 @@ import { Transition } from './transition';
 import { Layer } from '../render/components/layer';
 
 import { ChannelName } from '../types';
-import { FORWARD, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
+import { FORWARD, INITIAL, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
 
 import type { FromTo } from './transition';
 import type { RunEvent, ChannelOptions } from './channel';
@@ -39,8 +39,8 @@ export class PersoChannel extends Channel {
 
 		this.store.persos.forEach((perso, id) => {
 			const action = perso.actions[name];
-
 			if (action) {
+				if (name === INITIAL) perso.reset();
 				if (typeof action === 'boolean') {
 					this.queue.add(id, data);
 				} else {

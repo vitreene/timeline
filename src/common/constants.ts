@@ -4,7 +4,7 @@ import { stringToLowercase } from './utils';
 export const { MAIN, STRAP } = ChannelName;
 
 export const ROOT = 'root';
-export const INIT = '_initial_';
+export const INITIAL = '_initial_';
 
 export const END_SEQUENCE = 26000;
 export const MAX_ENDS = 10000;

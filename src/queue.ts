@@ -38,6 +38,7 @@ export class QueueActions {
 							return ((prec || '') + ' ' + (current || '')).trim();
 						case 'style':
 							return { ...prec, ...current };
+
 						case 'content':
 							return current;
 
