@@ -171,7 +171,7 @@ const _persos: Store = {
 				transition: {
 					from: { scale: 2 },
 					to: { scale: 1 },
-					duration: 600,
+					duration: 10000,
 				},
 			},
 			/* 	['end_' + ID_COUNTER_02]: {

@@ -4,15 +4,15 @@ import { stringSnakeToCamel, addSuffix } from '../common/utils';
 import type { Style } from 'src/types';
 
 export function resolveStyles(styleExtended: Style, zoom: number) {
-	const { style, transform } = extractTransform(styleExtended);
-	const _transform = withTransform(transform, zoom);
+	const { style, transform: t_ } = extractTransform(styleExtended);
+	const transform = withTransform(t_, zoom);
 
-	const _style = {};
-	for (const _prop in style) {
-		const value = addSuffix(_prop, style[_prop], zoom);
-		const prop = stringSnakeToCamel(_prop);
-		_style[prop] = value;
+	const s_ = {};
+	for (const prop_ in style) {
+		const value = addSuffix(prop_, style[prop_], zoom);
+		const prop = stringSnakeToCamel(prop_);
+		s_[prop] = value;
 	}
 
-	return { ..._style, ..._transform };
+	return { ...s_, transform };
 }
