@@ -37,12 +37,13 @@ export class PersoChannel extends Channel {
 			this.queue.resetState();
 		}
 
+		const { track, ...data_ } = data || {};
 		this.store.persos.forEach((perso, id) => {
 			const action = perso.actions[name];
 			if (action) {
 				if (name === INITIAL) perso.reset();
 				if (typeof action === 'boolean') {
-					this.queue.add(id, data);
+					this.queue.add(id, data_);
 				} else {
 					const { move, transition, ..._action } = action;
 					if (transition) {
@@ -53,7 +54,7 @@ export class PersoChannel extends Channel {
 					}
 					move && this.move(move, perso);
 
-					this.queue.add(id, { ..._action, ...data });
+					this.queue.add(id, { ..._action, ...data_ });
 				}
 			}
 		});

@@ -11,6 +11,9 @@ export function createRender(store: PersoStore) {
 			if (perso) {
 				// le diff pourrait etre réalisé dans queue ?
 				const up = diff(perso.prec, update[id]);
+				// id == 'third' && console.log(update[id]);
+				// id == 'third' && console.log(up);
+
 				perso.prec = { ...update[id] };
 				if (up) {
 					perso.style = { ...perso.style, ...up.style };

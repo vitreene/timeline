@@ -22,17 +22,18 @@ export class QueueActions {
 		this.stack.set(id, attributes);
 	}
 
-	// TODO etoffer le rendu pour tenir compte
-	// des particularités de chaque propriété
-	// un reducer par propriété
+	// update ne renvoie que les les émissions
 
 	render = () => {
 		const update: Update = {};
 		this.stack.forEach((actions, id) => {
 			const state = this.state.get(id) || {};
-			const reduces = state;
+			// const reduces = state;
+			const reduces = {};
+			// id === 'third' && console.log(actions);
 			for (const action in actions) {
 				reduces[action] = actions[action].reduce((prec: any, current) => {
+					// id === 'third' && console.log(action, prec, current);
 					switch (action) {
 						case 'className':
 							return ((prec || '') + ' ' + (current || '')).trim();
@@ -43,13 +44,15 @@ export class QueueActions {
 							return current;
 
 						default:
-							break;
+							return current;
 					}
 				}, state[action]);
 			}
 			update[id] = reduces;
 			this.state.set(id, reduces);
+			// id === 'third' && console.log(update[id]);
 		});
+
 		return update;
 	};
 
