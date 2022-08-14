@@ -156,7 +156,7 @@ const _persos: Store = {
 					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
 					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
 					duration: 1000,
-					repeat: 4,
+					repeat: 6,
 					yoyo: true,
 				},
 			},
@@ -176,9 +176,9 @@ const _persos: Store = {
 			},
 			['end_' + ID_COUNTER_02]: {
 				transition: {
-					from: { opacity: 1 },
-					to: { opacity: 0.7 },
-					duration: 500,
+					from: { rotate: 0 },
+					to: { rotate: -12 },
+					duration: 1000,
 				},
 			},
 			[ID_COUNTER_02]: true,

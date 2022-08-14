@@ -28,19 +28,17 @@ export function stringSnakeToCamel(str: string) {
 // affiner diff pour renoyer la différence, pas si l'object est différent
 // recursive diff between two objects
 export function diff(prec: any, next: any) {
-	if (prec === next) return null;
 	if (typeof prec === 'object' && typeof next === 'object') {
-		const keys = Object.keys(prec);
-		if (keys.length !== Object.keys(next).length) {
-			return next;
-		} else {
-			for (const key of keys) {
-				if (key === 'content') return next;
-				if (diff(prec[key], next[key]) !== null) return next;
-			}
-			return null;
+		const obj = {};
+		const keys = Object.keys(next);
+		for (const key of keys) {
+			if (key === 'content') obj[key] = next[key];
+			const value = diff(prec[key], next[key]);
+			if (value !== null) obj[key] = value;
 		}
+		return Object.keys(obj).length ? obj : null;
 	}
+	if (prec === next) return null;
 	return next;
 }
 

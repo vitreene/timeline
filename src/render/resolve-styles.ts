@@ -1,18 +1,18 @@
 import { extractTransform, withTransform } from './transform';
 import { stringSnakeToCamel, addSuffix } from '../common/utils';
 
-import type { Style } from 'src/types';
+import type { PersoItem, Style } from 'src/types';
 
-export function resolveStyles(styleExtended: Style, zoom: number) {
-	const { style, transform: t_ } = extractTransform(styleExtended);
-	const transform = withTransform(t_, zoom);
+export function resolveStyles(styleExtended: Style, zoom: number, perso: PersoItem) {
+	const styleNtransform = extractTransform(styleExtended);
+	const transform = withTransform(styleNtransform.transform, zoom, perso);
 
-	const s_ = {};
-	for (const prop_ in style) {
-		const value = addSuffix(prop_, style[prop_], zoom);
-		const prop = stringSnakeToCamel(prop_);
-		s_[prop] = value;
+	const style: Style = {};
+	for (const property in styleNtransform.style) {
+		const value = addSuffix(property, styleNtransform.style[property], zoom);
+		const prop = stringSnakeToCamel(property);
+		style[prop] = value;
 	}
 
-	return { ...s_, transform };
+	return transform === null ? style : { ...style, transform };
 }

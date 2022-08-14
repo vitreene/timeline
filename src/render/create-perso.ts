@@ -77,24 +77,11 @@ export class PersoStore {
 	};
 
 	private createPerso(id: string, { type, initial, actions, emit }: PersoNode) {
-		const { tag, content, ..._initial } = initial;
+		const { tag, content, ...initial_ } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
-		const spread = this.spread.bind(this, node);
-		spread(_initial);
-
 		const child = createContent(type, node);
 		if (child) child.update(content as any);
-
-		function update(update: Partial<Action>) {
-			if (update) {
-				if (child && update.content) child.update(update.content as any);
-				spread(update);
-			}
-		}
-		function reset() {
-			removeAttributes(node);
-		}
 
 		const perso: PersoItem = {
 			id,
@@ -103,11 +90,27 @@ export class PersoStore {
 			initial,
 			actions,
 			prec: {},
+			transform: {},
 			style: initial.style || {},
 			reset,
 			update,
 			//add/remove/Listener ?
 		};
+		const spread = this.spread.bind(this, perso);
+		spread(initial_);
+
+		function update(update: Partial<Action>) {
+			if (update) {
+				if (child && update.content) child.update(update.content as any);
+				spread(update);
+			}
+		}
+		function reset() {
+			this.transform = {};
+			this.style = {};
+			this.prec = {};
+			removeAttributes(node);
+		}
 
 		if (emit) {
 			node.dataset.id = id;
@@ -120,25 +123,17 @@ export class PersoStore {
 		return perso;
 	}
 
-	private spread(node: HTMLElement, props: Partial<Action>) {
+	private spread(perso: PersoItem, props: Partial<Action>) {
 		if (!props) return;
 		const { style, ...attributes } = props;
-		switch (typeof style) {
-			case 'object':
-				const _style = resolveStyles(style, this.zoom);
-				node.id === 'third' && console.log(_style.transform);
-				for (const key in _style) node.style[key] = _style[key];
-				break;
-			case 'string':
-				node.style.cssText = style;
-				break;
-			case 'undefined':
-			default:
-				break;
-		}
+		const { node } = perso;
+
+		const style_ = resolveStyles(style, this.zoom, perso);
+		// style_.transform && console.log('TRANSFORM', style_.transform);
+		for (const key in style_) node.style[key] = style_[key];
 
 		for (const name in attributes) {
-			if (['content', 'tag', 'id'].includes(name)) continue;
+			if (['content', 'tag', 'id', 'track'].includes(name)) continue;
 			const value = attributes[name];
 			if (name in node) node[name] = value;
 			else node.setAttribute(name, value);

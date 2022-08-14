@@ -1,5 +1,5 @@
 import { splitUnitValue } from '../common/utils';
-import type { Style } from 'src/types';
+import type { PersoItem, Style } from 'src/types';
 
 type CSSTransformParam =
 	| 'perpective'
@@ -61,7 +61,7 @@ type TransformList = {
 	dY: CSSTransformParam;
 };
 
-type TransformStyle = { [key in keyof TransformList]?: number };
+export type TransformStyle = { [key in keyof TransformList]?: number };
 
 const transformKeys = [
 	'perpective',
@@ -114,14 +114,19 @@ export function extractTransform(oldStyle: Style) {
 	return { style, transform };
 }
 
-export function withTransform(props: TransformStyle, zoom: number) {
-	const { dX, dY, ...other } = props;
+export function withTransform(props: TransformStyle, zoom: number, perso: PersoItem) {
+	if (Object.keys(props).length == 0) return null;
+	Object.assign(perso.transform, props);
+
+	const { dX, dY, ...other } = perso.transform;
 
 	const transformer = [];
 	for (const tr in other) {
 		const index = transformKeys.findIndex((v) => v === tr);
+		// FIXME other[tr] est toujours number, accepter string ?
 		let { value, unit } = splitUnitValue(other[tr]);
 		value *= !unit && transformList[tr].zoomable ? zoom : 1;
+
 		unit = unit || transformList[tr].unit;
 		transformer[index] = transformList[tr].transform + '(' + value.toFixed(2) + unit + ') ';
 	}

@@ -1,6 +1,7 @@
 import * as CSS from 'csstype';
 import { Txt } from './render/components/txt';
 import { Layer } from './render/components/layer';
+import { TransformStyle } from './render/transform';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -66,6 +67,7 @@ export interface PersoItem extends Omit<PersoNode, 'type'> {
 	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
 	reset: () => void;
+	transform: TransformStyle;
 }
 
 export type HandlerListener = (target: Event) => void;
