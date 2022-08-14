@@ -36,7 +36,7 @@ export class PersoStore {
 		if (zoom === this.zoom) return;
 		this.zoom = zoom;
 		console.log('resize', zoom);
-		requestAnimationFrame(() => this.persos.forEach((perso: PersoItem) => perso.update()));
+		requestAnimationFrame(() => this.persos.forEach((perso: PersoItem) => perso.update({ style: perso.style })));
 	};
 
 	addAll(persos: Map<string, PersoNode>) {
@@ -96,6 +96,7 @@ export class PersoStore {
 			update,
 			//add/remove/Listener ?
 		};
+
 		const spread = this.spread.bind(this, perso);
 		spread(initial_);
 
@@ -104,12 +105,6 @@ export class PersoStore {
 				if (child && update.content) child.update(update.content as any);
 				spread(update);
 			}
-		}
-		function reset() {
-			this.transform = {};
-			this.style = {};
-			this.prec = {};
-			removeAttributes(node);
 		}
 
 		if (emit) {
@@ -139,6 +134,13 @@ export class PersoStore {
 			else node.setAttribute(name, value);
 		}
 	}
+}
+
+function reset() {
+	this.transform = {};
+	this.style = {};
+	this.prec = {};
+	removeAttributes(this.node);
 }
 
 function removeAttributes(node: HTMLElement) {
