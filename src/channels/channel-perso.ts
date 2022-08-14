@@ -34,6 +34,7 @@ export class PersoChannel extends Channel {
 
 	run({ name, time, status, data }: RunEvent): void {
 		if (status.statement === SEEK) {
+			//TODO passer status
 			this.queue.resetState();
 		}
 

@@ -51,3 +51,15 @@ selon la nature des propriétés à traiter, les calculs sont différents.
     cet objet est explicite, il peut etre issu de valeurs implicites défini par ailleurs.
 
 Note de rappel : le json de référence doit etre explicite au risque d'etre lourd, ce qui permet différentes approches pour le générer
+
+**14-08**
+les infos qui arrivent dans la queue doivent elles aussi etre filtrées selon le track;
+
+- les infos ne doivent pas etre purgées si elles sont en "play"
+- elles sont maintenues et s'ajoutent a celles en "seek"
+
+Tenter d'implementer les transitions additives : si une propriété de style a plusieurs valeurs (numériques) faire la moyenne entre elles.
+reduce ne convient pas du coup...
+
+resetState et state ne servent plus à rien dans Queue. resetState est à remplacer par une fonction qui va désigner quel track est en mode seek.
+Doit se désactiver au flush suivant, ou quand on passe en pause.

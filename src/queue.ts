@@ -7,7 +7,7 @@ type Attribute = {
 
 export class QueueActions {
 	stack = new Map<string, Partial<Attribute>>();
-	state = new Map<string, Partial<Attribute>>();
+	// state = new Map<string, Partial<Attribute>>();
 	callback: Render;
 
 	constructor(render: Render) {
@@ -27,7 +27,7 @@ export class QueueActions {
 	render = () => {
 		const update: Update = {};
 		this.stack.forEach((actions, id) => {
-			const state = this.state.get(id) || {};
+			// const state = this.state.get(id) || {};
 			// const reduces = state;
 			const reduces = {};
 			// id === 'third' && console.log(actions);
@@ -46,10 +46,11 @@ export class QueueActions {
 						default:
 							return current;
 					}
-				}, state[action]);
+				}, {});
+				// }, state[action]);
 			}
 			update[id] = reduces;
-			this.state.set(id, reduces);
+			// this.state.set(id, reduces);
 			// id === 'third' && console.log(update[id]);
 		});
 
@@ -63,5 +64,6 @@ export class QueueActions {
 		}
 	};
 
-	resetState = () => (this.state = new Map<string, Partial<Attribute>>());
+	resetState = () => null;
+	// resetState = () => (this.state = new Map<string, Partial<Attribute>>());
 }
