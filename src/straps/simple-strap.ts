@@ -19,7 +19,7 @@ export class SimpleStrap extends Strap {
 			status
 		);
 
-		this.queue.add(state.id, { style: { transform: `translateX(${x}px)` } });
+		this.queue.add(state.id, { style: { transform: `translateX(${x}px)` } }, status);
 	};
 
 	init = (status: CbStatus, state: any) => {

@@ -44,8 +44,13 @@ export class Transition extends Strap {
 		const { id, time, transition } = state;
 		const track = status.trackName;
 
-		const perso = this.queue.stack.get(id) || this.store.getPerso(id).initial;
-		const from = (transition.from || perso.style) as FromTo;
+		let refStyle = transition.from;
+
+		if (!refStyle) {
+			const perso = this.store.getPerso(id);
+			refStyle = Object.keys(perso.style).length ? perso.style : perso.initial.style;
+		}
+		const from = (transition.from || refStyle) as FromTo;
 		const to = transition.to as FromTo;
 
 		const startTime = time;
@@ -107,19 +112,19 @@ export class Transition extends Strap {
 		if (inverseProgress) {
 			const yoyo = currentTime % (duration * 2) > duration;
 			const inProgress = yoyo ? inverseProgress : progress;
-			this.renderTransition(id, inProgress(elapsed, 0, duration));
+			this.renderTransition(id, inProgress(elapsed, 0, duration), status);
 		} else {
-			this.renderTransition(id, progress(elapsed, 0, duration));
+			this.renderTransition(id, progress(elapsed, 0, duration), status);
 		}
 	};
 
-	private renderTransition(id: string, result) {
+	private renderTransition(id: string, result, status) {
 		const style = {};
 		for (const prop in result) {
 			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];
 			style[prop] = value;
 		}
-		this.queue.add(id, { style });
+		this.queue.add(id, { style }, status);
 	}
 }
 

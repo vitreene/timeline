@@ -178,6 +178,7 @@ export class TrackManager {
 
 	///END CLASS
 }
+
 function applyEvents(times: Time[], track: Track, status: CbStatus) {
 	if (!times) return undefined;
 	const { events: eventsByChannel, data: dataByChannel } = track;

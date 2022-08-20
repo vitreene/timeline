@@ -1,7 +1,7 @@
 import { PersoStore } from './create-perso';
 import { diff } from '../common/utils';
 
-import type { Update } from '../types';
+import type { Action, Update } from '../types';
 
 export function createRender(store: PersoStore) {
 	return function renderToDOM(update: Update) {
@@ -9,7 +9,7 @@ export function createRender(store: PersoStore) {
 			const perso = store.getPerso(id);
 
 			if (perso) {
-				const up = diff(perso.prec, update[id]);
+				const up: Partial<Action> = diff(perso.prec, update[id]);
 				if (up) {
 					perso.prec = { ...perso.prec, ...update[id] };
 					perso.style = { ...perso.style, ...up.style };

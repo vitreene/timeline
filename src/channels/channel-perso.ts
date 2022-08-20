@@ -33,10 +33,10 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		if (status.statement === SEEK) {
-			//TODO passer status
-			this.queue.resetState();
-		}
+		// if (status.statement === SEEK) {
+		// 	//TODO passer status
+		// 	this.queue.resetState();
+		// }
 
 		const { track, ...data_ } = data || {};
 		this.store.persos.forEach((perso, id) => {
@@ -44,7 +44,7 @@ export class PersoChannel extends Channel {
 			if (action) {
 				if (name === INITIAL) perso.reset();
 				if (typeof action === 'boolean') {
-					this.queue.add(id, data_);
+					this.queue.add(id, data_, status);
 				} else {
 					const { move, transition, ..._action } = action;
 					if (transition) {
@@ -53,9 +53,9 @@ export class PersoChannel extends Channel {
 
 						this.transition.run(status, { id, time, transition });
 					}
-					move && this.move(move, perso);
+					move && this.move(move, perso, status);
 
-					this.queue.add(id, { ..._action, ...data_ });
+					this.queue.add(id, { ..._action, ...data_ }, status);
 				}
 			}
 		});
@@ -74,14 +74,14 @@ export class PersoChannel extends Channel {
 		}
 	};
 
-	move = (move: string | Move, perso: PersoItem) => {
+	move = (move: string | Move, perso: PersoItem, status: CbStatus) => {
 		if (typeof move === 'string') {
 			const id = move;
 			const parent = this.store.getPerso(id).child;
 			if (parent instanceof Layer) {
 				parent.add(perso.node);
 				const content = parent.content;
-				this.queue.add(id, { content });
+				this.queue.add(id, { content }, status);
 			}
 		}
 	};

@@ -63,3 +63,14 @@ reduce ne convient pas du coup...
 
 resetState et state ne servent plus à rien dans Queue. resetState est à remplacer par une fonction qui va désigner quel track est en mode seek.
 Doit se désactiver au flush suivant, ou quand on passe en pause.
+
+**16-08**
+dans queue :
+
+- animations additives :
+  si une prop se rencontre plus d'une fois, créer un tableau de ces valeurs dans un objet à part.
+  à la fin du réduce, assigner la moyenne de ces valeurs.
+
+- il faut passer status à Queue pour distinguer le comportement "seek" du "play"
+- enregistrer la valeur cumulée de chaque état par track. en cas de "seek", reset l'état.
+  si il y a "seek", ajouter les états des autres tracks pour compléter l'état final.

@@ -3,7 +3,7 @@ import { createTelco } from './telco';
 import { Timeline } from '../tracks/timeline';
 
 import { PersoElementType } from '../types';
-import { ROOT, MAIN, STRAP, END_SEQUENCE, SEEK } from '../common/constants';
+import { ROOT, MAIN, STRAP, END_SEQUENCE, SEEK, TRACK_PAUSE, TRACK_PLAY } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 
@@ -171,7 +171,7 @@ const _persos: Store = {
 				transition: {
 					from: { scale: 2 },
 					to: { scale: 1 },
-					duration: 10000,
+					duration: 1000,
 				},
 			},
 			['end_' + ID_COUNTER_02]: {
@@ -225,8 +225,6 @@ const englishEvents: Eventime = {
 const CLOCK_PLAY = 'clockPlay';
 const CLOCK_PAUSE = 'clockPause';
 
-const TRACK_PLAY = 'trackPlay';
-const TRACK_PAUSE = 'trackPause';
 const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
 	[TRACK_PLAY]: events,

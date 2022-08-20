@@ -17,7 +17,7 @@ onend  -> que faire lorsqu'on relache le pointeur
 
 export class MoveStrap extends Strap {
 	static publicName = 'move';
-
+	status: CbStatus;
 	data: any;
 	initialMousePosition = {
 		x: 0,
@@ -27,6 +27,7 @@ export class MoveStrap extends Strap {
 
 	run = (status: CbStatus, state: any) => {
 		console.log('MoveStrap init', state);
+		this.status = status;
 		this.initialMousePosition = point(state.emit.e);
 		this.init(state);
 		this.ondown();
@@ -129,7 +130,7 @@ function move(e: MouseEvent) {
 
 	// this.queue.add(this.data.emit.id, { style: { transform: `translate(${x}px, ${y}px)` } });
 	// this.queue.add(this.data.emit.id, { style: { x: `${x}px`, y: `${y}px` } });
-	this.queue.add(this.data.emit.id, { style: { x, y } });
+	this.queue.add(this.data.emit.id, { style: { x, y } }, this.status);
 
 	this.pointer = newPointer;
 	return newPointer;

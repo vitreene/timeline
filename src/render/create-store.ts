@@ -1,6 +1,6 @@
 import { PersoStore } from './create-perso';
 
-import { ROOT, INITIAL, DEFAULT_CHANNEL_NAME } from '../common/constants';
+import { ROOT, INITIAL, DEFAULT_CHANNEL_NAME, TRACK_PLAY } from '../common/constants';
 
 import type { AddEvent } from 'src/tracks';
 import type { Store, Eventime } from '../types';
@@ -26,6 +26,7 @@ function addInitialEvents(persos: Store, addEvent: AddEvent) {
 		channel: DEFAULT_CHANNEL_NAME,
 		name: INITIAL,
 		startAt: 0,
+		track: TRACK_PLAY,
 	};
 	addEvent(event);
 }
