@@ -40,7 +40,7 @@ export class Channel {
 		}
 	}
 
-	addStore(store: PersoStore) {
+	setStore(store: PersoStore) {
 		this.store = store;
 	}
 

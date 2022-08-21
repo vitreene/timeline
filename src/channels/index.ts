@@ -27,7 +27,7 @@ export function channelManager({ store, addEvent, next /* , executeEvent */ }: C
 	});
 
 	function addChannel(channel: Channel) {
-		channel.addStore(store);
+		channel.setStore(store);
 		channel.next = next;
 		// channel.executeEvent = executeEvent;
 

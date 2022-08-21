@@ -36,7 +36,6 @@ export class QueueActions {
 				this.addToLast(id, action, status);
 			});
 
-			// FIXME le seek forward ne fonctionne plus
 			// si seeking, ajouter les props des pistes en lecture
 			let reduceSeek: Partial<Action> = {};
 			stack.forEach(({ status }) => {
@@ -61,7 +60,7 @@ export class QueueActions {
 		}
 	};
 
-	resetState = () => null;
+	// resetState = () => null;
 	// resetState = () => (this.state = new Map<string, Partial<Attribute>>());
 
 	private addToLast(id: string, action: Partial<Action>, { trackName, statement }: CbStatus) {

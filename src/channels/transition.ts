@@ -107,10 +107,11 @@ export class Transition extends Strap {
 		{ id, startTime, endTime, duration, inverseProgress, progress }: ProgressState
 	) => {
 		const currentTime = status.currentTime - startTime;
-		const elapsed = status.currentTime < endTime ? currentTime % duration : duration;
+		let elapsed = status.currentTime < endTime ? currentTime % duration : duration;
 
 		if (inverseProgress) {
 			const yoyo = currentTime % (duration * 2) > duration;
+			if (!elapsed) return;
 			const inProgress = yoyo ? inverseProgress : progress;
 			this.renderTransition(id, inProgress(elapsed, 0, duration), status);
 		} else {

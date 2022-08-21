@@ -163,13 +163,15 @@ const _persos: Store = {
 			pause_enter: {
 				transition: {
 					from: { scale: 1 },
-					to: { scale: 2 },
-					duration: 100,
+					to: { scale: 1.3 },
+					duration: 600,
+					repeat: 8,
+					yoyo: true,
 				},
 			},
 			pause_exit: {
 				transition: {
-					from: { scale: 2 },
+					from: { scale: 1.3 },
 					to: { scale: 1 },
 					duration: 1000,
 				},

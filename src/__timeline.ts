@@ -45,7 +45,7 @@ class Timeline {
 		const queue = new QueueActions(render);
 		[PersoChannel, StrapChannel].forEach((Channel) => {
 			const channel = new Channel({ queue, timer: Clock });
-			channel.addStore(store);
+			channel.setStore(store);
 			this.addChannel(channel);
 		});
 	}

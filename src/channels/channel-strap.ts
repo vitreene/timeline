@@ -48,9 +48,9 @@ export class StrapChannel extends Channel {
 		}
 	}
 
-	// Il faudrait pouvoir actualiser automatiquement
-	addStore(store: PersoStore) {
-		super.addStore(store);
-		this.strap.forEach((strap) => strap.addStore(store));
+	//TODO  Il faudrait pouvoir actualiser automatiquement
+	setStore(store: PersoStore) {
+		super.setStore(store);
+		this.strap.forEach((strap) => strap.setStore(store));
 	}
 }

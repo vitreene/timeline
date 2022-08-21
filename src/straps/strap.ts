@@ -27,7 +27,7 @@ export class Strap {
 	run = (props, state) => {
 		console.warn(`\x1b[34m Strap  \x1b[35m${this.constructor['publicName']} \x1b[34m  must define a "run" property`);
 	};
-	addStore(store: PersoStore) {
+	setStore(store: PersoStore) {
 		this.store = store;
 	}
 }

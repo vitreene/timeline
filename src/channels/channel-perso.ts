@@ -48,8 +48,8 @@ export class PersoChannel extends Channel {
 				} else {
 					const { move, transition, ..._action } = action;
 					if (transition) {
-						// mieux : si store est modifié, propager la modif.
-						this.transition.addStore(this.store);
+						// TODO : si store est modifié, propager la modif.
+						this.transition.setStore(this.store);
 
 						this.transition.run(status, { id, time, transition });
 					}
