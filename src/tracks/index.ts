@@ -1,7 +1,7 @@
 import { Track } from './track';
 import { Timer } from '../clock';
 
-import { channelsName, END_SEQUENCE, FORWARD, PAUSE, PLAY, TIME_INTERVAL } from '../common/constants';
+import { channelsName, END_SEQUENCE, PAUSE, PLAY, TIME_INTERVAL } from '../common/constants';
 
 import type { Options } from './timeline';
 import type { CbStatus } from '../clock';
@@ -22,7 +22,6 @@ interface TrackManagerCurrentProps {
 	nextEvent: Track['nextEvent'];
 }
 interface ControlAction {
-	clock: ClockName;
 	active: TrackName[];
 	inactive: TrackName[];
 	refTrack?: string;
@@ -32,24 +31,19 @@ interface NextStatus extends RunEvent {
 	channel: ChannelName;
 }
 
-export const Clock = new Timer({ endsAt: END_SEQUENCE });
-
 export class TrackManager {
-	// track par défaut où sont rajoutés les events dynamiques
-	refTrack: string;
 	// données importées : un par track
 	tracks = new Map<TrackName, Track>();
 	// control en cours
 	controlName: ControlName;
-	// elements générés : un par controleur
 
+	clock = new Timer({ endsAt: END_SEQUENCE });
 	runs = new Set<(status: CbStatus) => void>();
 
 	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
-		this.refTrack = options.defaultTrackName;
 		tracks && this.addTracks(tracks, channelsName);
 		this.run = this.run.bind(this);
-		Clock.subscribe(this.run);
+		this.clock.subscribe(this.run);
 	}
 
 	run(status: CbStatus) {
@@ -62,13 +56,16 @@ export class TrackManager {
 			const track = new Track({ name: trackName, events, channels });
 			const timer = Object.assign({}, events.duration && { duration: events.duration });
 			this.tracks.set(trackName, track);
-			Clock.addTimer(trackName, timer);
+			this.clock.addTimer(trackName, timer);
 		}
 	}
 
 	addEvent(event_: Eventime) {
-		const trackName: TrackName = event_.track || this.refTrack;
-		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : Clock.status.currentTime + TIME_INTERVAL;
+		!event_.track && console.log('addEVENT', event_);
+		const trackName: TrackName = event_.track;
+		const currentTtrack = event_.track;
+		const currentTime = this.clock.timers.get(currentTtrack).currentTime;
+		const startAt = event_.hasOwnProperty('startAt') ? event_.startAt : currentTime + TIME_INTERVAL;
 		const event = { ...event_, track: trackName, startAt };
 
 		const track = this.tracks.get(trackName);
@@ -82,20 +79,18 @@ export class TrackManager {
 
 	control(control: ControlName, action: ControlAction) {
 		this.controlName = control;
-		this.refTrack = action.refTrack || action.active[0];
-
 		action.active.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
 			if (track) {
 				track.onEnter();
-				Clock.setTimer(trackName, PLAY);
+				this.clock.setTimer(trackName, PLAY);
 				track.play();
 			}
 		});
 		action.inactive.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
 			if (track) {
-				Clock.setTimer(trackName, PAUSE);
+				this.clock.setTimer(trackName, PAUSE);
 				track.onExit();
 				track.pause();
 			}
@@ -103,7 +98,7 @@ export class TrackManager {
 
 		// LOGS /////////////
 		let statements = [];
-		Clock.timers.forEach((timer, name) => statements.push(`${name} : ${timer.statement}`));
+		this.clock.timers.forEach((timer, name) => statements.push(`${name} : ${timer.statement}`));
 
 		console.log('————————————————————————————————');
 		console.log('TELCO', control);
@@ -200,7 +195,7 @@ function applyEvents(times: Time[], track: Track, status: CbStatus) {
 	return runs;
 }
 // sort array of numbers , numbers must be unique
-// peut etre optimisée
+// peut etre optimisée si volume important
 function sortUnique(numbers: Set<number>): Set<number> {
 	const sorted = Array.from(numbers).sort((a, b) => a - b);
 	return new Set(sorted);

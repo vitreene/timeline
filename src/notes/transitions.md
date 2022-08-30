@@ -74,3 +74,10 @@ Tenter deux flux disctinct à la place du seul run :
 - run pour les events réguliers,
 - runNext pour les transitoires.
   -> modifier dans channel-strap
+
+## fix transitions
+
+transition demo 13
+
+- la transition yoyo ne se termine pas correctement
+- il y a melange lors de la bascule play/pause

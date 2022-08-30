@@ -54,7 +54,7 @@ export class Counter extends Strap {
 		const canEnd = status.currentTime > state.endTime;
 
 		if (canEnd) {
-			// console.log('END-COUNTER', state.id, state.duration, counter);
+			console.log('END-COUNTER', state.id, state.duration, counter);
 			this.addEvent(
 				{
 					name: 'end_' + state.id,

@@ -13,31 +13,23 @@ export interface RunEvent {
 }
 
 export interface ChannelOptions {
-	timer: Timer;
 	name?: ChannelName;
 	queue?: QueueActions;
 	addEvent: (event_: Eventime) => void;
 }
 
-// timer et store sont injectés par le parent
 export class Channel {
 	name: ChannelName;
 	store: PersoStore;
-	timer: Timer;
+
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
-	// executeEvent: (name: string, event: Eventime, status: CbStatus) => void;
 	next: (name: string, event: Eventime) => void;
 
 	constructor(options: ChannelOptions) {
-		this.timer = options.timer;
 		options.name && (this.name = options.name);
+		options.queue && (this.queue = options.queue);
 		this.addEvent = options.addEvent;
-
-		if (options.queue) {
-			this.queue = options.queue;
-			this.timer.subscribeTick(this.queue.flush);
-		}
 	}
 
 	setStore(store: PersoStore) {

@@ -40,7 +40,7 @@ export class Timeline {
 		const addEvent = this.tracks.addEvent.bind(this.tracks);
 
 		const store = createStore(persos, addEvent);
-		this.channels = channelManager({ store, addEvent, next });
+		this.channels = channelManager({ store, addEvent, next, timer: this.tracks.clock });
 		this.tracks.runs.add(this.run);
 		this.tracks.runs.add(this.runNext);
 	}

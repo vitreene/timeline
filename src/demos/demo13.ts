@@ -1,6 +1,6 @@
-import { Clock, TrackName } from '../tracks';
 import { createTelco } from './telco';
 import { Timeline } from '../tracks/timeline';
+import type { TrackName } from '../tracks';
 
 import { PersoElementType } from '../types';
 import { ROOT, MAIN, STRAP, END_SEQUENCE, SEEK, TRACK_PAUSE, TRACK_PLAY } from '../common/constants';
@@ -8,6 +8,7 @@ import { ROOT, MAIN, STRAP, END_SEQUENCE, SEEK, TRACK_PAUSE, TRACK_PLAY } from '
 import type { Eventime, Initial, Store } from '../types';
 
 import '../style.css';
+import { Cb } from '../clock';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -155,7 +156,7 @@ const _persos: Store = {
 				transition: {
 					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
 					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-					duration: 1000,
+					duration: 300,
 					repeat: 6,
 					yoyo: true,
 				},
@@ -164,18 +165,18 @@ const _persos: Store = {
 				transition: {
 					from: { scale: 1 },
 					to: { scale: 1.3 },
-					duration: 600,
+					duration: 400,
 					repeat: 8,
 					yoyo: true,
 				},
 			},
-			pause_exit: {
-				transition: {
-					from: { scale: 1.3 },
-					to: { scale: 1 },
-					duration: 1000,
-				},
-			},
+			// pause_exit: {
+			// 	transition: {
+			// 		from: { scale: 1.3 },
+			// 		to: { scale: 1 },
+			// 		duration: 1000,
+			// 	},
+			// },
 			['end_' + ID_COUNTER_02]: {
 				transition: {
 					from: { rotate: 0 },
@@ -247,14 +248,12 @@ type Time = number;
 export class Telco extends Timeline {
 	start() {
 		this.play();
-		Clock.start();
+		this.tracks.clock.start();
 	}
 	play() {
 		const action = {
 			active: [TRACK_PLAY, TRACK_ENGLISH],
 			inactive: [TRACK_PAUSE],
-			refTrack: TRACK_PLAY,
-			clock: CLOCK_PLAY,
 		};
 		this.tracks.control('play', action);
 	}
@@ -263,18 +262,16 @@ export class Telco extends Timeline {
 		const action = {
 			active: [TRACK_PAUSE],
 			inactive: [TRACK_PLAY, TRACK_ENGLISH], //TODO  others
-			refTrack: TRACK_PAUSE,
-			clock: CLOCK_PAUSE,
 		};
 		this.tracks.control('pause', action);
 	}
 
 	seek(progress: Time, trackName: TrackName) {
-		Clock[SEEK](trackName, progress);
+		this.tracks.clock[SEEK](trackName, progress);
 	}
 
-	onTick(fn) {
-		Clock.onTick(fn);
+	onTick(fn: Cb) {
+		this.tracks.clock.onTick(fn);
 	}
 }
 

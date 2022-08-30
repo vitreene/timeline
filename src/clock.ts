@@ -1,5 +1,5 @@
-import { DEFAULT_TIMER, FORWARD, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
-import { Time, TrackName } from './tracks';
+import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
+import type { Time, TrackName } from './tracks';
 
 export type Cb = (status?: CbStatus) => void;
 export type Guard = (status?: CbStatus) => boolean;
@@ -38,7 +38,6 @@ export const defaultStatus: Status = {
 
 class Clock {
 	raf: number;
-	status: Status = defaultStatus;
 	hasAborted = false;
 	totalElapsed: number;
 	tick = new Set<Cb>();
@@ -250,9 +249,6 @@ export class Timer extends Clock {
 	offTick = this.unSubscribeTick;
 }
 
-function _milliseconds(time: number) {
-	return Math.floor(time * 100) * 10;
-}
 function getTimers(elapsed: number) {
 	return {
 		milliemes: Math.floor(elapsed / 10) * 10,

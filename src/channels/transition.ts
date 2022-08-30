@@ -84,6 +84,7 @@ export class Transition extends Strap {
 				{
 					name: 'end_' + state.id,
 					channel: MAIN,
+					track: status.trackName,
 				},
 				status
 			);
@@ -94,6 +95,7 @@ export class Transition extends Strap {
 				{
 					name: 'transition',
 					channel: MAIN,
+					track: status.trackName,
 					data: state,
 				},
 				status
@@ -108,9 +110,12 @@ export class Transition extends Strap {
 	) => {
 		const currentTime = status.currentTime - startTime;
 		let elapsed = status.currentTime < endTime ? currentTime % duration : duration;
+		// id == 'third' && console.log(elapsed, currentTime % duration, endTime);
 
 		if (inverseProgress) {
 			const yoyo = currentTime % (duration * 2) > duration;
+
+			if (status.currentTime >= endTime) return;
 			if (!elapsed) return;
 			const inProgress = yoyo ? inverseProgress : progress;
 			this.renderTransition(id, inProgress(elapsed, 0, duration), status);
@@ -120,6 +125,8 @@ export class Transition extends Strap {
 	};
 
 	private renderTransition(id: string, result, status) {
+		// id == 'third' && console.log(result);
+
 		const style = {};
 		for (const prop in result) {
 			const value = typeof result[prop] === 'number' ? Math.round(result[prop] * 100) / 100 : result[prop];

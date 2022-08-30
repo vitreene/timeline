@@ -30,7 +30,8 @@ export class StrapChannel extends Channel {
 
 	addEvent_ = (event_: Omit<Eventime, 'startAt'>, status: CbStatus) => {
 		const startAt = status.currentTime + TIME_INTERVAL;
-		const event = { startAt, ...event_ };
+		const track = event_.track || status.trackName;
+		const event = { startAt, ...event_, track };
 		this.addEvent(event);
 	};
 

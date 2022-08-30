@@ -1,6 +1,6 @@
+import { Timer } from '../clock';
 import { Channel } from './channel';
 import { QueueActions } from '../queue';
-import { Clock } from '../tracks';
 import { channelList } from '../tracks/timeline';
 import { createRender } from '../render/render-DOM';
 
@@ -11,26 +11,23 @@ import type { PersoStore } from '../render/create-perso';
 
 interface ChannelManagerProps {
 	store: PersoStore;
+	timer: Timer;
 	addEvent: AddEvent;
 	next: (name: string, event: Eventime) => void;
-	// executeEvent: any;
 }
-export function channelManager({ store, addEvent, next /* , executeEvent */ }: ChannelManagerProps) {
+export function channelManager({ store, addEvent, next, timer }: ChannelManagerProps) {
 	const channels: ChannelsMap = new Map();
 	const render = createRender(store);
 	const queue = new QueueActions(render);
+	timer.subscribeTick(queue.flush);
 	channelList.forEach((Channel) => {
-		// FIXME retirer timer des channels
-		const channel = new Channel({ queue, timer: Clock, addEvent });
-
+		const channel = new Channel({ queue, addEvent });
 		addChannel(channel);
 	});
 
 	function addChannel(channel: Channel) {
 		channel.setStore(store);
 		channel.next = next;
-		// channel.executeEvent = executeEvent;
-
 		channel.init();
 		channels.set(channel.name, channel);
 	}

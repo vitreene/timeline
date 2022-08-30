@@ -11,9 +11,10 @@ Prochaines étapes :
 
 [ ] tracks
 
-- clock.status passe à la Timeline
-- un status par track
-- Pause est une permutation de tracks
+[x] clock.status passe à la Timeline
+[x] un status par track
+[x] Pause est une permutation de tracks
+
 - Timer.stop devient Timer.end
 
 Track va s'intercaler entre clock et Timeline,
