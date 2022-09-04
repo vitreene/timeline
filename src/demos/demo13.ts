@@ -1,4 +1,4 @@
-import { createTelco } from './telco';
+import { createTelco } from './create-telco';
 import { Timeline } from '../tracks/timeline';
 import type { TrackName } from '../tracks';
 

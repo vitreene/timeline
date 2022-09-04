@@ -1,5 +1,5 @@
 import { Clock } from '../tracks';
-import { createTelco } from '../demos/telco';
+import { createTelco } from './create-telco';
 import { Timeline } from '../tracks/timeline';
 
 import { PersoElementType } from '../types';

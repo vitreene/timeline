@@ -2,7 +2,7 @@ import { MAIN, ROOT, STRAP } from '../common/constants';
 import { Clock } from '../tracks/timeline';
 import { Timeline } from './timeline';
 
-import { createTelco } from '../demos/telco';
+import { createTelco } from './create-telco';
 import { PersoElementType } from '../types';
 import type { Eventime, Store } from '../types';
 import '../style.css';

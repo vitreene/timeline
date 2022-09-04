@@ -1,13 +1,11 @@
-// @ts-nocheck
-import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
-import { Clock } from '../tracks';
-import { Timeline } from '../tracks/timeline';
-import { Tracks } from '../tracks/__tracks';
-
-import { Eventime, Initial, PersoElementType, Store } from '../types';
-
+import { Telco } from './telco';
 import { createTelco } from './create-telco';
-import '../style.css';
+import { preload } from '../preload';
+
+import { PersoElementType } from '../types';
+import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY } from '../common/constants';
+
+import type { Eventime, Initial, Store } from '../types';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -25,16 +23,17 @@ const counter01 = {
 const ID_COUNTER_02 = 'counter02';
 const counter02 = {
 	id: ID_COUNTER_02,
-	duration: 2500,
-	start: 100,
-	end: 50,
-	complete: { lost: 'LOST' /* , win: 'WON' */ },
+	duration: 1500,
+	start: 20,
+	end: 10,
+	complete: { lost: 'LOST', win: 'WON' },
 };
 
-const events: Eventime = {
+export const events: Eventime = {
 	startAt: 0,
 	name: 'initial',
 	channel: MAIN,
+	duration: 4000,
 	events: [
 		{ startAt: 400, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
@@ -46,13 +45,13 @@ const events: Eventime = {
 			data: counter01,
 		},
 		{
-			startAt: 860,
+			startAt: 900,
 			name: 'counter',
 			channel: STRAP,
 			data: counter02,
 		},
 		{ startAt: 1500, name: 'action02', channel: MAIN },
-		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'FIN' } },
+		{ startAt: END_SEQUENCE - 300, name: 'action03', channel: MAIN, data: { content: 'THE END' } },
 	],
 };
 
@@ -147,31 +146,41 @@ const _persos: Store = {
 	[ID03]: {
 		type: PersoElementType.TEXT,
 
-		initial: initialID03,
+		initial: { ...initialID03, move: ROOT },
 		actions: {
-			initial: { move: ROOT },
-
 			action01: { className: 'action01-' + ID03 },
 			action04: {
 				transition: {
-					// from: { 'background-color': 'rgb(10,128,255)' },
-					// to: { 'background-color': 'rgb(255,50,50)' },
-					// from: { 'background-color': 'hsla(90deg,50%,50%,0.1)' },
-					// to: { 'background-color': 'hsla(0deg,10%,40%,1)' },
 					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
 					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-					duration: 1000,
-					repeat: 4,
+					duration: 300,
+					repeat: 6,
 					yoyo: true,
 				},
 			},
-			/* 	['end_' + ID_COUNTER_02]: {
+			pause_enter: {
 				transition: {
-					from: { opacity: 1 },
-					to: { opacity: 0.7 },
-					duration: 500,
+					from: { scale: 1 },
+					to: { scale: 1.3 },
+					duration: 400,
+					repeat: 8,
+					yoyo: true,
 				},
-			}, */
+			},
+			// pause_exit: {
+			// 	transition: {
+			// 		from: { scale: 1.3 },
+			// 		to: { scale: 1 },
+			// 		duration: 1000,
+			// 	},
+			// },
+			['end_' + ID_COUNTER_02]: {
+				transition: {
+					from: { rotate: 0 },
+					to: { rotate: -12 },
+					duration: 1000,
+				},
+			},
 			[ID_COUNTER_02]: true,
 		},
 		emit: {
@@ -184,43 +193,65 @@ const _persos: Store = {
 	},
 };
 
-createTelco();
-
-// const persos = {
-// 	[ROOT]: _persos[ROOT],
-// 	[ID01]: _persos[ID01],
+// const playEvents: Eventime = {
+// 	startAt: 500,
+// 	name: 'play',
+// 	channel: MAIN,
+// 	events: [
+// 		{ startAt: 400, name: 'enter', channel: MAIN },
+// 		{ startAt: 401, name: 'action01', channel: MAIN },
+// 		{ startAt: 500, name: 'action04', channel: MAIN },
+// 	],
 // };
+
+const pauseEvents: Eventime = {
+	startAt: 0,
+	name: 'pause',
+	channel: STRAP,
+	data: { toto: 1 },
+	events: [
+		{ startAt: 100, name: 'pause_enter', channel: MAIN },
+		{ startAt: 1000, name: 'pause_exit', channel: MAIN },
+	],
+};
+
+const englishEvents: Eventime = {
+	startAt: 100,
+	name: 'english',
+	channel: MAIN,
+	data: { tutu: 2 },
+};
+
+const TRACK_ENGLISH = 'trackEnglish';
+const tracks = {
+	[TRACK_PLAY]: events,
+	// [TRACK_PLAY]: playEvents,
+	[TRACK_PAUSE]: pauseEvents,
+	[TRACK_ENGLISH]: englishEvents,
+};
+
+const options = {
+	defaultTrackName: TRACK_PLAY,
+};
+
 const persos = _persos;
 
-const Tm = new Timeline({ persos, events });
-console.log(Tm);
+const control = {
+	duration: events.duration || END_SEQUENCE,
+	trackName: TRACK_PLAY,
+};
 
-const tracks = new Tracks(Tm.run, Tm.runNext);
-Clock.on(tracks.run);
+preload(persos).then((p) => {
+	const telco = new Telco({ persos: p, tracks, options });
+	createTelco(telco, control);
+	telco.start();
+});
 
-Clock.start(0);
+// setTimeout(() => telco.pause(), 900);
+// setTimeout(() => telco.play(), 1400);
+// setTimeout(() => telco.pause(), 2000);
+// setTimeout(() => telco.play(), 3500);
 
 // setTimeout(() => {
 // 	debugger;
 // }, 2000);
-// setTimeout(() => {
-// 	console.log('---------seek 2000');
-// 	Clock.seek(2000);
-// }, 1400);
-// setTimeout(() => {
-// 	Clock.seek(800);
-// 	console.log('---------seek 800');
-// }, 2000);
-// setTimeout(() => {
-// 	console.log('---------play');
-// 	Clock.play();
-// }, 2400);
-// const STpause = 600;
-// setTimeout(() => {
-// 	Clock.pause();
-// 	console.log('---------pause ' + STpause);
-// }, STpause);
-// setTimeout(() => {
-// 	console.log('---------pause');
-// 	Clock.pause();
-// }, END_SEQUENCE);
