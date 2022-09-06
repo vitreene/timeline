@@ -10,6 +10,7 @@ import type { Eventime, Initial, Store } from '../types';
 const ID01 = 'hello';
 const ID02 = 'world';
 const ID03 = 'third';
+const SOUND01 = 'son01';
 
 const ID_COUNTER_01 = 'counter01';
 const counter01 = {
@@ -92,6 +93,13 @@ const initialID03: Partial<Initial> = {
 };
 
 const _persos: Store = {
+	[SOUND01]: {
+		type: PersoElementType.SOUND,
+		initial: {
+			content: '/son01.m4a',
+		},
+		actions: {},
+	},
 	[ROOT]: {
 		type: PersoElementType.LAYER,
 		initial: {
