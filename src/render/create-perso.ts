@@ -11,10 +11,10 @@ export interface HandlerEmit {
 	id: string;
 }
 
-export type StorePerso = Map<string, PersoItem>;
+export type StorePersoItems = Map<string, PersoItem>;
 
-export class PersoStore {
-	persos: StorePerso = new Map();
+export class StorePersos {
+	persos: StorePersoItems = new Map();
 	zoom = 1;
 	removeResize: () => void;
 	handler: AddEvent = null;

@@ -30,6 +30,8 @@ export function createTelco(telco: Telco, { duration, trackName }: ControlProps)
 		// progress.textContent = Math.round(Number(slider.value)) + '%';
 		progress.textContent = Math.round(progression) + 'ms';
 		telco.seek(progression, trackName);
+		playButton.innerText = 'play';
+		toggle = false;
 	}
 
 	let toggle = true;

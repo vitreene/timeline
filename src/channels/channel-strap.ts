@@ -5,7 +5,7 @@ import { PLAY, FORWARD, TIME_INTERVAL, BACKWARD, PAUSE } from '../common/constan
 
 import type { Eventime } from '../types';
 import type { CbStatus } from '../clock';
-import type { PersoStore } from '../render/create-perso';
+import type { StorePersos } from '../render/create-perso';
 import type { ChannelOptions } from './channel';
 
 export class StrapChannel extends Channel {
@@ -50,7 +50,7 @@ export class StrapChannel extends Channel {
 	}
 
 	//TODO  Il faudrait pouvoir actualiser automatiquement
-	setStore(store: PersoStore) {
+	setStore(store: StorePersos) {
 		super.setStore(store);
 		this.strap.forEach((strap) => strap.setStore(store));
 	}

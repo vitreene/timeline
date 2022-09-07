@@ -1,15 +1,15 @@
-import { PersoStore } from './create-perso';
+import { StorePersos } from './create-perso';
 
 import { ROOT, INITIAL, DEFAULT_CHANNEL_NAME, TRACK_PLAY } from '../common/constants';
 
 import type { AddEvent } from 'src/tracks';
-import type { Store, Eventime } from '../types';
+import type { Store, Eventime, PersoStore } from '../types';
 
 const root = document.getElementById('app');
 
-export function createStore(persos: Store, addEvent: AddEvent): PersoStore {
+export function createStore(persos: PersoStore, addEvent: AddEvent): StorePersos {
 	addInitialEvents(persos, addEvent);
-	const store = new PersoStore(addEvent);
+	const store = new StorePersos(addEvent);
 	for (const id in persos) {
 		const perso = store.add(id, persos[id]);
 		// Provisoire
@@ -18,7 +18,7 @@ export function createStore(persos: Store, addEvent: AddEvent): PersoStore {
 	return store;
 }
 
-function addInitialEvents(persos: Store, addEvent: AddEvent) {
+function addInitialEvents(persos: PersoStore, addEvent: AddEvent) {
 	for (const id in persos) {
 		persos[id].actions[INITIAL] = persos[id].initial;
 	}

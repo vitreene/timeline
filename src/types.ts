@@ -19,16 +19,19 @@ export interface Initial {
 	tag: string;
 	id: string;
 	attr: any;
-	fit: string;
 	style: Style;
 	content: Content | Content[];
 	classStyle: Style;
-	className: string | [string];
+	className: string | string[];
 	move: string | Move;
+	src: string;
+	fit: string;
+	track: string;
 }
 
 export interface Action extends Partial<Initial> {
 	transition?: Transition;
+	action?: 'start' | 'end';
 	// order?: number;
 	// exit?: boolean;
 	// leave?: boolean;
@@ -47,15 +50,21 @@ export interface Perso {
 	// extends?: string;
 	// src?: string;
 }
-export interface Store {
-	[perso: string]: PersoNode;
-}
+export type Store = Record<string, PersoNode | SoundNode>;
+export type PersoStore = Record<string, PersoNode>;
+export type SoundStore = Record<string, SoundNode>;
 
 export interface PersoNode {
-	type: PersoElementType;
+	type: Omit<PersoElementType, PersoElementType.SOUND>;
 	actions: { [action: string]: Action | boolean };
 	initial: Partial<Initial>;
 	emit?: { [prop in keyof Emit]: Partial<Eventime> };
+}
+
+export interface SoundNode extends Partial<PersoNode> {
+	type: PersoElementType.SOUND;
+	src: string;
+	media?: MediaElementAudioSourceNode;
 }
 
 export interface PersoItem extends Omit<PersoNode, 'type'> {
@@ -114,6 +123,7 @@ export enum ChannelName {
 	TELCO = 'telco',
 	STRAP = 'strap',
 	DEFAULT = MAIN,
+	SOUND = 'SOUND',
 }
 
 export enum Lang {

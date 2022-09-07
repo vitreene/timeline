@@ -1,9 +1,9 @@
-import { PersoStore } from './create-perso';
+import { StorePersos } from './create-perso';
 import { diff } from '../common/utils';
 
 import type { Action, Update } from '../types';
 
-export function createRender(store: PersoStore) {
+export function createRender(store: StorePersos) {
 	return function renderToDOM(update: Update) {
 		for (const id in update) {
 			const perso = store.getPerso(id);

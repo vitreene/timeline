@@ -1,8 +1,8 @@
-import type { Timer } from '../clock';
+import { StorePersos } from '../render/create-perso';
+
 import type { CbStatus } from '../clock';
 import type { QueueActions } from '../queue';
 import type { ChannelName, Eventime } from '../types';
-import type { PersoStore } from '../render/create-perso';
 
 export type ActionName = string;
 export interface RunEvent {
@@ -20,7 +20,7 @@ export interface ChannelOptions {
 
 export class Channel {
 	name: ChannelName;
-	store: PersoStore;
+	store: StorePersos;
 
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
@@ -32,7 +32,7 @@ export class Channel {
 		this.addEvent = options.addEvent;
 	}
 
-	setStore(store: PersoStore) {
+	setStore(store: StorePersos) {
 		this.store = store;
 	}
 

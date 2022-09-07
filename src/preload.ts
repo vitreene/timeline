@@ -1,50 +1,48 @@
-import { PersoElementType, PersoNode, Store } from './types';
+import { PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from './types';
 
-type PersoId = PersoNode & { id: string };
-type AudioClip = {
-	audio: MediaElementAudioSourceNode;
-	playing: boolean;
-};
-type AudioClips = Map<string, AudioClip>;
+type SampleAudio = [string, MediaElementAudioSourceNode];
 
 const audioContext = new AudioContext();
 
 export async function preload(persos_: Store) {
 	const { persoSounds, persos } = getPersoSounds(persos_);
-	const sounds = await registerAudio(persoSounds);
-	console.log('preload', sounds);
-	// sounds.forEach((sound) => sound.mediaElement.play());
-	return Promise.resolve(persos);
+	const audio = await registerAudio(persoSounds);
+	console.log('preload', audio);
+	Object.values(audio).forEach((sound) => sound.media.mediaElement.play());
+	const ikono = {};
+	const video = {};
+	return Promise.resolve({ persos, audio, ikono, video });
 }
 
 function getPersoSounds(persos: Store) {
-	const persoOthers: Store = {};
-	const persoSounds: PersoId[] = [];
+	const persoOthers: PersoStore = {};
+	const persoSounds: SoundStore = {};
 	for (const id in persos) {
-		persos[id].type === PersoElementType.SOUND ? persoSounds.push({ ...persos[id], id }) : (persoOthers[id] = persos[id]);
+		persos[id].type === PersoElementType.SOUND
+			? (persoSounds[id] = persos[id] as SoundNode)
+			: (persoOthers[id] = persos[id] as PersoNode);
 	}
 	return { persoSounds, persos: persoOthers };
 }
 
-async function registerAudio(persos: PersoId[]) {
-	const audios = await Promise.all(
-		persos.map(async (perso) => {
-			const src = perso.initial?.content as string;
-			return loadAudio(perso.id, src, audioContext);
-		})
-	);
-	return new Map(audios);
+async function registerAudio(persos: SoundStore) {
+	const audios = [];
+	for (const id in persos) {
+		const src = persos[id].initial?.src;
+		audios.push(loadAudio(id, src, audioContext));
+	}
+	const loadedAudios: SampleAudio[] = await Promise.all(audios);
+	for (const [id, media] of loadedAudios) persos[id].media = media;
+	return persos;
 }
-
-type SampleAudio = [string, MediaElementAudioSourceNode];
 
 async function loadAudio(id: string, filepath: string, audioContext: AudioContext): Promise<SampleAudio> {
 	return new Promise((resolve, reject) => {
 		const source = new Audio();
+		const media = audioContext.createMediaElementSource(source);
+		media.connect(audioContext.destination);
 		source.oncanplay = () => {
-			const sampleSource = audioContext.createMediaElementSource(source);
-			sampleSource.connect(audioContext.destination);
-			resolve([id, sampleSource]);
+			resolve([id, media]);
 		};
 		source.onerror = (err) => reject(err);
 		source.src = filepath;

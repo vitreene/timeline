@@ -1,27 +1,24 @@
 import { timeInInterval, TrackManager } from '.';
-
-import { createStore } from '../render/create-store';
 import { channelManager } from '../channels';
-import { PersoChannel } from '../channels/channel-perso';
-import { StrapChannel } from '../channels/channel-strap';
+import { createStore } from '../render/create-store';
 
-import { BACKWARD, END_SEQUENCE, FORWARD, SEEK, TIME_INTERVAL } from '../common/constants';
+import { SEEK } from '../common/constants';
 
 import type { CbStatus } from '../clock';
-import type { ChannelName, Eventime, Store } from '../types';
 import type { Channel, RunEvent } from '../channels/channel';
+import type { ChannelName, Eventime, PersoStore, SoundStore } from '../types';
+import { SoundChannel } from 'src/channels/channel-sound';
 
 type TrackName = string;
 type EventTracks = Record<TrackName, Eventime>;
-export type ChannelsMap = Map<ChannelName, Channel>;
-
-export const channelList = [PersoChannel, StrapChannel];
+export type ChannelsMap = Map<ChannelName, Channel | SoundChannel>;
 
 export interface Options {
 	defaultTrackName: TrackName;
 }
 interface TimelineConfig {
-	persos: Store;
+	persos: PersoStore;
+	audio?: SoundStore;
 	tracks?: EventTracks;
 	options?: Options;
 }
@@ -30,7 +27,7 @@ export class Timeline {
 	channels: ChannelsMap;
 	tracks: TrackManager;
 
-	constructor({ persos, tracks, options }: TimelineConfig) {
+	constructor({ persos, audio, tracks, options }: TimelineConfig) {
 		this.run = this.run.bind(this);
 		this.runNext = this.runNext.bind(this);
 		this.runSeek = this.runSeek.bind(this);
@@ -40,7 +37,7 @@ export class Timeline {
 		const addEvent = this.tracks.addEvent.bind(this.tracks);
 
 		const store = createStore(persos, addEvent);
-		this.channels = channelManager({ store, addEvent, next, timer: this.tracks.clock });
+		this.channels = channelManager({ store, audio, addEvent, next, timer: this.tracks.clock });
 		this.tracks.runs.add(this.run);
 		this.tracks.runs.add(this.runNext);
 	}

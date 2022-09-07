@@ -13,14 +13,14 @@ export type TrackName = string;
 export type AddEvent = TrackManager['addEvent'];
 export type CasualEvent = [string, Eventime];
 
-type ClockName = string;
+// type ClockName = string;
 type ControlName = string;
 type RunEvents = Record<ChannelName, RunEvent[]>;
-interface TrackManagerCurrentProps {
-	data: Track['data'];
-	events: Track['events'];
-	nextEvent: Track['nextEvent'];
-}
+// interface TrackManagerCurrentProps {
+// 	data: Track['data'];
+// 	events: Track['events'];
+// 	nextEvent: Track['nextEvent'];
+// }
 interface ControlAction {
 	active: TrackName[];
 	inactive: TrackName[];

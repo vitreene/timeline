@@ -3,7 +3,7 @@ import { Transition } from './transition';
 import { Layer } from '../render/components/layer';
 
 import { ChannelName } from '../types';
-import { FORWARD, INITIAL, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
+import { INITIAL, PLAY, TIME_INTERVAL } from '../common/constants';
 
 import type { FromTo } from './transition';
 import type { RunEvent, ChannelOptions } from './channel';

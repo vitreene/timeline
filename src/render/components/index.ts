@@ -2,7 +2,7 @@ import { Txt } from './txt';
 import { Layer } from './layer';
 import { PersoElementType } from '../../types';
 
-export function createContent(type: PersoElementType, parentNode: HTMLElement) {
+export function createContent(type: Omit<PersoElementType, PersoElementType.SOUND>, parentNode: HTMLElement) {
 	let child = null;
 	switch (type) {
 		case PersoElementType.TEXT:

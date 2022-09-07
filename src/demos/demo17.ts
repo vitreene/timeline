@@ -2,8 +2,8 @@ import { Telco } from './telco';
 import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
-import { PersoElementType } from '../types';
-import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY } from '../common/constants';
+import { PersoElementType as P } from '../types';
+import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 
@@ -36,6 +36,8 @@ export const events: Eventime = {
 	channel: MAIN,
 	duration: 4000,
 	events: [
+		{ startAt: 40, name: 'start_' + SOUND01, channel: SOUND },
+		{ startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 400, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{ startAt: 500, name: 'action04', channel: MAIN },
@@ -94,14 +96,15 @@ const initialID03: Partial<Initial> = {
 
 const _persos: Store = {
 	[SOUND01]: {
-		type: PersoElementType.SOUND,
-		initial: {
-			content: '/son01.m4a',
+		type: P.SOUND,
+		initial: { src: '/music02.m4a', track: TRACK_PLAY },
+		actions: {
+			['start_' + SOUND01]: { action: 'start' },
+			['end_' + SOUND01]: { action: 'end' },
 		},
-		actions: {},
 	},
 	[ROOT]: {
-		type: PersoElementType.LAYER,
+		type: P.LAYER,
 		initial: {
 			tag: 'div',
 			id: ROOT,
@@ -110,7 +113,7 @@ const _persos: Store = {
 		actions: {},
 	},
 	[ID01]: {
-		type: PersoElementType.TEXT,
+		type: P.TEXT,
 		initial: initialID01,
 		actions: {
 			enter: {
@@ -133,7 +136,7 @@ const _persos: Store = {
 		},
 	},
 	[ID02]: {
-		type: PersoElementType.TEXT,
+		type: P.TEXT,
 
 		initial: { ...initialID02, move: ROOT },
 		actions: {
@@ -152,7 +155,7 @@ const _persos: Store = {
 		},
 	},
 	[ID03]: {
-		type: PersoElementType.TEXT,
+		type: P.TEXT,
 
 		initial: { ...initialID03, move: ROOT },
 		actions: {
@@ -250,7 +253,7 @@ const control = {
 };
 
 preload(persos).then((p) => {
-	const telco = new Telco({ persos: p, tracks, options });
+	const telco = new Telco({ persos: p.persos, audio: p.audio, tracks, options });
 	createTelco(telco, control);
 	telco.start();
 });
