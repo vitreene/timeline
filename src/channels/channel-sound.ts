@@ -1,7 +1,10 @@
 import { ChannelName, Eventime, SoundNode, SoundStore } from '../types';
-import { PAUSE, PLAY } from '../common/constants';
+import { PAUSE, PLAY, SEEK } from '../common/constants';
 import type { RunEvent } from './channel';
 import { CbStatus } from '../clock';
+
+const MS = 1000;
+const TIME_THRESHOLD = 0.1;
 
 export interface SoundChannelOptions {
 	addEvent: (event_: Eventime) => void;
@@ -21,7 +24,6 @@ export class SoundChannel {
 
 	setStore(audio: SoundStore) {
 		this.store = new Map<string, SoundNodeId[]>();
-
 		Object.entries(audio).forEach(([id, sound]) => {
 			const track = sound.initial.track;
 			if (!this.store.has(track)) this.store.set(track, []);
@@ -32,7 +34,7 @@ export class SoundChannel {
 
 	run({ name, time, status, data }: RunEvent): void {
 		console.log('SoundChannel', { name, time, status, data });
-		if (status.statement !== PLAY) return;
+
 		this.store.has(status.trackName) &&
 			this.store.get(status.trackName).forEach((audio) => {
 				const action = audio.actions[name];
@@ -53,6 +55,19 @@ export class SoundChannel {
 					}
 				}
 			});
+
+		if (status.statement === SEEK) {
+			console.log('RUNSEEK', time, time === status.currentTime);
+
+			this.runSeek({ name, time, status, data });
+		}
+	}
+
+	runSeek({ status }: RunEvent) {
+		console.log('SEEK', status.currentTime);
+
+		this.store.has(status.trackName) &&
+			this.store.get(status.trackName).forEach((audio) => this.catchTime(audio, status));
 	}
 
 	onTick(status: CbStatus) {
@@ -71,14 +86,21 @@ export class SoundChannel {
 					default:
 						break;
 				}
-				const currentTime = (status.currentTime - (audio.startTime || 0)) / 1000;
-				if (currentTime - audio.media.mediaElement.currentTime > 0.1) {
-					console.log('RATRAPAGE-->', currentTime - audio.media.mediaElement.currentTime);
-					audio.media.mediaElement.currentTime = currentTime;
+				if (!audio.media.mediaElement.paused) {
+					this.catchTime(audio, status);
 				}
 			});
 	}
 	runNext(props: RunEvent): void {
 		this.run(props);
+	}
+
+	catchTime(audio: SoundNodeId, status: CbStatus) {
+		const currentTime = (status.currentTime - (audio.startTime || 0)) / MS;
+		const diff = Math.abs(currentTime - audio.media.mediaElement.currentTime) > TIME_THRESHOLD;
+		if (diff) {
+			console.log('RATRAPAGE-->', currentTime - audio.media.mediaElement.currentTime);
+			audio.media.mediaElement.currentTime = currentTime;
+		}
 	}
 }
