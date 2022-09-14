@@ -104,14 +104,15 @@ export interface Transition {
 	oncomplete?: any;
 }
 
-export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement>;
-/* |Lang |  CollectionImages */
+export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;
+/* |Lang |  */
 
 export interface CollectionImages {
 	src: string;
-	ratio: number;
-	width: number;
-	height: number;
+	fit?: string;
+	ratio?: number;
+	width?: number;
+	height?: number;
 }
 
 export type ImagesCollection = Map<string, CollectionImages>;
@@ -123,7 +124,7 @@ export enum ChannelName {
 	TELCO = 'telco',
 	STRAP = 'strap',
 	DEFAULT = MAIN,
-	SOUND = 'SOUND',
+	SOUND = 'sound',
 }
 
 export enum Lang {

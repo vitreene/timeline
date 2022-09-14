@@ -1,3 +1,3 @@
 import './style.css';
 
-import './demos/demo17';
+import './demos/demo18';
