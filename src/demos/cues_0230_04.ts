@@ -284,7 +284,7 @@ export const kid = {
 			move: ROOT,
 		},
 	},
-};
+} as const;
 export const mouth = {
 	type: P.SPRITE,
 	initial: {
@@ -311,8 +311,7 @@ export const mouth = {
 		H: { content: { src: '/phonemes/H.png' } },
 		X: { content: { src: '/phonemes/A.png' } },
 	},
-};
-
+} as const;
 export const sound_23_04 = {
 	type: P.SOUND,
 	initial: { src: '/023_04.ogg', track: TRACK_PLAY },
@@ -320,4 +319,4 @@ export const sound_23_04 = {
 		start_sound_23_04: { action: 'start' },
 		end_sound_23_04: { action: 'end' },
 	},
-};
+} as const;

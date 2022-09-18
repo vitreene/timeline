@@ -1,20 +1,10 @@
-import { PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from './types';
+import { PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
 
 type SampleAudio = [string, MediaElementAudioSourceNode];
 
 const audioContext = new AudioContext();
 
-export async function preload(persos_: Store) {
-	const { persoSounds, persos } = getPersoSounds(persos_);
-	const audio = await registerAudio(persoSounds);
-	console.log('preload', audio);
-	Object.values(audio).forEach((sound) => sound.media.mediaElement.play());
-	const ikono = {};
-	const video = {};
-	return Promise.resolve({ persos, audio, ikono, video });
-}
-
-function getPersoSounds(persos: Store) {
+export function getPersoSounds(persos: Store) {
 	const persoOthers: PersoStore = {};
 	const persoSounds: SoundStore = {};
 	for (const id in persos) {
@@ -25,7 +15,7 @@ function getPersoSounds(persos: Store) {
 	return { persoSounds, persos: persoOthers };
 }
 
-async function registerAudio(persos: SoundStore) {
+export async function registerAudio(persos: SoundStore) {
 	const audios = [];
 	for (const id in persos) {
 		const src = persos[id].initial?.src;
@@ -36,7 +26,7 @@ async function registerAudio(persos: SoundStore) {
 	return persos;
 }
 
-async function loadAudio(id: string, filepath: string, audioContext: AudioContext): Promise<SampleAudio> {
+export async function loadAudio(id: string, filepath: string, audioContext: AudioContext): Promise<SampleAudio> {
 	return new Promise((resolve, reject) => {
 		const source = new Audio();
 		const media = audioContext.createMediaElementSource(source);
