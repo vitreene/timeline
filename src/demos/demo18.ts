@@ -39,7 +39,7 @@ export const events: Eventime = {
 	events: [
 		{ startAt: 40, name: 'start_sound_23_04', channel: SOUND, events: cueEvents },
 		{ startAt: 40, name: 'start_' + SOUND01, channel: SOUND },
-		{ startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
+		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{ startAt: 500, name: 'action04', channel: MAIN },
@@ -131,7 +131,7 @@ const _persos: Store = {
 	// 		['end_' + SOUND01]: { action: 'end' },
 	// 	},
 	// },
-	sound_23_04,
+	sound_23_04, // FIXME l'ordre influe sur le rendu !!!
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {

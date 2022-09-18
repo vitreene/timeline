@@ -22,12 +22,12 @@ export class SoundChannel {
 		this.addEvent = options.addEvent;
 	}
 
-	setStore(audio: SoundStore) {
+	setStore(audios: SoundStore) {
 		this.store = new Map<string, SoundNodeId[]>();
-		Object.entries(audio).forEach(([id, sound]) => {
-			const track = sound.initial.track;
+		Object.entries(audios).forEach(([id, audio]) => {
+			const track = audio.initial.track;
 			if (!this.store.has(track)) this.store.set(track, []);
-			this.store.get(track).push({ id, ...sound });
+			this.store.get(track).push({ id, startTime: 0, ...audio });
 		});
 		console.log('SoundChannel', this.store);
 	}
@@ -86,6 +86,7 @@ export class SoundChannel {
 					default:
 						break;
 				}
+
 				if (!audio.media.mediaElement.paused) {
 					this.catchTime(audio, status);
 				}
@@ -96,10 +97,20 @@ export class SoundChannel {
 	}
 
 	catchTime(audio: SoundNodeId, status: CbStatus) {
-		const currentTime = (status.currentTime - (audio.startTime || 0)) / MS;
+		const currentTime = (status.currentTime - audio.startTime) / MS;
+
+		if (currentTime > audio.media.mediaElement.duration) {
+			console.log('---->ENDED', audio.id);
+			audio.status = PAUSE;
+			audio.media.mediaElement.pause();
+			audio.media.mediaElement.currentTime = 0;
+			return;
+		}
+
 		const diff = Math.abs(currentTime - audio.media.mediaElement.currentTime) > TIME_THRESHOLD;
 		if (diff) {
-			console.log('RATRAPAGE-->', currentTime - audio.media.mediaElement.currentTime);
+			console.log('RATRAPAGE-->', audio.id, currentTime - audio.media.mediaElement.currentTime);
+
 			audio.media.mediaElement.currentTime = currentTime;
 		}
 	}
