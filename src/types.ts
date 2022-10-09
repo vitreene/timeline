@@ -125,6 +125,7 @@ export enum ChannelName {
 	STRAP = 'strap',
 	DEFAULT = MAIN,
 	SOUND = 'sound',
+	THR3D = 'THR3D',
 }
 
 export enum Lang {

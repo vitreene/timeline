@@ -6,7 +6,7 @@ import { SEEK } from '../common/constants';
 
 import type { CbStatus } from '../clock';
 import type { Channel, RunEvent } from '../channels/channel';
-import type { ChannelName, Eventime, PersoStore, SoundStore } from '../types';
+import { ChannelName, Eventime, PersoStore, SoundStore } from '../types';
 import { SoundChannel } from 'src/channels/channel-sound';
 
 type TrackName = string;

@@ -26,3 +26,11 @@
 	margin-left: auto;
 	width: 3rem;
 }
+
+#t3d {
+	position: absolute;
+}
+
+body {
+	background-color: cornsilk;
+}

@@ -10,6 +10,7 @@ export interface Status {
 	headTime: number;
 	elapsed: number;
 	paused: number;
+	delta: number;
 	statement: string;
 	seekTime?: number;
 	timers?: { milliemes: number; centiemes: number; diziemes: number; seconds: number };
@@ -34,12 +35,13 @@ export const defaultStatus: Status = {
 	statement: PAUSE,
 	timers: getTimers(0),
 	paused: 0,
+	delta: 0,
 };
 
 class Clock {
 	raf: number;
 	hasAborted = false;
-	totalElapsed: number;
+	totalElapsed = 0;
 	tick = new Set<Cb>();
 	timers = new Map<TrackName, CbStatus>();
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
@@ -106,7 +108,9 @@ class Clock {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
+			const totalElapsed_ = this.totalElapsed;
 			this.totalElapsed = Math.round(performance.now() - start);
+			const delta = this.totalElapsed - totalElapsed_;
 
 			this.timers.forEach((timer) => {
 				const elapsed = this.totalElapsed - timer.paused;
@@ -125,13 +129,15 @@ class Clock {
 
 							for (let c = 1; c <= cents; c++) {
 								setTimeout(() => {
-									const _currentTime = currentTime - (cents - c) * 10;
+									const currentTime_ = currentTime - (cents - c) * 10;
 									timer = {
 										...timer,
 										timers, //
 										elapsed,
-										currentTime: _currentTime,
-										headTime: Math.max(timer.headTime, _currentTime),
+										currentTime: currentTime_,
+										delta,
+										// delta: currentTime_ - timer.currentTime,
+										headTime: Math.max(timer.headTime, currentTime_),
 									};
 
 									this.timers.set(timer.trackName, timer);
@@ -156,11 +162,13 @@ class Clock {
 								const cents = (timer.seekTime - timer.headTime) / 10;
 
 								for (let c = 1, timer_ = timer; c <= cents; c++) {
-									const _currentTime = timer.seekTime - (cents - c) * 10;
+									const currentTime_ = timer.seekTime - (cents - c) * 10;
 									timer_ = {
 										...timer_,
-										currentTime: _currentTime,
-										headTime: _currentTime,
+										currentTime: currentTime_,
+										headTime: currentTime_,
+										delta,
+										// delta: currentTime_ - timer.currentTime,
 										statement: PLAY,
 									};
 									this.subscribers.forEach(({ guard, cb }) => guard(timer_) && cb.forEach((c) => c(timer_)));

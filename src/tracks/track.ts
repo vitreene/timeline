@@ -1,5 +1,5 @@
 import { DEFAULT_CHANNEL_NAME, PAUSE, PLAY, SEEK } from '../common/constants';
-import type { ChannelName, Eventime } from '../types';
+import { ChannelName, Eventime } from '../types';
 import type { TrackName, Time, CasualEvent } from './index';
 
 type EventChannel = Map<Time, Set<string>>;
@@ -51,14 +51,14 @@ export class TrackComponent {
 			channelEvent.set(startAt, new Set<string>([event.name]));
 		}
 		this.times.add(startAt);
-		this.addData(event);
+		this.addData(event, startAt);
 	}
 
-	private addData = (event: Eventime) => {
+	private addData = (event: Eventime, startAt: number) => {
 		!this.data.has(event.name) && this.data.set(event.name, new Map());
 		const eventData = this.data.get(event.name);
 		const data = { ...event.data, track: this.name };
-		eventData.set(event.startAt, data);
+		eventData.set(startAt, data);
 	};
 }
 

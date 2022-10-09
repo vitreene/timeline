@@ -1,18 +1,18 @@
 import { Timer } from '../clock';
-import { Channel } from './channel';
 import { QueueActions } from '../queue';
 import { createRender } from '../render/render-DOM';
 
 import { PersoChannel } from './channel-perso';
 import { StrapChannel } from './channel-strap';
 import { SoundChannel } from './channel-sound';
+import { ThreeChannel } from './channel-three';
 
 import { Eventime, SoundStore } from '../types';
 import type { AddEvent } from '../tracks';
 import type { ChannelsMap } from '../tracks/timeline';
 import type { StorePersos } from '../render/create-perso';
 
-export const channelList = [PersoChannel, StrapChannel, SoundChannel];
+export const channelList = [PersoChannel, StrapChannel, SoundChannel, ThreeChannel];
 
 interface ChannelManagerProps {
 	store: StorePersos;
@@ -28,21 +28,18 @@ export function channelManager({ store, audio, addEvent, next, timer }: ChannelM
 	timer.subscribeTick(queue.flush);
 	channelList.forEach((Channel) => {
 		const channel = new Channel({ queue, addEvent });
+		channel.next = next;
+
 		if (channel instanceof SoundChannel) {
 			channel.setStore(audio);
-			channel.next = next;
+			timer.subscribeTick(channel.onTick);
+		} else if (channel instanceof ThreeChannel) {
 			timer.subscribeTick(channel.onTick);
 		} else {
-			addChannel(channel);
+			channel.setStore(store);
 		}
 		channels.set(channel.name, channel);
 	});
-
-	function addChannel(channel: Channel) {
-		channel.setStore(store);
-		channel.next = next;
-		channel.init();
-	}
 
 	return channels;
 }

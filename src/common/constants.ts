@@ -1,7 +1,7 @@
 import { ChannelName } from '../types';
 import { stringToLowercase } from './utils';
 
-export const { MAIN, STRAP, SOUND } = ChannelName;
+export const { MAIN, STRAP, SOUND, THR3D } = ChannelName;
 
 export const ROOT = 'root';
 export const INITIAL = '_initial_';

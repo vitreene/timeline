@@ -18,11 +18,13 @@
 		"typescript": "^4.8.4",
 		"vite": "^3.1.6",
 		"vite-plugin-solid": "^2.3.9",
-		"vitest": "^0.24.0"
+		"vitest": "^0.24.0",
+		"@types/three": "^0.144.0"
 	},
 	"dependencies": {
 		"csstype": "^3.1.1",
-		"solid-js": "^1.5.7"
+		"solid-js": "^1.5.7",
+		"three": "^0.145.0"
 	},
 	"prettier": {
 		"trailingComma": "es5",

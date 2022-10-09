@@ -45,7 +45,9 @@ const mouthCues = [
 	{ start: 6.49, end: 6.56, value: 'C' },
 	{ start: 6.56, end: 6.63, value: 'B' },
 	{ start: 6.63, end: 7.0, value: 'X' },
-].map((cue) => {
+];
+
+const doCueEvents = mouthCues.map((cue) => {
 	return { startAt: cue.start * 1000, name: cue.value, channel: MAIN };
 });
 

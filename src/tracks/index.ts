@@ -6,21 +6,16 @@ import { channelsName, END_SEQUENCE, PAUSE, PLAY, TIME_INTERVAL } from '../commo
 import type { Options } from './timeline';
 import type { CbStatus } from '../clock';
 import type { RunEvent } from '../channels/channel';
-import type { ChannelName, Eventime } from '../types';
+import { ChannelName, Eventime } from '../types';
 
 export type Time = number;
 export type TrackName = string;
 export type AddEvent = TrackManager['addEvent'];
 export type CasualEvent = [string, Eventime];
 
-// type ClockName = string;
 type ControlName = string;
 type RunEvents = Record<ChannelName, RunEvent[]>;
-// interface TrackManagerCurrentProps {
-// 	data: Track['data'];
-// 	events: Track['events'];
-// 	nextEvent: Track['nextEvent'];
-// }
+
 interface ControlAction {
 	active: TrackName[];
 	inactive: TrackName[];
@@ -61,7 +56,8 @@ export class TrackManager {
 	}
 
 	addEvent(event_: Eventime) {
-		!event_.track && console.log('addEVENT', event_);
+		!event_.track && console.warn('pas de track sur addEVENT', event_);
+
 		const trackName: TrackName = event_.track;
 		const currentTtrack = event_.track;
 		const currentTime = this.clock.timers.get(currentTtrack).currentTime;
@@ -147,12 +143,16 @@ export class TrackManager {
 
 		if (status.statement !== PAUSE) {
 			const { events: eventsByChannel, data: dataByChannel } = track;
+
 			eventsByChannel.forEach((events, channel) => {
 				if (!events.size) return;
 				if (!runs[channel]) runs[channel] = [];
 				if (events.has(time)) {
 					events.get(time).forEach((name) => {
 						const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
+
+						channel === ChannelName.THR3D && console.log('getEvents-->', time, name, data);
+
 						runs[channel].push({ name, time, data, status });
 					});
 				}
