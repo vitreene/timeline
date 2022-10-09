@@ -14,7 +14,7 @@ scene.background = null;
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 const animationActions: THREE.AnimationAction[] = [];
 
-const camera = new THREE.PerspectiveCamera(75, appSize.width / appSize.height, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(50, appSize.width / appSize.height, 0.1, 1000);
 
 const light = new THREE.AmbientLight(0x404040, 5); // soft white light
 const light1 = new THREE.PointLight(0xffffff, 2);
@@ -27,9 +27,9 @@ controls.target.set(0, 1, 0);
 
 renderer.setSize(appSize.width, appSize.height);
 t3d && t3d.appendChild(renderer.domElement);
-camera.position.x = 0.05;
+camera.position.x = 0.01;
 camera.position.y = 1.6;
-camera.position.z = 1.4;
+camera.position.z = 1.1;
 camera.lookAt(0, 1.6, 1);
 
 const duration = 0.3;
@@ -52,8 +52,7 @@ export class ThreeChannel extends Channel {
 	}
 	run({ name, time, status, data }: RunEvent): void {
 		console.log(name, time, data);
-		const d = data.duration ? data.duration / 1000 : 0;
-		// const d = duration;
+		const d = data && data.duration ? data.duration / 1000 : 0;
 		precAction && precAction.stopFading();
 		precAction = activeAction;
 		activeAction = visemes[name];
@@ -77,7 +76,11 @@ function sceneLoaded(gltf: ThreeGLB) {
 		}
 	});
 	man = gltf;
-	man.scene.position.z = 1;
+	man.scene.position.z = 0.4;
+	const hair = man.scene.getObjectByName('charhairstyle');
+	hair.visible = false;
+	eyes = man.scene.getObjectByName('chareyes');
+	console.log({ eyes });
 	scene.add(man.scene);
 	loader.load('wes/lipsync.glb', animationsLoaded);
 }
@@ -88,7 +91,7 @@ function animationsLoaded(gltf: ThreeGLB) {
 
 	console.log('man', man);
 	mixer = new THREE.AnimationMixer(man.scene);
-	// man.add(gltf.scene.children[0]);
+
 	for (const anim of man.animations) {
 		if (anim.name !== 'stand_talk') {
 			THREE.AnimationUtils.makeClipAdditive(anim);
@@ -100,15 +103,13 @@ function animationsLoaded(gltf: ThreeGLB) {
 		if (anim.name === 'stand_talk') {
 			animationAction.setLoop(THREE.LoopRepeat, 4);
 			animationAction.enabled = true;
-			animationAction.setEffectiveTimeScale(0.5);
-			animationAction.setEffectiveWeight(0.5);
+			animationAction.setEffectiveTimeScale(0.625);
+			animationAction.setEffectiveWeight(1);
 			animationAction.play();
 		} else {
 			phonemes.push(anim.name);
 		}
 	}
-	eyes = man.scene.getObjectByName('chareyes');
-	console.log({ eyes });
 }
 
 function animate(status: CbStatus) {
