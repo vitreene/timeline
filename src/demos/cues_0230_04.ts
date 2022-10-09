@@ -277,7 +277,7 @@ export const kid = {
 			position: 'absolute',
 			width: 481,
 			height: 633,
-			x: 500,
+			x: 400,
 			y: 100,
 		},
 	},
@@ -293,7 +293,7 @@ export const mouth = {
 		content: { src: '/phonemes/X.png' },
 		style: {
 			position: 'absolute',
-			x: 666,
+			x: 566,
 			y: 520,
 			width: 160,
 			height: 100,

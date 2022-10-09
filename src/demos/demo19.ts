@@ -38,8 +38,8 @@ export const events: Eventime = {
 	channel: MAIN,
 	duration: 4000,
 	events: [
-		{ startAt: 40, name: 'start_sound_23_04', channel: SOUND, events: [...cueEvents, ...cueEventsThree] },
-		{ startAt: 40, name: 'start_' + SOUND01, channel: SOUND },
+		{ startAt: 1000, name: 'start_sound_23_04', channel: SOUND, events: [...cueEvents, ...cueEventsThree] },
+		{ startAt: 1000, name: 'start_' + SOUND01, channel: SOUND },
 		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
@@ -100,38 +100,6 @@ const initialID03: Partial<Initial> = {
 const _persos: Store = {
 	kid,
 	mouth,
-	// // sprite01: {
-	// // 	type: P.SPRITE,
-	// // 	initial: {
-	// // 		content: { src: '/mandrake.jpg' /* , fit: 'cover' */ },
-	// // 		style: {
-	// // 			position: 'absolute',
-	// // 			width: 400,
-	// // 			height: 250,
-	// // 			outline: '4px red solid',
-	// // 		},
-	// // 	},
-	// // 	actions: {
-	// // 		enter: {
-	// // 			move: ROOT,
-	// // 		},
-	// // 		action01: {
-	// // 			transition: {
-	// // 				from: { width: 400, height: 250, rotate: 0 },
-	// // 				to: { width: 800, height: 400, rotate: 30 },
-	// // 				duration: 1000,
-	// // 			},
-	// // 		},
-	// // 	},
-	// // },
-	// [SOUND01]: {
-	// 	type: P.SOUND,
-	// 	initial: { src: '/music02.m4a', track: TRACK_PLAY },
-	// 	actions: {
-	// 		['start_' + SOUND01]: { action: 'start' },
-	// 		['end_' + SOUND01]: { action: 'end' },
-	// 	},
-	// },
 	sound_23_04, // FIXME l'ordre influe sur le rendu !!!
 	[ROOT]: {
 		type: P.LAYER,

@@ -150,9 +150,6 @@ export class TrackManager {
 				if (events.has(time)) {
 					events.get(time).forEach((name) => {
 						const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
-
-						channel === ChannelName.THR3D && console.log('getEvents-->', time, name, data);
-
 						runs[channel].push({ name, time, data, status });
 					});
 				}

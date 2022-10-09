@@ -6,6 +6,7 @@
 	padding: 2rem;
 	border: 1px solid grey;
 	min-height: 50vh;
+	overflow: hidden;
 }
 
 .root {
@@ -29,6 +30,7 @@
 
 #t3d {
 	position: absolute;
+	left: 340px;
 }
 
 body {
