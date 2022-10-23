@@ -8,6 +8,7 @@ import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from 
 import type { Eventime, Initial, Store } from '../types';
 import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04';
 import { cueEventsThree } from './cues_0230_three';
+import { modelWes } from './model-threeD-01';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -100,7 +101,8 @@ const initialID03: Partial<Initial> = {
 const _persos: Store = {
 	kid,
 	mouth,
-	sound_23_04, // FIXME l'ordre influe sur le rendu !!!
+	sound_23_04, // FIXME l'ordre influe sur le rendu !!!,
+	modelWes,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -176,13 +178,6 @@ const _persos: Store = {
 					yoyo: true,
 				},
 			},
-			// pause_exit: {
-			// 	transition: {
-			// 		from: { scale: 1.3 },
-			// 		to: { scale: 1 },
-			// 		duration: 1000,
-			// 	},
-			// },
 			['end_' + ID_COUNTER_02]: {
 				transition: {
 					from: { rotate: 0 },
@@ -201,17 +196,6 @@ const _persos: Store = {
 		},
 	},
 };
-
-// const playEvents: Eventime = {
-// 	startAt: 500,
-// 	name: 'play',
-// 	channel: MAIN,
-// 	events: [
-// 		{ startAt: 400, name: 'enter', channel: MAIN },
-// 		{ startAt: 401, name: 'action01', channel: MAIN },
-// 		{ startAt: 500, name: 'action04', channel: MAIN },
-// 	],
-// };
 
 const pauseEvents: Eventime = {
 	startAt: 0,
@@ -234,7 +218,6 @@ const englishEvents: Eventime = {
 const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
 	[TRACK_PLAY]: events,
-	// [TRACK_PLAY]: playEvents,
 	[TRACK_PAUSE]: pauseEvents,
 	[TRACK_ENGLISH]: englishEvents,
 };
@@ -250,17 +233,8 @@ const control = {
 	trackName: TRACK_PLAY,
 };
 
-preload(persos).then((p) => {
-	const telco = new Telco({ persos: p.persos, audio: p.audio, tracks, options });
+preload(persos).then((medias) => {
+	const telco = new Telco({ medias, tracks, options });
 	createTelco(telco, control);
 	telco.start();
 });
-
-// setTimeout(() => telco.pause(), 900);
-// setTimeout(() => telco.play(), 1400);
-// setTimeout(() => telco.pause(), 2000);
-// setTimeout(() => telco.play(), 3500);
-
-// setTimeout(() => {
-// 	debugger;
-// }, 2000);

@@ -8,6 +8,7 @@ import type { CbStatus } from '../clock';
 import type { Channel, RunEvent } from '../channels/channel';
 import { ChannelName, Eventime, PersoStore, SoundStore } from '../types';
 import { SoundChannel } from 'src/channels/channel-sound';
+import { MediasStoreProps } from 'src/preload';
 
 type TrackName = string;
 type EventTracks = Record<TrackName, Eventime>;
@@ -17,27 +18,29 @@ export interface Options {
 	defaultTrackName: TrackName;
 }
 interface TimelineConfig {
-	persos: PersoStore;
-	audio?: SoundStore;
+	medias: MediasStoreProps;
 	tracks?: EventTracks;
 	options?: Options;
 }
+
 /// SCENELINE
 export class Timeline {
 	channels: ChannelsMap;
 	tracks: TrackManager;
 
-	constructor({ persos, audio, tracks, options }: TimelineConfig) {
+	constructor(props: TimelineConfig) {
 		this.run = this.run.bind(this);
 		this.runNext = this.runNext.bind(this);
 		this.runSeek = this.runSeek.bind(this);
 
-		this.tracks = new TrackManager(tracks, options);
+		this.tracks = new TrackManager(props.tracks, props.options);
 		const next = this.tracks.setNext.bind(this.tracks);
 		const addEvent = this.tracks.addEvent.bind(this.tracks);
 
+		const { persos, ...medias } = props.medias;
+
 		const store = createStore(persos, addEvent);
-		this.channels = channelManager({ store, audio, addEvent, next, timer: this.tracks.clock });
+		this.channels = channelManager({ store, medias, addEvent, next, timer: this.tracks.clock });
 		this.tracks.runs.add(this.run);
 		this.tracks.runs.add(this.runNext);
 	}

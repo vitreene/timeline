@@ -1,5 +1,5 @@
 import { Eventime, PersoElementType as P } from '../types';
-import { MAIN, ROOT, TRACK_PLAY, THR3D } from '../common/constants';
+import { THR3D } from '../common/constants';
 
 const mouthCues = [
 	{ start: 0.0, end: 0.43, value: 'X' },

@@ -314,6 +314,7 @@ export const mouth = {
 		X: { content: { src: '/phonemes/A.png' } },
 	},
 } as const;
+
 export const sound_23_04 = {
 	type: P.SOUND,
 	initial: { src: '/023_04.ogg', track: TRACK_PLAY },

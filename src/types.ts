@@ -154,4 +154,5 @@ export enum PersoElementType {
 	SPRITE = 'sprite',
 	BUTTON = 'button',
 	POLYGON = 'polygon',
+	THR3D = 'THR3D',
 }
