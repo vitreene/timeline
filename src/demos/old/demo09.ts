@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../common/constants';
-import { Clock } from '../tracks';
-import { Timeline } from '../tracks/timeline';
+import { ROOT, MAIN, STRAP, END_SEQUENCE } from '../../common/constants';
+import { Clock } from '../../tracks';
+import { Timeline } from '../../tracks/timeline';
 import { Tracks } from '../tracks/__tracks';
 
-import { Eventime, Initial, PersoElementType, Store } from '../types';
+import { Eventime, Initial, PersoElementType, Store } from '../../types';
 
-import { createTelco } from './create-telco';
+import { createTelco } from '../create-telco';
 import '../style.css';
 
 const ID01 = 'hello';

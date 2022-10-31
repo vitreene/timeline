@@ -15,18 +15,20 @@ export interface Eventime {
 	events?: Eventime[];
 }
 
-export interface Initial {
+export interface BaseInitial {
 	tag: string;
 	id: string;
 	attr: any;
 	style: Style;
-	content: Content | Content[];
 	classStyle: Style;
 	className: string | string[];
 	move: string | Move;
 	src: string;
 	fit: string;
 	track: string;
+}
+export interface Initial extends BaseInitial {
+	content: Content | Content[];
 }
 
 export interface Action extends Partial<Initial> {
@@ -37,34 +39,30 @@ export interface Action extends Partial<Initial> {
 	// leave?: boolean;
 }
 
-export type Update = { [id: string]: Partial<Action> };
-export type Render = (update: Update) => void;
+export type Store = Record<string, PersoNode | SoundNode | Thr3dSceneNode>;
 
-export interface Perso {
-	readonly id: string;
-	readonly element: PersoElementType;
-	initial: Initial;
-	listen?: Eventime[];
-	actions: Action[];
-	// emit?: Emit;
-	// extends?: string;
-	// src?: string;
-}
-export type Store = Record<string, PersoNode | SoundNode>;
 export type PersoStore = Record<string, PersoNode>;
 export type SoundStore = Record<string, SoundNode>;
 
-export interface PersoNode {
-	type: Omit<PersoElementType, PersoElementType.SOUND>;
+export interface BaseNode {
 	actions: { [action: string]: Action | boolean };
-	initial: Partial<Initial>;
 	emit?: { [prop in keyof Emit]: Partial<Eventime> };
 }
 
-export interface SoundNode extends Partial<PersoNode> {
+export interface PersoNode extends BaseNode {
+	type: Omit<PersoElementType, PersoElementType.SOUND | PersoElementType.THR3D_SCENE>;
+	initial: Partial<Initial>;
+}
+
+export interface SoundNode extends BaseNode {
 	type: PersoElementType.SOUND;
 	src: string;
 	media?: MediaElementAudioSourceNode;
+}
+
+export interface Thr3dSceneNode extends BaseNode {
+	type: PersoElementType.THR3D_SCENE;
+	initial: Partial<BaseInitial> & { content: Partial<THR3D_SCENE> };
 }
 
 export interface PersoItem extends Omit<PersoNode, 'type'> {
@@ -79,6 +77,28 @@ export interface PersoItem extends Omit<PersoNode, 'type'> {
 	transform: TransformStyle;
 }
 
+export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;
+/* |Lang |  */
+
+export interface CollectionImages {
+	src: string;
+	fit?: string;
+	ratio?: number;
+	width?: number;
+	height?: number;
+}
+
+export type ImagesCollection = Map<string, CollectionImages>;
+
+export interface THR3D_SCENE {
+	children: string[];
+	renderer: unknown;
+	camera: unknown;
+	controls: unknown;
+}
+
+export type Render = (update: Update) => void;
+export type Update = { [id: string]: Partial<Action> };
 export type HandlerListener = (target: Event) => void;
 
 export type Emit = {
@@ -103,19 +123,6 @@ export interface Transition {
 	yoyo?: boolean;
 	oncomplete?: any;
 }
-
-export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;
-/* |Lang |  */
-
-export interface CollectionImages {
-	src: string;
-	fit?: string;
-	ratio?: number;
-	width?: number;
-	height?: number;
-}
-
-export type ImagesCollection = Map<string, CollectionImages>;
 
 // ENUM
 
@@ -155,4 +162,5 @@ export enum PersoElementType {
 	BUTTON = 'button',
 	POLYGON = 'polygon',
 	THR3D = 'THR3D',
+	THR3D_SCENE = 'THR3D_SCENE',
 }

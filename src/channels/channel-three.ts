@@ -51,7 +51,8 @@ export class ThreeChannel extends Channel {
 		animate(status);
 	}
 	run({ name, time, status, data }: RunEvent): void {
-		console.log(name, time, data);
+		console.log(name, data);
+
 		const d = data && data.duration ? data.duration / 1000 : 0;
 		precAction && precAction.stopFading();
 		precAction = activeAction;

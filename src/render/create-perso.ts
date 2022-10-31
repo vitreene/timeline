@@ -3,7 +3,7 @@ import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
 import type { AddEvent } from '../tracks';
-import type { Action, PersoItem, PersoNode } from '../types';
+import type { Action, PersoElementType, PersoItem, PersoNode } from '../types';
 
 export interface HandlerEmit {
 	e: Event;
@@ -15,6 +15,7 @@ export type StorePersoItems = Map<string, PersoItem>;
 
 export class StorePersos {
 	persos: StorePersoItems = new Map();
+	persosByType: Map<string, string[]> = new Map();
 	zoom = 1;
 	removeResize: () => void;
 	handler: AddEvent = null;
@@ -46,8 +47,18 @@ export class StorePersos {
 	}
 
 	add(id: string, perso_: PersoNode) {
+		console.log('ADD-->', perso_.type, id);
+
 		const perso = this.createPerso(id, perso_);
 		this.persos.set(id, perso);
+		const type = perso_.type as string;
+		const list = this.persosByType.get(type);
+		if (list) {
+			list.push(id);
+			this.persosByType.set(type, list);
+		} else {
+			this.persosByType.set(type, [id]);
+		}
 		return perso;
 	}
 
@@ -60,6 +71,17 @@ export class StorePersos {
 
 	getPerso(id: string) {
 		return this.persos.has(id) ? this.persos.get(id) : null;
+	}
+	getPersosbyType(type: string) {
+		const list = this.persosByType.get(type);
+		if (list) {
+			const persosByType: StorePersoItems = new Map(
+				list.map((id) => {
+					return [id, this.persos.get(id)];
+				})
+			);
+			return persosByType;
+		}
 	}
 
 	handleEvent = (event) => {
@@ -80,7 +102,7 @@ export class StorePersos {
 		const { tag, content, ...initial_ } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
-		const child = createContent(type, node);
+		const child = createContent(type, { parentNode: node });
 		if (child) child.update(content as any);
 
 		const perso: PersoItem = {

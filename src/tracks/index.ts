@@ -3,7 +3,7 @@ import { Timer } from '../clock';
 
 import { channelsName, END_SEQUENCE, PAUSE, PLAY, TIME_INTERVAL } from '../common/constants';
 
-import type { Options } from './timeline';
+import type { OptionsTimelineConfig } from './timeline';
 import type { CbStatus } from '../clock';
 import type { RunEvent } from '../channels/channel';
 import { ChannelName, Eventime } from '../types';
@@ -35,7 +35,7 @@ export class TrackManager {
 	clock = new Timer({ endsAt: END_SEQUENCE });
 	runs = new Set<(status: CbStatus) => void>();
 
-	constructor(tracks: Record<TrackName, Eventime>, options: Options) {
+	constructor(tracks: Record<TrackName, Eventime>, options: OptionsTimelineConfig) {
 		tracks && this.addTracks(tracks, channelsName);
 		this.run = this.run.bind(this);
 		this.clock.subscribe(this.run);

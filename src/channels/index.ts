@@ -1,32 +1,36 @@
 import { Timer } from '../clock';
 import { QueueActions } from '../queue';
 import { createRender } from '../render/render-DOM';
+import { createStore } from '../render/create-store';
 
 import { PersoChannel } from './channel-perso';
 import { StrapChannel } from './channel-strap';
 import { SoundChannel } from './channel-sound';
 import { ThreeChannel } from './channel-three';
 
-import { Eventime, PersoStore, SoundStore } from '../types';
+import { Eventime, PersoElementType } from '../types';
 import type { AddEvent } from '../tracks';
 import type { ChannelsMap } from '../tracks/timeline';
-import type { StorePersos } from '../render/create-perso';
-import { OptionalMediasStoreProps } from 'src/preload';
+import { MediasStoreProps } from 'src/preload';
 
 export const channelList = [PersoChannel, StrapChannel, SoundChannel, ThreeChannel];
 
 interface ChannelManagerProps {
-	store: StorePersos;
-	medias: Partial<OptionalMediasStoreProps>;
+	medias: MediasStoreProps;
 	timer: Timer;
 	addEvent: AddEvent;
 	next: (name: string, event: Eventime) => void;
 }
-export function channelManager({ store, medias, addEvent, next, timer }: ChannelManagerProps) {
+export function channelManager(props: ChannelManagerProps) {
+	const { addEvent, next, timer } = props;
+	const { persos, ...medias } = props.medias;
+	const store = createStore(persos, addEvent);
 	const channels: ChannelsMap = new Map();
 	const render = createRender(store);
 	const queue = new QueueActions(render);
+
 	timer.subscribeTick(queue.flush);
+
 	channelList.forEach((Channel) => {
 		const channel = new Channel({ queue, addEvent });
 		channel.next = next;
@@ -35,6 +39,8 @@ export function channelManager({ store, medias, addEvent, next, timer }: Channel
 			channel.setStore(medias.audio);
 			timer.subscribeTick(channel.onTick);
 		} else if (channel instanceof ThreeChannel) {
+			const scenes = store.getPersosbyType(PersoElementType.THR3D);
+			scenes.forEach((scene, id) => {});
 			/* 
 			non 
 			les éléments de la scene iront dans le composant
@@ -58,6 +64,16 @@ export function channelManager({ store, medias, addEvent, next, timer }: Channel
 			detacher media des persos, ne sera pas utile 
 			*/
 			// channel.setStore(medias.thr3d);
+
+			/* 
+-> chercher scenes | pour chaque scene :
+			- charger les assets : persos, animations et pourquoi pas : ligts, cameras, orbitcontrol...
+			les assets ont deux methodes : 
+			- onInit : une fonction pour modifier des caractéristiques des assets
+			- onUpdate : est ajouté au rendu 
+add to scene
+*/
+
 			timer.subscribeTick(channel.onTick);
 		} else {
 			channel.setStore(store);

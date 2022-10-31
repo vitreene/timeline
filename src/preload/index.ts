@@ -1,5 +1,5 @@
 import { getPersoSounds, registerAudio } from './audio';
-import { getPersoThr3D, registerThr3D } from './threed';
+import { getPersoThr3D, registerThr3D } from './thr3d';
 
 import type { PersoStore, SoundStore, Store } from '../types';
 
