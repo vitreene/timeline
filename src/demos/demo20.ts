@@ -3,7 +3,7 @@ import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
 import { PersoElementType as P } from '../types';
-import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
+import { ROOT, LAYER01, LAYER02, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04';
@@ -14,8 +14,6 @@ const ID01 = 'hello';
 const ID02 = 'world';
 const ID03 = 'third';
 const SOUND01 = 'son01';
-const LAYER01 = 'layer01';
-const LAYER02 = 'layer02';
 
 const ID_COUNTER_01 = 'counter01';
 const counter01 = {
@@ -115,12 +113,12 @@ const _persos: Store = {
 		},
 		actions: {},
 	},
-	[LAYER01]: {
+	[LAYER02]: {
 		type: P.LAYER,
 		initial: { className: 'root-layer' },
 		actions: { enter: { move: ROOT } },
 	},
-	[LAYER02]: {
+	[LAYER01]: {
 		type: P.LAYER,
 		initial: { className: 'root-layer' },
 		actions: { enter: { move: ROOT } },

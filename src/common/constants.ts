@@ -4,6 +4,9 @@ import { stringToLowercase } from './utils';
 export const { MAIN, STRAP, SOUND, THR3D } = ChannelName;
 
 export const ROOT = 'root';
+export const LAYER01 = 'layer01';
+export const LAYER02 = 'layer02';
+
 export const INITIAL = '_initial_';
 
 export const END_SEQUENCE = 26000;

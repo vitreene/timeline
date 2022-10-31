@@ -38,7 +38,6 @@ export interface Action extends Partial<Initial> {
 }
 
 export type Store = Record<string, PersoNode | SoundNode | Thr3dSceneNode>;
-
 export type PersoStore = Record<string, PersoNode>;
 export type SoundStore = Record<string, SoundNode>;
 

@@ -51,7 +51,7 @@ export class ThreeChannel extends Channel {
 		animate(status);
 	}
 	run({ name, time, status, data }: RunEvent): void {
-		console.log(name, data);
+		// console.log(name, data);
 
 		const d = data && data.duration ? data.duration / 1000 : 0;
 		precAction && precAction.stopFading();
@@ -69,7 +69,7 @@ interface ThreeGLB {
 	animations: THREE.AnimationClip[];
 }
 function sceneLoaded(gltf: ThreeGLB) {
-	console.log('sceneLoaded', gltf);
+	// console.log('sceneLoaded', gltf);
 
 	gltf.scene.traverse((child) => {
 		if (child.type == 'SkinnedMesh') {
@@ -81,16 +81,16 @@ function sceneLoaded(gltf: ThreeGLB) {
 	const hair = man.scene.getObjectByName('charhairstyle');
 	hair.visible = false;
 	eyes = man.scene.getObjectByName('chareyes');
-	console.log({ eyes });
+	// console.log({ eyes });
 	scene.add(man.scene);
 	loader.load('wes/lipsync.glb', animationsLoaded);
 }
 
 function animationsLoaded(gltf: ThreeGLB) {
-	console.log('animationsLoaded', gltf);
+	// console.log('animationsLoaded', gltf);
 	man.animations = gltf.animations;
 
-	console.log('man', man);
+	// console.log('man', man);
 	mixer = new THREE.AnimationMixer(man.scene);
 
 	for (const anim of man.animations) {

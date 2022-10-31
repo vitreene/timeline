@@ -1,7 +1,5 @@
 import { Eventime, PersoElementType as P } from '../types';
-import { MAIN, ROOT, TRACK_PLAY } from '../common/constants';
-
-const LAYER02 = 'layer02';
+import { MAIN, LAYER02, TRACK_PLAY } from '../common/constants';
 
 const mouthCues = [
 	{ start: 0.0, end: 0.43, value: 'X' },

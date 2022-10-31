@@ -10,17 +10,21 @@ interface CreateContentOptions {
 	initial: Partial<Initial>;
 }
 
-export function createContent(type: Omit<PersoElementType, PersoElementType.SOUND>, options: CreateContentOptions) {
+type RegularPersoTypes = Omit<PersoElementType, PersoElementType.SOUND>;
+
+const notAppended: RegularPersoTypes[] = [PersoElementType.LAYER /* , PersoElementType.THR3D_SCENE */];
+
+export function createContent(type: RegularPersoTypes, options: CreateContentOptions) {
 	let child: Txt | Layer | Thr3d | Sprite = null;
 	switch (type) {
 		case PersoElementType.TEXT:
 			child = new Txt();
 			break;
-		case PersoElementType.LAYER:
-			child = new Layer(options.parentNode);
-			break;
 		case PersoElementType.SPRITE:
 			child = new Sprite();
+			break;
+		case PersoElementType.LAYER:
+			child = new Layer(options.parentNode);
 			break;
 		case PersoElementType.THR3D_SCENE:
 			child = new Thr3d(options);
@@ -30,7 +34,7 @@ export function createContent(type: Omit<PersoElementType, PersoElementType.SOUN
 	}
 
 	if (child) {
-		if (type !== PersoElementType.LAYER) {
+		if (!notAppended.includes(type)) {
 			options.parentNode.appendChild(child.node);
 		}
 	} else {

@@ -13,10 +13,12 @@
 	display: grid;
 	grid-template-rows: 1fr;
 	grid-template-columns: 1fr;
+	background-color: navajowhite;
 }
 
 .root-layer {
 	grid-area: 1 / 1;
+	z-index: 1;
 }
 
 #telco {
