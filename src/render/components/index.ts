@@ -1,16 +1,17 @@
 import { Txt } from './txt';
 import { Layer } from './layer';
-import { PersoElementType } from '../../types';
+import { Initial, PersoElementType, Thr3dSceneNode } from '../../types';
 import { Sprite } from './sprite';
 import { Thr3d } from './thr3d';
 
 interface CreateContentOptions {
 	parentNode: HTMLElement;
-	scene: any;
+	// initial: Thr3dSceneNode['initial'];
+	initial: Partial<Initial>;
 }
 
-export function createContent(type: Omit<PersoElementType, PersoElementType.SOUND>, options) {
-	let child = null;
+export function createContent(type: Omit<PersoElementType, PersoElementType.SOUND>, options: CreateContentOptions) {
+	let child: Txt | Layer | Thr3d | Sprite = null;
 	switch (type) {
 		case PersoElementType.TEXT:
 			child = new Txt();
@@ -21,7 +22,7 @@ export function createContent(type: Omit<PersoElementType, PersoElementType.SOUN
 		case PersoElementType.SPRITE:
 			child = new Sprite();
 			break;
-		case PersoElementType.THR3D:
+		case PersoElementType.THR3D_SCENE:
 			child = new Thr3d(options);
 			break;
 		default:

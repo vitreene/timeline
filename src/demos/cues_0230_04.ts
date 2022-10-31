@@ -1,6 +1,8 @@
 import { Eventime, PersoElementType as P } from '../types';
 import { MAIN, ROOT, TRACK_PLAY } from '../common/constants';
 
+const LAYER02 = 'layer02';
+
 const mouthCues = [
 	{ start: 0.0, end: 0.43, value: 'X' },
 	{ start: 0.43, end: 0.49, value: 'B' },
@@ -283,7 +285,7 @@ export const kid = {
 	},
 	actions: {
 		enter: {
-			move: ROOT,
+			move: LAYER02,
 		},
 	},
 } as const;
@@ -301,7 +303,7 @@ export const mouth = {
 	},
 	actions: {
 		enter: {
-			move: ROOT,
+			move: LAYER02,
 		},
 		A: { content: { src: '/phonemes/A.png' } },
 		B: { content: { src: '/phonemes/B.png' } },

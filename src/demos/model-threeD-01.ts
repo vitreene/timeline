@@ -1,13 +1,15 @@
 import { TRACK_PLAY } from '../common/constants';
 import { PersoElementType as P, Thr3dSceneNode } from '../types';
 
+const LAYER01 = 'layer01';
+
 export const modelWes = {
 	type: P.THR3D,
 	initial: { src: 'wes/wes.gltf', loader: 'gltf', track: TRACK_PLAY },
 	actions: {},
 } as const;
 
-const size = { width: 500, height: 400 };
+const size = { width: 1000, height: 800 };
 const ratio = size.width / size.height;
 
 export const talk3d: Thr3dSceneNode = {
@@ -33,7 +35,11 @@ export const talk3d: Thr3dSceneNode = {
 			},
 		},
 	},
-	actions: {},
+	actions: {
+		enter: {
+			move: LAYER01,
+		},
+	},
 };
 
 // exemple

@@ -2,18 +2,18 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class Thr3d {
-	node: HTMLElement;
+	node: HTMLElement = document.createElement('div');
 	scene: THREE.Scene;
 	renderer: THREE.WebGLRenderer;
 	animationActions: THREE.AnimationAction[];
 	camera: THREE.PerspectiveCamera;
 	store: Map<string, any>;
-	constructor({ parentNode, scene3D }) {
-		this.node = parentNode;
-		this.initScene(scene3D);
+	constructor({ parentNode, initial }) {
+		// this.node = parentNode;
+		this.initScene(initial);
 	}
 
-	initScene(scene3D) {
+	initScene(initial) {
 		const appSize = { width: 500, height: 400 };
 		this.scene = new THREE.Scene();
 		this.scene.background = null;
@@ -47,12 +47,14 @@ export class Thr3d {
     les incorporations d'elements à la scene se font autrement via add
     comment appeler add ?
     */
-		if (content.animations) {
-		}
-		if (content.perso) {
-		}
 	}
+
 	add(item) {
+		const { scene, aminations } = item.media;
+		console.log('ADD 3D', scene, aminations);
+		this.scene.add(scene);
+
+		this.renderer.render(this.scene, this.camera);
 		/* 
 item.type : perso | animation
 */

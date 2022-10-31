@@ -1,6 +1,4 @@
 import * as CSS from 'csstype';
-import { Txt } from './render/components/txt';
-import { Layer } from './render/components/layer';
 import { TransformStyle } from './render/transform';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
@@ -65,16 +63,20 @@ export interface Thr3dSceneNode extends BaseNode {
 	initial: Partial<BaseInitial> & { content: Partial<THR3D_SCENE> };
 }
 
-export interface PersoItem extends Omit<PersoNode, 'type'> {
+interface Item {
 	id: string;
 	prec: Partial<Action>;
 	update: (update?: Partial<Action> | undefined) => void;
 	node: HTMLElement;
-	child: Txt | Layer;
+	child: any; // Txt | Layer | Thr3d;
 	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
 	reset: () => void;
 	transform: TransformStyle;
+}
+export type PersoItem = Item & PersoNode;
+export interface PersoThr3dSceneItem extends Item, Thr3dSceneNode {
+	add: (perso: PersoNode) => void;
 }
 
 export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;

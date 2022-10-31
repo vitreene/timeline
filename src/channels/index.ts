@@ -8,7 +8,7 @@ import { StrapChannel } from './channel-strap';
 import { SoundChannel } from './channel-sound';
 import { ThreeChannel } from './channel-three';
 
-import { Eventime, PersoElementType } from '../types';
+import { Eventime, PersoElementType, PersoThr3dSceneItem } from '../types';
 import type { AddEvent } from '../tracks';
 import type { ChannelsMap } from '../tracks/timeline';
 import { MediasStoreProps } from 'src/preload';
@@ -39,8 +39,13 @@ export function channelManager(props: ChannelManagerProps) {
 			channel.setStore(medias.audio);
 			timer.subscribeTick(channel.onTick);
 		} else if (channel instanceof ThreeChannel) {
-			const scenes = store.getPersosbyType(PersoElementType.THR3D);
-			scenes.forEach((scene, id) => {});
+			const scenes = store.getPersosbyType(PersoElementType.THR3D_SCENE);
+			scenes &&
+				scenes.forEach((scene: PersoThr3dSceneItem) => {
+					scene.initial.content.children.forEach((id) => {
+						scene.child.add(medias.thr3d[id]);
+					});
+				});
 			/* 
 			non 
 			les éléments de la scene iront dans le composant

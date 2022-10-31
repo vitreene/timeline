@@ -3,7 +3,9 @@ import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
 import type { AddEvent } from '../tracks';
-import type { Action, PersoElementType, PersoItem, PersoNode } from '../types';
+import { PersoElementType, Thr3dSceneNode } from '../types';
+
+import type { Action, PersoItem, PersoNode, PersoThr3dSceneItem } from '../types';
 
 export interface HandlerEmit {
 	e: Event;
@@ -11,7 +13,7 @@ export interface HandlerEmit {
 	id: string;
 }
 
-export type StorePersoItems = Map<string, PersoItem>;
+export type StorePersoItems = Map<string, PersoItem | PersoThr3dSceneItem>;
 
 export class StorePersos {
 	persos: StorePersoItems = new Map();
@@ -47,8 +49,6 @@ export class StorePersos {
 	}
 
 	add(id: string, perso_: PersoNode) {
-		console.log('ADD-->', perso_.type, id);
-
 		const perso = this.createPerso(id, perso_);
 		this.persos.set(id, perso);
 		const type = perso_.type as string;
@@ -72,6 +72,7 @@ export class StorePersos {
 	getPerso(id: string) {
 		return this.persos.has(id) ? this.persos.get(id) : null;
 	}
+
 	getPersosbyType(type: string) {
 		const list = this.persosByType.get(type);
 		if (list) {
@@ -102,11 +103,12 @@ export class StorePersos {
 		const { tag, content, ...initial_ } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
-		const child = createContent(type, { parentNode: node });
-		if (child) child.update(content as any);
+		const child = createContent(type, { parentNode: node, initial });
+		if (child && type !== PersoElementType.THR3D_SCENE) child.update(content as any);
 
 		const perso: PersoItem = {
 			id,
+			type,
 			node,
 			child,
 			initial,
