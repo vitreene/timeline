@@ -2,7 +2,7 @@ import { Channel } from './channel';
 import { Transition } from './transition';
 import { Layer } from '../render/components/layer';
 
-import { ChannelName } from '../types';
+import { ChannelName, PersoThr3dSceneItem } from '../types';
 import { INITIAL, PLAY, TIME_INTERVAL } from '../common/constants';
 
 import type { FromTo } from './transition';
@@ -10,10 +10,12 @@ import type { RunEvent, ChannelOptions } from './channel';
 import type { CbStatus } from '../clock';
 import type { StrapProps } from '../straps/strap';
 import type { Eventime, Move, PersoItem } from '../types';
+import { StorePersos } from 'src/render/create-perso';
 
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
+	store: StorePersos;
 	name = ChannelName.MAIN;
 	transition: Transition;
 
@@ -28,6 +30,9 @@ export class PersoChannel extends Channel {
 		this.transition = new Transition(props);
 	}
 
+	setStore(store: StorePersos) {
+		this.store = store;
+	}
 	reset(): void {
 		this.store.persos.forEach((perso) => perso.reset());
 	}
@@ -74,7 +79,7 @@ export class PersoChannel extends Channel {
 		}
 	};
 
-	move = (move: string | Move, perso: PersoItem, status: CbStatus) => {
+	move = (move: string | Move, perso: PersoItem | PersoThr3dSceneItem, status: CbStatus) => {
 		if (typeof move === 'string') {
 			const id = move;
 			const parent = this.store.getPerso(id).child;

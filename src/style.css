@@ -13,11 +13,13 @@
 	display: grid;
 	grid-template-rows: 1fr;
 	grid-template-columns: 1fr;
-	background-color: navajowhite;
+	/* background-color: navajowhite; */
+	outline: 1px solid cyan;
 }
 
 .root-layer {
 	grid-area: 1 / 1;
+	grid-row-start: auto;
 	z-index: 1;
 }
 

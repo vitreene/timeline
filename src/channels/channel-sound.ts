@@ -1,7 +1,10 @@
-import { ChannelName, Eventime, SoundNode, SoundStore } from '../types';
-import { PAUSE, PLAY, SEEK } from '../common/constants';
-import type { RunEvent } from './channel';
 import { CbStatus } from '../clock';
+import type { RunEvent } from './channel';
+import { ChannelName } from '../types';
+
+import { PAUSE, PLAY, SEEK } from '../common/constants';
+
+import type { Eventime, SoundNode, SoundStore } from '../types';
 
 const MS = 1000;
 const TIME_THRESHOLD = 0.1;

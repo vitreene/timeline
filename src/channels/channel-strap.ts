@@ -9,6 +9,7 @@ import type { StorePersos } from '../render/create-perso';
 import type { ChannelOptions } from './channel';
 
 export class StrapChannel extends Channel {
+	store: StorePersos;
 	name = ChannelName.STRAP;
 	strap = new Map<string, any>();
 
@@ -51,7 +52,7 @@ export class StrapChannel extends Channel {
 
 	//TODO  Il faudrait pouvoir actualiser automatiquement
 	setStore(store: StorePersos) {
-		super.setStore(store);
+		this.store = store;
 		this.strap.forEach((strap) => strap.setStore(store));
 	}
 }

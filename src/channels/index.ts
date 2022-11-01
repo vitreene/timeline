@@ -40,12 +40,16 @@ export function channelManager(props: ChannelManagerProps) {
 			timer.subscribeTick(channel.onTick);
 		} else if (channel instanceof ThreeChannel) {
 			const scenes = store.getPersosbyType(PersoElementType.THR3D_SCENE);
-			scenes &&
+			if (scenes) {
+				channel.setStore(scenes);
+
 				scenes.forEach((scene: PersoThr3dSceneItem) => {
 					scene.initial.content.children.forEach((id) => {
-						scene.child.add(medias.thr3d[id]);
+						const channelStore = scene.child.add(id, medias.thr3d[id]);
+						channelStore && channel.addCallback(scene.id, channelStore);
 					});
 				});
+			}
 			/* 
 			non 
 			les éléments de la scene iront dans le composant

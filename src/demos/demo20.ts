@@ -8,7 +8,7 @@ import { ROOT, LAYER01, LAYER02, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_P
 import type { Eventime, Initial, Store } from '../types';
 import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04';
 import { cueEventsThree } from './cues_0230_three';
-import { modelWes, talk3d } from './model-threeD-01';
+import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -102,8 +102,9 @@ const _persos: Store = {
 	kid,
 	mouth,
 	sound_23_04, // FIXME l'ordre influe sur le rendu !!!,
-	modelWes,
 	talk3d,
+	modelWes,
+	lipsync,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {

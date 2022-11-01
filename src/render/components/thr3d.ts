@@ -1,7 +1,23 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+import type { CbStatus } from '../../clock';
+import type { Thr3dSceneNode } from '../../types';
+
 const defaults = { width: 500, height: 400 };
+
+/* TODO 
+
+les données à transmettre sont :
+- des valeurs THREE[key] = value 
+	si value est un objet, décomposer : 
+		THREE[key][keyof value.x] = value.x
+
+- ou des fonctions THREE[key](...value)
+	dans ce cas , envoyer un objet : 
+	value : { func: { name: 'lookAt', params:[1,0,1] } }
+*/
+const clock = new THREE.Clock();
 
 export class Thr3d {
 	node: HTMLElement;
@@ -11,12 +27,120 @@ export class Thr3d {
 	camera: THREE.PerspectiveCamera;
 	controls: OrbitControls;
 	store = new Map<string, any>();
+	mixers = new Map<string, THREE.AnimationMixer>();
+	updates: Array<(status: CbStatus) => void> = [];
 
 	constructor({ initial }) {
 		this.node = document.createElement('canvas');
 		this.node.style.width = '100%';
 		this.node.style.height = '100%';
 		this.initScene(initial);
+	}
+
+	initScene(initial: Thr3dSceneNode['initial']) {
+		const { renderer, camera, controls } = initial.content;
+		this.scene = new THREE.Scene();
+		this.scene.background = null;
+
+		if (renderer) {
+			const { type, params, ...props } = renderer;
+			const renderer_ = new THREE[type]({ canvas: this.node, ...params });
+			this.renderer = this.spreadProps(renderer_, props);
+		}
+		if (camera) {
+			const { type, params, ...props } = camera;
+			const camera_ = new THREE[type](...params);
+			this.camera = this.spreadProps(camera_, props);
+		}
+
+		if (controls) {
+			const controls_ = new OrbitControls(this.camera, this.renderer.domElement);
+			this.controls = this.spreadProps(controls_, controls);
+		}
+
+		// TODO ligth sont des persos
+		const light = new THREE.AmbientLight(0x404040, 5); // soft white light
+		const light1 = new THREE.PointLight(0xffffff, 2);
+		light1.position.set(2.5, 2.5, 2.5);
+		this.scene.add(light, light1);
+
+		this.animationActions = [];
+
+		const cube = doCube();
+		this.scene.add(cube);
+		this.store.set('cube', cube);
+	}
+
+	/* 
+    content ne devrait recevoir que les mise à jour issues du channel 
+    -> notif d'animation
+    -> interpolations
+    les incorporations d'elements à la scene se font autrement via add
+    comment appeler add ?
+    */
+	/* 
+	 function animate(status: CbStatus) {
+	if (!mixer) return;
+	eyes.lookAt(camera.position);
+	const delta = status.delta / 1000;
+	mixer.update(delta);
+	renderer.render(scene, camera);
+}
+
+	 */
+	update(status: CbStatus) {
+		const delta = clock.getDelta();
+
+		const delta2 = Number(status.delta / 1000);
+
+		console.log('<------Thr3d---->', delta, delta2);
+		this.mixers.forEach((mixer) => mixer.update(delta));
+
+		this.store.has('eyes') && this.store.get('eyes').lookAt(this.camera.position);
+
+		const cube = this.store.get('cube');
+		cube.rotation.x += 0.01;
+		cube.rotation.y += 0.01;
+		cube.rotation.z += 0.01;
+
+		this.renderer.render(this.scene, this.camera);
+	}
+
+	add(id, item) {
+		// const { scene, aminations } = item.media;
+		console.log('ADD 3D', item);
+		const { loaded, mixer } = item.emit?.loadeddata.data;
+
+		let items3D;
+		if (loaded) {
+			items3D = loaded(item.media);
+			if (mixer) items3D = items3D(this.mixers.get(mixer), this.store.get('modelWes'));
+		} else items3D = { add: item.media };
+
+		console.log('ADD 3D', items3D);
+
+		if (items3D.add)
+			for (const item3d of items3D.add) {
+				this.scene.add(item3d.scene);
+			}
+
+		if (items3D.store)
+			for (const item3d of items3D.store) {
+				const name = item3d.name || item3d.scene.name;
+				this.store.set(name, item3d);
+			}
+
+		if (items3D.mixer)
+			for (const item3d of items3D.mixer) {
+				const mixer = new THREE.AnimationMixer(item3d.scene);
+				this.mixers.set(id, mixer);
+			}
+
+		this.renderer.render(this.scene, this.camera);
+
+		if (items3D.channelStore) {
+			return items3D.channelStore;
+		}
 	}
 
 	private spreadProps(component, props) {
@@ -32,70 +156,12 @@ export class Thr3d {
 		}
 		return component;
 	}
+}
 
-	initScene(initial) {
-		console.log({ initial });
-		const { renderer, camera, controls } = initial.content;
-
-		this.scene = new THREE.Scene();
-		this.scene.background = null;
-
-		if (renderer) {
-			const { type, params, ...props } = renderer;
-			const renderer_ = new THREE[type]({ canvas: this.node, ...params });
-			this.renderer = this.spreadProps(renderer_, props);
-			console.log(this.renderer.getSize);
-		}
-		if (camera) {
-			const { type, params, ...props } = camera;
-			const camera_ = new THREE[type](...params);
-			this.camera = this.spreadProps(camera_, props);
-		}
-
-		if (controls) {
-			const controls_ = new OrbitControls(this.camera, this.renderer.domElement);
-			this.controls = this.spreadProps(controls_, controls);
-		}
-
-		const light = new THREE.AmbientLight(0x404040, 5); // soft white light
-		const light1 = new THREE.PointLight(0xffffff, 2);
-		light1.position.set(2.5, 2.5, 2.5);
-		this.scene.add(light, light1);
-
-		this.animationActions = [];
-	}
-	update(content) {
-		console.log('<------Thr3d---->');
-		console.log(content);
-
-		/* 
-    content ne devrait recevoir que les mise à jour issues du channel 
-    -> notif d'animation
-    -> interpolations
-    les incorporations d'elements à la scene se font autrement via add
-    comment appeler add ?
-    */
-	}
-
-	add(item) {
-		// const { scene, aminations } = item.media;
-		console.log('ADD 3D', item);
-		const items3D = item.emit.loadeddata.data.sceneLoaded(item.media);
-		console.log('ADD 3D', items3D);
-
-		for (const item3d of items3D.add) {
-			this.scene.add(item3d.scene);
-		}
-		for (const item3d of items3D.store) {
-			this.store.set(item3d.name, item3d);
-		}
-
-		console.log('ADD 3D', this.store);
-		// console.log('ADD 3D', scene, aminations);
-		// this.scene.add(scene);
-		this.renderer.render(this.scene, this.camera);
-		/* 
-item.type : perso | animation
-*/
-	}
+function doCube() {
+	const geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+	const cube = new THREE.Mesh(geometry, material);
+	cube.position.y = 0.5;
+	return cube;
 }

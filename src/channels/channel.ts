@@ -20,7 +20,7 @@ export interface ChannelOptions {
 
 export class Channel {
 	name: ChannelName;
-	store: StorePersos;
+	// store: StorePersos;
 
 	queue: QueueActions;
 	addEvent: (event: Eventime) => void;
@@ -32,9 +32,9 @@ export class Channel {
 		this.addEvent = options.addEvent;
 	}
 
-	setStore(store: StorePersos) {
-		this.store = store;
-	}
+	// setStore(store: StorePersos) {
+	// 	this.store = store;
+	// }
 
 	run(props: RunEvent): void {
 		console.warn(`\x1b[34m Channel \x1b[35m${this.constructor['name']} \x1b[34m  must define a "run" property`);

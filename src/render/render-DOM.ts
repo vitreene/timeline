@@ -10,6 +10,7 @@ export function createRender(store: StorePersos) {
 
 			if (perso) {
 				const up: Partial<Action> = diff(perso.prec, update[id]);
+
 				if (up) {
 					perso.prec = { ...perso.prec, ...update[id] };
 					perso.style = { ...perso.style, ...up.style };

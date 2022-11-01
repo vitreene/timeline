@@ -32,6 +32,8 @@ export interface Initial extends BaseInitial {
 export interface Action extends Partial<Initial> {
 	transition?: Transition;
 	action?: 'start' | 'end';
+	delta?: number;
+	currentTime?: number;
 	// order?: number;
 	// exit?: boolean;
 	// leave?: boolean;
@@ -54,6 +56,7 @@ export interface PersoNode extends BaseNode {
 export interface SoundNode extends BaseNode {
 	type: PersoElementType.SOUND;
 	src: string;
+	initial: Partial<Initial>;
 	media?: MediaElementAudioSourceNode;
 }
 
@@ -93,9 +96,9 @@ export type ImagesCollection = Map<string, CollectionImages>;
 
 export interface THR3D_SCENE {
 	children: string[];
-	renderer: unknown;
-	camera: unknown;
-	controls: unknown;
+	renderer: any;
+	camera: any;
+	controls: any;
 }
 
 export type Render = (update: Update) => void;
