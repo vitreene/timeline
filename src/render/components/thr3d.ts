@@ -78,24 +78,18 @@ export class Thr3d {
     les incorporations d'elements à la scene se font autrement via add
     comment appeler add ?
     */
-	/* 
-	 function animate(status: CbStatus) {
-	if (!mixer) return;
-	eyes.lookAt(camera.position);
-	const delta = status.delta / 1000;
-	mixer.update(delta);
-	renderer.render(scene, camera);
-}
 
-	 */
 	update(status: CbStatus) {
-		const delta = clock.getDelta();
+		// const delta = clock.getDelta();
 
-		const delta2 = Number(status.delta / 1000);
+		const delta = status.delta || 0;
+		if (typeof delta !== 'number') console.log('<------Thr3d---->', { delta });
 
-		console.log('<------Thr3d---->', delta, delta2);
+		// console.log('<------Thr3d---->', Math.round(delta * 1000));
+
 		this.mixers.forEach((mixer) => mixer.update(delta));
 
+		// TODO
 		this.store.has('eyes') && this.store.get('eyes').lookAt(this.camera.position);
 
 		const cube = this.store.get('cube');
@@ -114,7 +108,7 @@ export class Thr3d {
 		let items3D;
 		if (loaded) {
 			items3D = loaded(item.media);
-			if (mixer) items3D = items3D(this.mixers.get(mixer), this.store.get('modelWes'));
+			if (mixer) items3D = items3D(this.mixers.get(mixer));
 		} else items3D = { add: item.media };
 
 		console.log('ADD 3D', items3D);

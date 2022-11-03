@@ -5,7 +5,7 @@ import { LAYER01, TRACK_PLAY } from '../common/constants';
 import type { RunEvent } from '../channels/channel';
 import { PersoElementType as P, Thr3dSceneNode } from '../types';
 
-const size = { width: 800, height: 600 };
+const size = { width: 600, height: 600 };
 const ratio = size.width / size.height;
 
 export const talk3d: Thr3dSceneNode = {
@@ -104,9 +104,9 @@ function animationsLoaded(gltf: ThreeGLB) {
 			if (anim.name === 'stand_talk') {
 				animationAction.setLoop(THREE.LoopRepeat, 4);
 				animationAction.enabled = true;
-				animationAction.setEffectiveTimeScale(0.625);
-				animationAction.setEffectiveWeight(1);
-				animationAction.play();
+				animationAction.setEffectiveTimeScale(0.5);
+				animationAction.setEffectiveWeight(0.5);
+				animationAction.startAt(2).play();
 				console.log('stand_talk', animationAction.getRoot());
 			} else {
 				phonemes.push(anim.name);

@@ -1,4 +1,5 @@
 import * as CSS from 'csstype';
+import { CbStatus } from './clock';
 import { TransformStyle } from './render/transform';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
@@ -32,7 +33,7 @@ export interface Initial extends BaseInitial {
 export interface Action extends Partial<Initial> {
 	transition?: Transition;
 	action?: 'start' | 'end';
-	delta?: number;
+
 	currentTime?: number;
 	// order?: number;
 	// exit?: boolean;
@@ -81,7 +82,7 @@ export interface PersoThr3dSceneItem extends Item, Thr3dSceneNode {
 	add: (perso: PersoNode) => void;
 }
 
-export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;
+export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages | CbStatus;
 /* |Lang |  */
 
 export interface CollectionImages {

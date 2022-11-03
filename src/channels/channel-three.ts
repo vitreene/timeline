@@ -31,7 +31,7 @@ export class ThreeChannel extends Channel {
 		*/
 		// console.log(event);
 
-		this.queue.add(id, { content: event.status.delta }, event.status);
+		// this.queue.add(id, {}, event.status);
 	}
 
 	setStore(store: StorePersoItems) {

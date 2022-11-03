@@ -42,6 +42,7 @@ class Clock {
 	raf: number;
 	hasAborted = false;
 	totalElapsed = 0;
+	oldTime = 0;
 	tick = new Set<Cb>();
 	timers = new Map<TrackName, CbStatus>();
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
@@ -108,9 +109,10 @@ class Clock {
 				this.onComplete();
 				return cancelAnimationFrame(this.raf);
 			}
-			const totalElapsed_ = this.totalElapsed;
-			this.totalElapsed = Math.round(performance.now() - start);
-			const delta = this.totalElapsed - totalElapsed_;
+			const now = performance.now();
+			const delta = (now - this.oldTime) / 1000;
+			this.oldTime = now;
+			this.totalElapsed = Math.round(now - start);
 
 			this.timers.forEach((timer) => {
 				const elapsed = this.totalElapsed - timer.paused;
@@ -136,7 +138,7 @@ class Clock {
 										elapsed,
 										currentTime: currentTime_,
 										delta,
-										// delta: currentTime_ - timer.currentTime,
+
 										headTime: Math.max(timer.headTime, currentTime_),
 									};
 
@@ -168,7 +170,6 @@ class Clock {
 										currentTime: currentTime_,
 										headTime: currentTime_,
 										delta,
-										// delta: currentTime_ - timer.currentTime,
 										statement: PLAY,
 									};
 									this.subscribers.forEach(({ guard, cb }) => guard(timer_) && cb.forEach((c) => c(timer_)));
