@@ -36,7 +36,13 @@ export class SoundChannel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		console.log('SoundChannel', { name, time, status, data });
+		if (status.statement === SEEK) {
+			console.log('RUNSEEK', time, time === status.currentTime);
+			this.runSeek({ name, time, status, data });
+			return;
+		}
+
+		console.log('SoundChannel', status.statement, { name, time, status, data });
 
 		this.store.has(status.trackName) &&
 			this.store.get(status.trackName).forEach((audio) => {
@@ -44,26 +50,24 @@ export class SoundChannel {
 				if (action && typeof action !== 'boolean') {
 					switch (action.action) {
 						case 'start':
-							audio.media.mediaElement.play();
-							audio.startTime = status.currentTime;
-							audio.status = PLAY;
+							if (audio.media.mediaElement.paused) {
+								audio.media.mediaElement.play();
+								audio.startTime = status.currentTime;
+								audio.status = PLAY;
+							}
 							break;
 						case 'end':
-							audio.media.mediaElement.pause();
-							audio.status = PAUSE;
-							audio.media.mediaElement.currentTime = 0;
+							if (!audio.media.mediaElement.paused) {
+								audio.media.mediaElement.pause();
+								audio.status = PAUSE;
+								audio.media.mediaElement.currentTime = 0;
+							}
 							break;
 						default:
 							break;
 					}
 				}
 			});
-
-		if (status.statement === SEEK) {
-			console.log('RUNSEEK', time, time === status.currentTime);
-
-			this.runSeek({ name, time, status, data });
-		}
 	}
 
 	runSeek({ status }: RunEvent) {
@@ -78,12 +82,16 @@ export class SoundChannel {
 			this.store.get(status.trackName).forEach((audio) => {
 				switch (status.statement) {
 					case PLAY:
-						if (audio.status === PLAY) {
+						if (audio.status === PLAY && audio.media.mediaElement.paused) {
+							console.log('sound', PLAY, audio.media.mediaElement.currentTime);
 							audio.media.mediaElement.play();
 						}
 						break;
 					case PAUSE:
-						audio.media.mediaElement.pause();
+						if (!audio.media.mediaElement.paused) {
+							console.log('sound', PAUSE, audio.media.mediaElement.currentTime);
+							audio.media.mediaElement.pause();
+						}
 						break;
 
 					default:
@@ -112,7 +120,14 @@ export class SoundChannel {
 
 		const diff = Math.abs(currentTime - audio.media.mediaElement.currentTime) > TIME_THRESHOLD;
 		if (diff) {
-			console.log('RATRAPAGE-->', audio.id, currentTime - audio.media.mediaElement.currentTime);
+			console.log(
+				'RATRAPAGE-->',
+				audio.id,
+				status.currentTime,
+				audio.startTime,
+				currentTime
+				// currentTime - audio.media.mediaElement.currentTime
+			);
 
 			audio.media.mediaElement.currentTime = currentTime;
 		}

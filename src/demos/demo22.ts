@@ -57,8 +57,6 @@ export const events: Eventime = {
 			channel: SOUND,
 			events: [...cueEvents, ...cueEventsThree, ...wordsMain, ...wordsEventsThree],
 		},
-		{ startAt: 1000, name: 'start_' + SOUND01, channel: SOUND },
-		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{ startAt: 500, name: 'action04', channel: MAIN },

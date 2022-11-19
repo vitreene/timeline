@@ -38,11 +38,6 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
-		// if (status.statement === SEEK) {
-		// 	//TODO passer status
-		// 	this.queue.resetState();
-		// }
-
 		const { track, ...data_ } = data || {};
 		this.store.persos.forEach((perso, id) => {
 			const action = perso.actions[name];
@@ -51,16 +46,15 @@ export class PersoChannel extends Channel {
 				if (typeof action === 'boolean') {
 					this.queue.add(id, data_, status);
 				} else {
-					const { transition, ..._action } = action;
+					const { transition, ...action_ } = action;
 					if (transition) {
 						// TODO : si store est modifié, propager la modif.
 						this.transition.setStore(this.store);
-
 						this.transition.run(status, { id, time, transition });
 					}
-					_action.move && this.move(_action.move, perso, status);
+					action_.move && this.move(action_.move, perso, status);
 
-					this.queue.add(id, { ..._action, ...data_ }, status);
+					this.queue.add(id, { ...action_, ...data_ }, status);
 				}
 			}
 		});

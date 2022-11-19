@@ -15,3 +15,8 @@ dans le store :
   - une partie init va créer la scene, les illuminations, dispatcher les animations
   - une partie update recoit les instructions à gérer : lancement d'anim, mise à jour de positions...
     -> la partie channel est simplifiée, et se consacre à selectionner et transcrire les actions vers le composant.
+
+amazon sumerians :
+voir : https://www.youtube.com/watch?v=EWYb-5VGYhM
+https://www.youtube.com/watch?v=dnZbtPNeZTo
+https://www.youtube.com/watch?v=xWgl6Oeac3s
