@@ -3,15 +3,25 @@ import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
 import { PersoElementType as P } from '../types';
-import { ROOT, LAYER01, LAYER02, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
+import {
+	ROOT,
+	LAYER01,
+	LAYER02,
+	MAIN,
+	STRAP,
+	MAX_ENDS,
+	END_SEQUENCE,
+	TRACK_PAUSE,
+	TRACK_PLAY,
+	SOUND,
+} from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
-import { kid, mouth } from './kid';
-import { sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
-import { cueEventsThree } from './cues_0230_04/cues_0230_three';
+import { kid, mouth, tv } from './kid';
+import { sound_1_7b_e_01, cueEvents, cueEventsThree } from './1_7b_e_01/1_7b_e_01-phonemes';
 import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
-import './1_7b_e_01/1_7b_e_01-phonemes';
+import { wordsMain, wordsEventsThree } from './1_7b_e_01/1_7b_e.mp3-words';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -21,28 +31,32 @@ const SOUND01 = 'son01';
 const ID_COUNTER_01 = 'counter01';
 const counter01 = {
 	id: ID_COUNTER_01,
-	duration: 2000,
-	start: 0,
-	end: 10,
-	complete: { lost: 'PERDU', win: 'GAGNE' },
+	duration: 16000,
+	start: 16,
+	end: 0,
+	complete: { lost: 'PERDU', win: 'terminé' },
 };
 
 const ID_COUNTER_02 = 'counter02';
 const counter02 = {
 	id: ID_COUNTER_02,
-	duration: 1500,
-	start: 20,
-	end: 10,
-	complete: { lost: 'LOST', win: 'WON' },
+	duration: 16000,
+	start: 0,
+	end: 1600,
 };
 
 export const events: Eventime = {
 	startAt: 0,
 	name: 'initial',
 	channel: MAIN,
-	duration: 4000,
+	duration: MAX_ENDS,
 	events: [
-		{ startAt: 1000, name: 'start_sound_23_04', channel: SOUND, events: [...cueEvents, ...cueEventsThree] },
+		{
+			startAt: 1000,
+			name: 'start_sound_23_04',
+			channel: SOUND,
+			events: [...cueEvents, ...cueEventsThree, ...wordsMain, ...wordsEventsThree],
+		},
 		{ startAt: 1000, name: 'start_' + SOUND01, channel: SOUND },
 		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
@@ -68,7 +82,7 @@ export const events: Eventime = {
 const initialID01: Partial<Initial> = {
 	className: 'initial',
 	content: ID01,
-	style: { top: 0, left: 0, color: 'blue', position: 'absolute' },
+	style: { top: 0, right: 0, color: 'orangered', position: 'absolute' },
 };
 
 const initialID02: Partial<Initial> = {
@@ -104,7 +118,8 @@ const initialID03: Partial<Initial> = {
 const _persos: Store = {
 	kid,
 	mouth,
-	sound_23_04, // FIXME l'ordre influe sur le rendu !!!,
+	tv,
+	sound_23_04: sound_1_7b_e_01, // FIXME l'ordre influe sur le rendu !!!,
 	talk3d,
 	modelWes,
 	lipsync,
@@ -115,12 +130,24 @@ const _persos: Store = {
 			id: ROOT,
 			className: 'root',
 		},
-		actions: {},
+		actions: {
+			action04: {
+				transition: {
+					from: { 'background-image': 'linear-gradient(45deg, navajowhite, coral)' },
+					to: { 'background-image': 'linear-gradient(225deg, navajowhite, coral)' },
+					duration: 3000,
+					repeat: 6,
+					yoyo: true,
+				},
+			},
+		},
 	},
 	[LAYER02]: {
 		type: P.LAYER,
 		initial: { className: 'root-layer' },
-		actions: { enter: { move: ROOT } },
+		actions: {
+			enter: { move: ROOT },
+		},
 	},
 	[LAYER01]: {
 		type: P.LAYER,
@@ -140,8 +167,8 @@ const _persos: Store = {
 				style: { 'font-weight': 'bold' },
 				className: 'action01',
 				transition: {
-					from: { 'font-size': 16, top: 0, left: 0 },
-					to: { 'font-size': 72, top: 100, left: 400 },
+					from: { 'font-size': 16, top: 0, right: 50, x: 0 },
+					to: { 'font-size': 72, top: 100, right: 100, x: -300 },
 					duration: 500,
 				},
 			},
@@ -152,7 +179,6 @@ const _persos: Store = {
 	},
 	[ID02]: {
 		type: P.TEXT,
-
 		initial: { ...initialID02, move: LAYER02 },
 		actions: {
 			action01: {
@@ -171,42 +197,44 @@ const _persos: Store = {
 	},
 	[ID03]: {
 		type: P.TEXT,
-
-		initial: { ...initialID03, move: LAYER02 },
+		initial: { ...initialID03, move: LAYER01 },
 		actions: {
-			action01: { className: 'action01-' + ID03 },
-			action04: {
-				transition: {
-					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
-					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-					duration: 300,
-					repeat: 6,
-					yoyo: true,
-				},
-			},
-			pause_enter: {
-				transition: {
-					from: { scale: 1 },
-					to: { scale: 1.3 },
-					duration: 400,
-					repeat: 8,
-					yoyo: true,
-				},
+			action01: {
+				style: { 'font-size': 48 },
+				className: 'action01-' + ID02,
 			},
 			['end_' + ID_COUNTER_02]: {
 				transition: {
-					from: { rotate: 0 },
-					to: { rotate: -12 },
+					from: { opacity: 1 },
+					to: { opacity: 0 },
 					duration: 1000,
 				},
 			},
-			[ID_COUNTER_02]: true,
+			[ID_COUNTER_02]: true, // signifie : j'écoute counter01
 		},
-		emit: {
-			mousedown: {
-				channel: STRAP,
-				name: 'move',
-				data: { event: 'move-event' },
+	},
+	titre: {
+		type: P.TEXT,
+		initial: {
+			style: {
+				x: 600,
+				y: 530,
+				width: 300,
+				color: 'white',
+				'font-size': 30,
+				'font-weight': 'bold',
+				'font-family': 'Helvetica',
+				'text-align': 'center',
+			},
+			move: LAYER02,
+		},
+		actions: {
+			text: {
+				transition: {
+					from: { opacity: 0 },
+					to: { opacity: 1 },
+					duration: 300,
+				},
 			},
 		},
 	},

@@ -3,15 +3,25 @@ import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
 import { PersoElementType as P } from '../types';
-import { ROOT, LAYER01, LAYER02, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
+import {
+	ROOT,
+	LAYER01,
+	LAYER02,
+	MAIN,
+	STRAP,
+	MAX_ENDS,
+	END_SEQUENCE,
+	TRACK_PAUSE,
+	TRACK_PLAY,
+	SOUND,
+} from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 import { kid, mouth } from './kid';
-import { sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
-import { cueEventsThree } from './cues_0230_04/cues_0230_three';
+import { sound_1_7b_e_01, cueEvents, cueEventsThree } from './1_7b_e_01/1_7b_e_01-phonemes';
 import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
-import './1_7b_e_01/1_7b_e_01-phonemes';
+import { wordsMain, wordsEventsThree } from './1_7b_e_01/1_7b_e.mp3-words';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -40,9 +50,14 @@ export const events: Eventime = {
 	startAt: 0,
 	name: 'initial',
 	channel: MAIN,
-	duration: 4000,
+	duration: MAX_ENDS,
 	events: [
-		{ startAt: 1000, name: 'start_sound_23_04', channel: SOUND, events: [...cueEvents, ...cueEventsThree] },
+		{
+			startAt: 1000,
+			name: 'start_sound_23_04',
+			channel: SOUND,
+			events: [...cueEvents, ...cueEventsThree, ...wordsMain, ...wordsEventsThree],
+		},
 		{ startAt: 1000, name: 'start_' + SOUND01, channel: SOUND },
 		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
@@ -104,7 +119,7 @@ const initialID03: Partial<Initial> = {
 const _persos: Store = {
 	kid,
 	mouth,
-	sound_23_04, // FIXME l'ordre influe sur le rendu !!!,
+	sound_23_04: sound_1_7b_e_01, // FIXME l'ordre influe sur le rendu !!!,
 	talk3d,
 	modelWes,
 	lipsync,
@@ -200,7 +215,8 @@ const _persos: Store = {
 					duration: 1000,
 				},
 			},
-			[ID_COUNTER_02]: true,
+			text: true,
+			// [ID_COUNTER_02]: true,
 		},
 		emit: {
 			mousedown: {

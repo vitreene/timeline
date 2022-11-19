@@ -6,8 +6,8 @@ import { PersoElementType as P } from '../types';
 import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
-import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04';
-import { cueEventsThree } from './cues_0230_three';
+import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
+import { cueEventsThree } from './cues_0230_04/cues_0230_three';
 import { modelWes, talk3d } from './model-threeD-01';
 
 const ID01 = 'hello';

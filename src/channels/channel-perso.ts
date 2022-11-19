@@ -51,14 +51,14 @@ export class PersoChannel extends Channel {
 				if (typeof action === 'boolean') {
 					this.queue.add(id, data_, status);
 				} else {
-					const { move, transition, ..._action } = action;
+					const { transition, ..._action } = action;
 					if (transition) {
 						// TODO : si store est modifié, propager la modif.
 						this.transition.setStore(this.store);
 
 						this.transition.run(status, { id, time, transition });
 					}
-					move && this.move(move, perso, status);
+					_action.move && this.move(_action.move, perso, status);
 
 					this.queue.add(id, { ..._action, ...data_ }, status);
 				}
@@ -82,10 +82,17 @@ export class PersoChannel extends Channel {
 	move = (move: string | Move, perso: PersoItem | PersoThr3dSceneItem, status: CbStatus) => {
 		if (typeof move === 'string') {
 			const id = move;
-			const parent = this.store.getPerso(id).child;
-			if (parent instanceof Layer) {
-				parent.add(perso.node);
-				const content = parent.content;
+			const layer = this.store.getPerso(id).child;
+			if (layer instanceof Layer) {
+				layer.add(perso.node);
+
+				// trop tot...
+				// if (perso.child.resize) {
+				// 	console.log('MOVE RESIZE', perso);
+				// 	perso.child.resize();
+				// }
+
+				const content = layer.content;
 				this.queue.add(id, { content }, status);
 			}
 		}

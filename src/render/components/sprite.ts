@@ -6,7 +6,7 @@ export class Sprite {
 		this.node.style.objectFit = 'contain';
 	}
 	update({ src, fit = 'contain' }: { src: string; fit: string }) {
-		console.log(src);
+		// console.log(src);
 
 		this.node.src = src;
 		this.node.style.objectFit = fit;

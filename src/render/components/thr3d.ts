@@ -21,6 +21,7 @@ const clock = new THREE.Clock();
 
 export class Thr3d {
 	node: HTMLElement;
+	parentNode: HTMLElement;
 	scene: THREE.Scene;
 	renderer: THREE.WebGLRenderer;
 	animationActions: THREE.AnimationAction[];
@@ -30,7 +31,8 @@ export class Thr3d {
 	mixers = new Map<string, THREE.AnimationMixer>();
 	updates: Array<(status: CbStatus) => void> = [];
 
-	constructor({ initial }) {
+	constructor({ initial, parentNode }) {
+		this.parentNode = parentNode;
 		this.node = document.createElement('canvas');
 		this.node.style.width = '100%';
 		this.node.style.height = '100%';
@@ -46,6 +48,9 @@ export class Thr3d {
 			const { type, params, ...props } = renderer;
 			const renderer_ = new THREE[type]({ canvas: this.node, ...params });
 			this.renderer = this.spreadProps(renderer_, props);
+			const size = new THREE.Vector2();
+			this.renderer.getSize(size);
+			console.log('TH3D getSize', size);
 		}
 		if (camera) {
 			const { type, params, ...props } = camera;
@@ -56,6 +61,7 @@ export class Thr3d {
 		if (controls) {
 			const controls_ = new OrbitControls(this.camera, this.renderer.domElement);
 			this.controls = this.spreadProps(controls_, controls);
+			this.controls.update();
 		}
 
 		// TODO ligth sont des persos
@@ -66,9 +72,7 @@ export class Thr3d {
 
 		this.animationActions = [];
 
-		const cube = doCube();
-		this.scene.add(cube);
-		this.store.set('cube', cube);
+		// this.createTestCube();
 	}
 
 	/* 
@@ -79,27 +83,25 @@ export class Thr3d {
     comment appeler add ?
     */
 
-	update(status: CbStatus) {
-		// const delta = clock.getDelta();
-
+	update(status: CbStatus & { style?: CSSStyleSheet }) {
 		const delta = status.delta || 0;
 		if (typeof delta !== 'number') console.log('<------Thr3d---->', { delta });
-
-		// console.log('<------Thr3d---->', Math.round(delta * 1000));
-
 		this.mixers.forEach((mixer) => mixer.update(delta));
 
 		// TODO
 		this.store.has('eyes') && this.store.get('eyes').lookAt(this.camera.position);
-
-		const cube = this.store.get('cube');
-		cube.rotation.x += 0.01;
-		cube.rotation.y += 0.01;
-		cube.rotation.z += 0.01;
-
+		this.store.has('cube') && this.rotateCube();
 		this.renderer.render(this.scene, this.camera);
 	}
 
+	resize(zoom) {
+		// const size = this.parentNode.getBoundingClientRect();
+		const width = parseInt(this.parentNode.style.width);
+		const height = parseInt(this.parentNode.style.height);
+		console.log('THR3 RESIZE', width, height);
+
+		this.renderer.setSize(width, height);
+	}
 	add(id, item) {
 		// const { scene, aminations } = item.media;
 		console.log('ADD 3D', item);
@@ -139,16 +141,30 @@ export class Thr3d {
 
 	private spreadProps(component, props) {
 		for (const [key, value] of Object.entries(props)) {
-			if (typeof value === 'object') {
+			console.log(key, value);
+			if (Array.isArray(value)) {
+				component[key](...value);
+			} else if (typeof value === 'object') {
 				// pas de recursif...
 				// component[key] = this.spreadProps(component[key], value);
 				for (const [key1, value1] of Object.entries(value)) {
 					component[key][key1] = value1;
 				}
-			} else if (Array.isArray(value)) component[key](...value);
-			else component[key] = value;
+			} else component[key] = value;
 		}
 		return component;
+	}
+	createTestCube() {
+		const cube = doCube();
+		this.scene.add(cube);
+		this.store.set('cube', cube);
+	}
+
+	private rotateCube() {
+		const cube = this.store.get('cube');
+		cube.rotation.x += 0.01;
+		cube.rotation.y += 0.01;
+		cube.rotation.z += 0.01;
 	}
 }
 

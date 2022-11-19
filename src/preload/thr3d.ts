@@ -1,6 +1,6 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import { PersoElementType } from '../types';
+import { PersoElementType as P } from '../types';
 import type { Store, PersoStore, PersoNode } from '../types';
 type Thr3DStore = any;
 
@@ -8,7 +8,7 @@ export function getPersoThr3D(persos: Store) {
 	const persoOthers: PersoStore = {};
 	const persoThr3D: Thr3DStore = {};
 	for (const id in persos) {
-		persos[id].type === PersoElementType.THR3D
+		persos[id].type === P.THR3D_PERSO
 			? (persoThr3D[id] = persos[id] as Thr3DStore)
 			: (persoOthers[id] = persos[id] as PersoNode);
 	}

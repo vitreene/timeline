@@ -7,20 +7,19 @@
 	border: 1px solid grey;
 	min-height: 50vh;
 	overflow: hidden;
+	aspect-ratio: 16 / 9;
 }
 
 .root {
 	display: grid;
-	grid-template-rows: 1fr;
-	grid-template-columns: 1fr;
-	/* background-color: navajowhite; */
 	outline: 1px solid cyan;
+	font-family: Dogma, Helvetica, sans-serif;
 }
 
 .root-layer {
 	grid-area: 1 / 1;
-	grid-row-start: auto;
 	z-index: 1;
+	overflow: hidden;
 }
 
 #telco {

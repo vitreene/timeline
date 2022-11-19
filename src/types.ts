@@ -1,4 +1,5 @@
 import * as CSS from 'csstype';
+import THREE from 'three';
 import { CbStatus } from './clock';
 import { TransformStyle } from './render/transform';
 
@@ -40,7 +41,7 @@ export interface Action extends Partial<Initial> {
 	// leave?: boolean;
 }
 
-export type Store = Record<string, PersoNode | SoundNode | Thr3dSceneNode>;
+export type Store = Record<string, PersoNode | SoundNode | Thr3dSceneNode | Thr3dPersoNode>;
 export type PersoStore = Record<string, PersoNode>;
 export type SoundStore = Record<string, SoundNode>;
 
@@ -64,6 +65,11 @@ export interface SoundNode extends BaseNode {
 export interface Thr3dSceneNode extends BaseNode {
 	type: PersoElementType.THR3D_SCENE;
 	initial: Partial<BaseInitial> & { content: Partial<THR3D_SCENE> };
+}
+
+export interface Thr3dPersoNode extends BaseNode {
+	type: PersoElementType.THR3D_PERSO;
+	initial: Partial<BaseInitial> & { loader: string; content: Partial<THR3D_PERSO> };
 }
 
 interface Item {
@@ -100,6 +106,15 @@ export interface THR3D_SCENE {
 	renderer: any;
 	camera: any;
 	controls: any;
+}
+
+export interface THR3D_PERSO {
+	scene: any;
+	animations: any;
+	add: any;
+	store: any;
+	mixer: any;
+	child: any;
 }
 
 export type Render = (update: Update) => void;
@@ -166,6 +181,6 @@ export enum PersoElementType {
 	SPRITE = 'sprite',
 	BUTTON = 'button',
 	POLYGON = 'polygon',
-	THR3D = 'THR3D',
+	THR3D_PERSO = 'THR3D_PERSO',
 	THR3D_SCENE = 'THR3D_SCENE',
 }

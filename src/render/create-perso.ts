@@ -39,7 +39,12 @@ export class StorePersos {
 		if (zoom === this.zoom) return;
 		this.zoom = zoom;
 		console.log('resize', zoom);
-		requestAnimationFrame(() => this.persos.forEach((perso: PersoItem) => perso.update({ style: perso.style })));
+		requestAnimationFrame(() =>
+			this.persos.forEach((perso: PersoItem) => {
+				perso.update({ style: perso.style });
+				if (perso.child.resize) perso.child.resize(this.zoom);
+			})
+		);
 	};
 
 	addAll(persos: Map<string, PersoNode>) {
@@ -104,7 +109,7 @@ export class StorePersos {
 		const node = document.createElement(tag || 'div');
 		node.id = id;
 		const child = createContent(type, { parentNode: node, initial });
-		if (child && type !== PersoElementType.THR3D_SCENE) child.update(content as any);
+		// if (child && type !== PersoElementType.THR3D_SCENE) child.update(content as any);
 
 		const perso: PersoItem = {
 			id,

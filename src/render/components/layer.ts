@@ -22,15 +22,16 @@ export class Layer {
 
 	update(content: LayerContent) {
 		if (!content || !content.size) return;
+		let child: HTMLElement | DocumentFragment;
+
 		if (content.size > 1) {
-			const child = document.createDocumentFragment();
+			child = document.createDocumentFragment();
 			content.forEach((element: HTMLElement) => {
 				child.appendChild(element);
-				this.node.appendChild(child);
 			});
 		} else {
-			const element = content.values().next().value;
-			this.node.appendChild(element);
+			child = content.values().next().value;
 		}
+		this.node.appendChild(child);
 	}
 }

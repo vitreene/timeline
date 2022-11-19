@@ -1,5 +1,5 @@
-import { Eventime, PersoElementType as P } from '../types';
-import { MAIN, LAYER02, TRACK_PLAY } from '../common/constants';
+import { Eventime, PersoElementType as P } from '../../types';
+import { MAIN, TRACK_PLAY } from '../../common/constants';
 
 const mouthCues = [
 	{ start: 0.0, end: 0.43, value: 'X' },
@@ -268,52 +268,6 @@ export const cueEvents: Eventime['events'] = [
 		channel: MAIN,
 	},
 ];
-
-export const kid = {
-	type: P.SPRITE,
-	initial: {
-		content: { src: '/phonemes/kid.png' },
-		style: {
-			position: 'absolute',
-			width: 481,
-			height: 633,
-			x: 400,
-			y: 100,
-		},
-	},
-	actions: {
-		enter: {
-			move: LAYER02,
-		},
-	},
-} as const;
-export const mouth = {
-	type: P.SPRITE,
-	initial: {
-		content: { src: '/phonemes/X.png' },
-		style: {
-			position: 'absolute',
-			x: 566,
-			y: 520,
-			width: 160,
-			height: 100,
-		},
-	},
-	actions: {
-		enter: {
-			move: LAYER02,
-		},
-		A: { content: { src: '/phonemes/A.png' } },
-		B: { content: { src: '/phonemes/B.png' } },
-		C: { content: { src: '/phonemes/C.png' } },
-		D: { content: { src: '/phonemes/D.png' } },
-		E: { content: { src: '/phonemes/E.png' } },
-		F: { content: { src: '/phonemes/F.png' } },
-		G: { content: { src: '/phonemes/G.png' } },
-		H: { content: { src: '/phonemes/H.png' } },
-		X: { content: { src: '/phonemes/A.png' } },
-	},
-} as const;
 
 export const sound_23_04 = {
 	type: P.SOUND,
