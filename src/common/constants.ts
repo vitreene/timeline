@@ -28,6 +28,7 @@ export const channelsName = Array.from(new Set(Object.values(ChannelName)));
 
 export const TRACK_PLAY = 'trackPlay';
 export const TRACK_PAUSE = 'trackPause';
+export const TRACK_ENGLISH = 'trackEnglish';
 
 export const DEFAULT_STYLES = {
 	x: 0,

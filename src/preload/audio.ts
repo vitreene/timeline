@@ -1,4 +1,4 @@
-import { PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
+import { My, PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
 
 type SampleAudio = [string, MediaElementAudioSourceNode];
 
@@ -29,8 +29,13 @@ export async function registerAudio(persos: SoundStore) {
 export async function loadAudio(id: string, filepath: string, audioContext: AudioContext): Promise<SampleAudio> {
 	return new Promise((resolve, reject) => {
 		const source = new Audio();
-		const media = audioContext.createMediaElementSource(source);
-		media.connect(audioContext.destination);
+		const media: My = audioContext.createMediaElementSource(source);
+		// media.connect(audioContext.destination);
+		media.my = {
+			connect: () => media.connect(audioContext.destination),
+			disconnect: () => media.disconnect(),
+		};
+
 		source.oncanplay = () => {
 			resolve([id, media]);
 		};

@@ -11,7 +11,7 @@ import { sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
 import { cueEventsThree } from './cues_0230_04/cues_0230_three';
 import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
-import './1_7b_e_01/1_7b_e_01-phonemes';
+import './1_7b_e_01/1_7b_e_fr-phonemes';
 
 const ID01 = 'hello';
 const ID02 = 'world';

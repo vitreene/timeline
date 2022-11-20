@@ -59,9 +59,15 @@ export interface SoundNode extends BaseNode {
 	type: PersoElementType.SOUND;
 	src: string;
 	initial: Partial<Initial>;
-	media?: MediaElementAudioSourceNode;
+	media?: My;
 }
 
+export interface My extends MediaElementAudioSourceNode {
+	my?: {
+		connect: () => void;
+		disconnect: () => void;
+	};
+}
 export interface Thr3dSceneNode extends BaseNode {
 	type: PersoElementType.THR3D_SCENE;
 	initial: Partial<BaseInitial> & { content: Partial<THR3D_SCENE> };

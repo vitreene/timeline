@@ -14,14 +14,17 @@ import {
 	TRACK_PAUSE,
 	TRACK_PLAY,
 	SOUND,
+	TRACK_ENGLISH,
 } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
-import { kid, mouth } from './kid';
-import { sound_1_7b_e_fr, cueEventsFR, cueEventsThreeFR } from './1_7b_e_01/1_7b_e_fr-phonemes';
+import { kid, mouth, tv } from './kid';
 import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
 import { wordsMain, wordsEventsThree } from './1_7b_e_01/1_7b_e.mp3-words';
+import { sound_1_7b_e_fr, cueEventsFR, cueEventsThreeFR } from './1_7b_e_01/1_7b_e_fr-phonemes';
+import { sound_1_7b_e_en, cueEventsThreeEN, cueEventsEN } from './1_7b_e_01/1_7b_e_en-phonemes';
+import { wordsMainEN, wordsEventsThreeEN } from './1_7b_e_01/1_7b_e.mp3-words-en';
 
 const ID01 = 'hello';
 const ID02 = 'world';
@@ -31,22 +34,21 @@ const SOUND01 = 'son01';
 const ID_COUNTER_01 = 'counter01';
 const counter01 = {
 	id: ID_COUNTER_01,
-	duration: 2000,
-	start: 0,
-	end: 10,
-	complete: { lost: 'PERDU', win: 'GAGNE' },
+	duration: 16000,
+	start: 16,
+	end: 0,
+	complete: { lost: 'PERDU', win: 'terminé' },
 };
 
 const ID_COUNTER_02 = 'counter02';
 const counter02 = {
 	id: ID_COUNTER_02,
-	duration: 1500,
-	start: 20,
-	end: 10,
-	complete: { lost: 'LOST', win: 'WON' },
+	duration: 16000,
+	start: 0,
+	end: 1600,
 };
 
-export const events: Eventime = {
+const playEvents: Eventime = {
 	startAt: 0,
 	name: 'initial',
 	channel: MAIN,
@@ -54,12 +56,10 @@ export const events: Eventime = {
 	events: [
 		{
 			startAt: 1000,
-			name: 'start_sound_23_04',
+			name: 'start_sound_fr',
 			channel: SOUND,
 			events: [...cueEventsFR, ...cueEventsThreeFR, ...wordsMain, ...wordsEventsThree],
 		},
-		{ startAt: 1000, name: 'start_' + SOUND01, channel: SOUND },
-		// { startAt: 4000, name: 'end_' + SOUND01, channel: SOUND },
 		{ startAt: 0, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
 		{ startAt: 500, name: 'action04', channel: MAIN },
@@ -83,7 +83,7 @@ export const events: Eventime = {
 const initialID01: Partial<Initial> = {
 	className: 'initial',
 	content: ID01,
-	style: { top: 0, left: 0, color: 'blue', position: 'absolute' },
+	style: { top: 0, right: 0, color: 'orangered', position: 'absolute' },
 };
 
 const initialID02: Partial<Initial> = {
@@ -119,7 +119,9 @@ const initialID03: Partial<Initial> = {
 const _persos: Store = {
 	kid,
 	mouth,
-	sound_23_04: sound_1_7b_e_fr, // FIXME l'ordre influe sur le rendu !!!,
+	tv,
+	sound_fr: sound_1_7b_e_fr, // FIXME l'ordre influe sur le rendu !!!,
+	sound_en: sound_1_7b_e_en,
 	talk3d,
 	modelWes,
 	lipsync,
@@ -130,12 +132,24 @@ const _persos: Store = {
 			id: ROOT,
 			className: 'root',
 		},
-		actions: {},
+		actions: {
+			action04: {
+				transition: {
+					from: { 'background-image': 'linear-gradient(45deg, navajowhite, coral)' },
+					to: { 'background-image': 'linear-gradient(225deg, navajowhite, coral)' },
+					duration: 3000,
+					repeat: 6,
+					yoyo: true,
+				},
+			},
+		},
 	},
 	[LAYER02]: {
 		type: P.LAYER,
 		initial: { className: 'root-layer' },
-		actions: { enter: { move: ROOT } },
+		actions: {
+			enter: { move: ROOT },
+		},
 	},
 	[LAYER01]: {
 		type: P.LAYER,
@@ -155,8 +169,8 @@ const _persos: Store = {
 				style: { 'font-weight': 'bold' },
 				className: 'action01',
 				transition: {
-					from: { 'font-size': 16, top: 0, left: 0 },
-					to: { 'font-size': 72, top: 100, left: 400 },
+					from: { 'font-size': 16, top: 0, right: 50, x: 0 },
+					to: { 'font-size': 72, top: 100, right: 100, x: -300 },
 					duration: 500,
 				},
 			},
@@ -167,7 +181,6 @@ const _persos: Store = {
 	},
 	[ID02]: {
 		type: P.TEXT,
-
 		initial: { ...initialID02, move: LAYER02 },
 		actions: {
 			action01: {
@@ -186,43 +199,44 @@ const _persos: Store = {
 	},
 	[ID03]: {
 		type: P.TEXT,
-
-		initial: { ...initialID03, move: LAYER02 },
+		initial: { ...initialID03, move: LAYER01 },
 		actions: {
-			action01: { className: 'action01-' + ID03 },
-			action04: {
-				transition: {
-					from: { 'background-image': 'linear-gradient(45deg, red, blue)' },
-					to: { 'background-image': 'linear-gradient(225deg, red, blue)' },
-					duration: 300,
-					repeat: 6,
-					yoyo: true,
-				},
-			},
-			pause_enter: {
-				transition: {
-					from: { scale: 1 },
-					to: { scale: 1.3 },
-					duration: 400,
-					repeat: 8,
-					yoyo: true,
-				},
+			action01: {
+				style: { 'font-size': 48 },
+				className: 'action01-' + ID02,
 			},
 			['end_' + ID_COUNTER_02]: {
 				transition: {
-					from: { rotate: 0 },
-					to: { rotate: -12 },
+					from: { opacity: 1 },
+					to: { opacity: 0 },
 					duration: 1000,
 				},
 			},
-			text: true,
-			// [ID_COUNTER_02]: true,
+			[ID_COUNTER_02]: true, // signifie : j'écoute counter01
 		},
-		emit: {
-			mousedown: {
-				channel: STRAP,
-				name: 'move',
-				data: { event: 'move-event' },
+	},
+	titre: {
+		type: P.TEXT,
+		initial: {
+			style: {
+				x: 600,
+				y: 530,
+				width: 300,
+				color: 'white',
+				'font-size': 30,
+				'font-weight': 'bold',
+				'font-family': 'Helvetica',
+				'text-align': 'center',
+			},
+			move: LAYER02,
+		},
+		actions: {
+			text: {
+				transition: {
+					from: { opacity: 0 },
+					to: { opacity: 1 },
+					duration: 300,
+				},
 			},
 		},
 	},
@@ -240,15 +254,22 @@ const pauseEvents: Eventime = {
 };
 
 const englishEvents: Eventime = {
-	startAt: 100,
-	name: 'english',
+	startAt: 0,
+	name: 'initial',
 	channel: MAIN,
-	data: { tutu: 2 },
+	duration: MAX_ENDS,
+	events: [
+		{
+			startAt: 1000,
+			name: 'start_sound_en',
+			channel: SOUND,
+			events: [...cueEventsEN, ...cueEventsThreeEN, ...wordsMainEN, ...wordsEventsThreeEN],
+		},
+	],
 };
 
-const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
-	[TRACK_PLAY]: events,
+	[TRACK_PLAY]: playEvents,
 	[TRACK_PAUSE]: pauseEvents,
 	[TRACK_ENGLISH]: englishEvents,
 };
@@ -260,7 +281,7 @@ const options = {
 const persos = _persos;
 
 const control = {
-	duration: events.duration || END_SEQUENCE,
+	duration: playEvents.duration || END_SEQUENCE,
 	trackName: TRACK_PLAY,
 };
 

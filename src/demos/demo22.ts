@@ -14,11 +14,12 @@ import {
 	TRACK_PAUSE,
 	TRACK_PLAY,
 	SOUND,
+	TRACK_ENGLISH,
 } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
 import { kid, mouth, tv } from './kid';
-import { sound_1_7b_e_01, cueEvents, cueEventsThree } from './1_7b_e_01/1_7b_e_01-phonemes';
+import { sound_1_7b_e_fr, cueEventsFR, cueEventsThreeFR } from './1_7b_e_01/1_7b_e_fr-phonemes';
 import { lipsync, modelWes, talk3d } from './model-threeD-01';
 
 import { wordsMain, wordsEventsThree } from './1_7b_e_01/1_7b_e.mp3-words';
@@ -53,9 +54,9 @@ export const events: Eventime = {
 	events: [
 		{
 			startAt: 1000,
-			name: 'start_sound_23_04',
+			name: 'start_sound_fr',
 			channel: SOUND,
-			events: [...cueEvents, ...cueEventsThree, ...wordsMain, ...wordsEventsThree],
+			events: [...cueEventsFR, ...cueEventsThreeFR, ...wordsMain, ...wordsEventsThree],
 		},
 		{ startAt: 0, name: 'enter', channel: MAIN },
 		{ startAt: 401, name: 'action01', channel: MAIN },
@@ -117,7 +118,7 @@ const _persos: Store = {
 	kid,
 	mouth,
 	tv,
-	sound_23_04: sound_1_7b_e_01, // FIXME l'ordre influe sur le rendu !!!,
+	sound_fr: sound_1_7b_e_fr, // FIXME l'ordre influe sur le rendu !!!,
 	talk3d,
 	modelWes,
 	lipsync,
@@ -256,7 +257,6 @@ const englishEvents: Eventime = {
 	data: { tutu: 2 },
 };
 
-const TRACK_ENGLISH = 'trackEnglish';
 const tracks = {
 	[TRACK_PLAY]: events,
 	[TRACK_PAUSE]: pauseEvents,

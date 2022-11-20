@@ -43,6 +43,7 @@ export class SoundChannel {
 		}
 
 		console.log('SoundChannel', status.statement, { name, time, status, data });
+		console.log('SoundChannel', this.store);
 
 		this.store.has(status.trackName) &&
 			this.store.get(status.trackName).forEach((audio) => {
@@ -51,14 +52,14 @@ export class SoundChannel {
 					switch (action.action) {
 						case 'start':
 							if (audio.media.mediaElement.paused) {
-								audio.media.mediaElement.play();
+								audio.media.my.connect();
 								audio.startTime = status.currentTime;
 								audio.status = PLAY;
 							}
 							break;
 						case 'end':
 							if (!audio.media.mediaElement.paused) {
-								audio.media.mediaElement.pause();
+								audio.media.my.disconnect();
 								audio.status = PAUSE;
 								audio.media.mediaElement.currentTime = 0;
 							}
@@ -83,14 +84,17 @@ export class SoundChannel {
 				switch (status.statement) {
 					case PLAY:
 						if (audio.status === PLAY && audio.media.mediaElement.paused) {
-							console.log('sound', PLAY, audio.media.mediaElement.currentTime);
+							console.log('****sound', PLAY, status.trackName, audio.media.mediaElement.currentTime);
+
 							audio.media.mediaElement.play();
 						}
 						break;
 					case PAUSE:
 						if (!audio.media.mediaElement.paused) {
-							console.log('sound', PAUSE, audio.media.mediaElement.currentTime);
+							console.log('****sound', PAUSE, status.trackName, audio.media.mediaElement.currentTime);
+
 							audio.media.mediaElement.pause();
+							// audio.media.my.disconnect();
 						}
 						break;
 

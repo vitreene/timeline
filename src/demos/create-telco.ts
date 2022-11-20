@@ -1,6 +1,6 @@
 import { END_SEQUENCE, PLAY } from '../common/constants';
 import type { CbStatus } from '../clock';
-import type { Telco } from './demo13';
+import type { Telco } from './telco';
 
 interface ControlProps {
 	duration: number;
@@ -52,9 +52,14 @@ export function createTelco(telco: Telco, { duration, trackName }: ControlProps)
 
 	const progress = document.createElement('span');
 
+	const langButton = document.createElement('button');
+	langButton.innerText = 'langue';
+	langButton.addEventListener('click', telco.toggleActive);
+
 	command.appendChild(playButton);
 	command.appendChild(slider);
 	command.appendChild(progress);
+	command.appendChild(langButton);
 	document.body.appendChild(command);
 
 	telco.onTick((status: CbStatus) => {

@@ -1,16 +1,16 @@
 import { Eventime, PersoElementType as P } from '../../types';
 import { MAIN, LAYER02, TRACK_PLAY, THR3D } from '../../common/constants';
 
-export const sound_1_7b_e_01 = {
+export const sound_1_7b_e_fr = {
 	type: P.SOUND,
 	initial: { src: '/1_7b_e.mp3', track: TRACK_PLAY },
 	actions: {
-		start_sound_23_04: { action: 'start' },
-		end_sound_23_04: { action: 'end' },
+		start_sound_fr: { action: 'start' },
+		end_sound_fr: { action: 'end' },
 	},
 } as const;
 
-export const cueEvents: Eventime['events'] = [
+export const cueEventsFR: Eventime['events'] = [
 	{
 		startAt: 0,
 		name: 'X',
@@ -712,7 +712,7 @@ console.log(doCueEvents);
 
 */
 
-export const cueEventsThree: Eventime[] = mouthCues.map((cue) => {
+export const cueEventsThreeFR: Eventime[] = mouthCues.map((cue) => {
 	const startAt = Math.round(cue.start * 1000);
 	const duration = Math.round((cue.end - cue.start) * 1000);
 	const name = convertVisemes[cue.value];
