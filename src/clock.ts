@@ -1,4 +1,14 @@
-import { DEFAULT_TIMER, MAX_ENDS, PAUSE, PLAY, SEEK, SEEKING, TICK, TIME_INTERVAL } from './common/constants';
+import {
+	DEFAULT_TIMER,
+	MAX_ENDS,
+	PAUSE,
+	PLAY,
+	SEEK,
+	SEEKING,
+	TICK,
+	TIME_INTERVAL,
+	TRACK_PAUSE,
+} from './common/constants';
 import type { Time, TrackName } from './tracks';
 
 export type Cb = (status?: CbStatus) => void;
@@ -213,13 +223,14 @@ class Clock {
 		this.timers.set(trackName, { ...defaultStatus, ...timer, trackName });
 	}
 
-	setTimer(trackName: TrackName, statement: string) {
+	setTimer(trackName: TrackName, status: Partial<CbStatus>) {
 		const timer = this.timers.get(trackName);
 		if (!timer) {
 			console.warn(`Pas de timer à ce nom : ${trackName}`);
 			return;
 		}
-		this.timers.set(trackName, { ...timer, statement });
+
+		this.timers.set(trackName, { ...timer, ...status });
 	}
 
 	[SEEK](trackName: TrackName, seekTime_: Time) {

@@ -1,7 +1,7 @@
 import { Track } from './track';
-import { Timer } from '../clock';
+import { defaultStatus, Timer } from '../clock';
 
-import { channelsName, END_SEQUENCE, PAUSE, PLAY, TIME_INTERVAL } from '../common/constants';
+import { channelsName, END_SEQUENCE, PAUSE, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
 
 import type { OptionsTimelineConfig } from './timeline';
 import type { CbStatus } from '../clock';
@@ -20,6 +20,7 @@ interface ControlAction {
 	active: TrackName[];
 	inactive: TrackName[];
 	refTrack?: string;
+	timer?: { [track: TrackName]: TrackName | null };
 }
 
 interface NextStatus extends RunEvent {
@@ -75,18 +76,26 @@ export class TrackManager {
 
 	control(control: ControlName, action: ControlAction) {
 		this.controlName = control;
-		action.active.forEach((trackName) => {
-			const track = this.tracks.get(trackName);
+		action.active.forEach((trackName_) => {
+			const track = this.tracks.get(trackName_);
+			const { trackName, ...timer } = this.clock.timers.get(action.timer[trackName_]) || {
+				...defaultStatus,
+				trackName: null,
+			};
+
 			if (track) {
 				track.onEnter();
-				this.clock.setTimer(trackName, PLAY);
+				console.log('control', timer, action.timer[trackName_], trackName_);
+
+				this.clock.seek(trackName_, timer.currentTime);
+				this.clock.setTimer(trackName_, { statement: PLAY });
 				track.play();
 			}
 		});
 		action.inactive.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
 			if (track) {
-				this.clock.setTimer(trackName, PAUSE);
+				this.clock.setTimer(trackName, { statement: PAUSE });
 				track.onExit();
 				track.pause();
 			}

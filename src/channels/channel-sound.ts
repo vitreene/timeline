@@ -2,7 +2,7 @@ import { CbStatus } from '../clock';
 import type { RunEvent } from './channel';
 import { ChannelName } from '../types';
 
-import { PAUSE, PLAY, SEEK } from '../common/constants';
+import { PAUSE, PLAY, SEEK, TRACK_ENGLISH } from '../common/constants';
 
 import type { Eventime, SoundNode, SoundStore } from '../types';
 
@@ -52,6 +52,8 @@ export class SoundChannel {
 					switch (action.action) {
 						case 'start':
 							if (audio.media.mediaElement.paused) {
+								console.log('SoundChannel start', status.trackName);
+
 								audio.media.my.connect();
 								audio.startTime = status.currentTime;
 								audio.status = PLAY;
@@ -84,8 +86,8 @@ export class SoundChannel {
 				switch (status.statement) {
 					case PLAY:
 						if (audio.status === PLAY && audio.media.mediaElement.paused) {
-							console.log('****sound', PLAY, status.trackName, audio.media.mediaElement.currentTime);
-
+							console.log('****sound', PLAY, status.trackName, audio.media.mediaElement.currentTime, status.currentTime);
+							audio.media.my.connect();
 							audio.media.mediaElement.play();
 						}
 						break;
@@ -94,7 +96,7 @@ export class SoundChannel {
 							console.log('****sound', PAUSE, status.trackName, audio.media.mediaElement.currentTime);
 
 							audio.media.mediaElement.pause();
-							// audio.media.my.disconnect();
+							audio.media.my.disconnect();
 						}
 						break;
 
@@ -123,6 +125,7 @@ export class SoundChannel {
 		}
 
 		const diff = Math.abs(currentTime - audio.media.mediaElement.currentTime) > TIME_THRESHOLD;
+
 		if (diff) {
 			console.log(
 				'RATRAPAGE-->',
