@@ -76,21 +76,25 @@ export class TrackManager {
 
 	control(control: ControlName, action: ControlAction) {
 		this.controlName = control;
-		action.active.forEach((trackName_) => {
-			const track = this.tracks.get(trackName_);
-			const { trackName, ...timer } = this.clock.timers.get(action.timer[trackName_]) || {
-				...defaultStatus,
-				trackName: null,
-			};
+		action.active.forEach((trackName) => {
+			const track = this.tracks.get(trackName);
+			const currentTime = this.clock.timers.get(action.timer[trackName]).currentTime || 0;
 
 			if (track) {
 				track.onEnter();
-				console.log('control', timer, action.timer[trackName_], trackName_);
-
-				this.clock.seek(trackName_, timer.currentTime);
-				this.clock.setTimer(trackName_, { statement: PLAY });
+				this.clock.setTimer(trackName, { statement: PLAY });
 				track.play();
 			}
+
+			/* 
+			if (track) {
+				console.log('control active ->', trackName, 'get->', action.timer[trackName], currentTime);
+
+				track.onEnter();
+				this.clock.seekAndPlay(trackName, currentTime);
+				track.play();
+			}
+			*/
 		});
 		action.inactive.forEach((trackName) => {
 			const track = this.tracks.get(trackName);

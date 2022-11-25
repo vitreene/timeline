@@ -108,6 +108,14 @@ class Clock {
 
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
+	nextTick(fct: Cb) {
+		const once: Cb = (timer) => {
+			fct(timer);
+			this.unSubscribeTick(once);
+		};
+		this.subscribeTick(once);
+	}
+
 	// LOOP ////////////////
 	loop = (initial: number) => {
 		this.timers.forEach((timer) => (timer.currentTime = initial - TIME_INTERVAL));
@@ -243,6 +251,11 @@ class Clock {
 		if (timer.seekTime === seekTime) return;
 		console.log(SEEK, seekTime);
 		this.timers.set(trackName, { ...timer, statement: SEEK, seekTime });
+	}
+
+	seekAndPlay(trackName: TrackName, seekTime: Time) {
+		this[SEEK](trackName, seekTime);
+		this.nextTick(() => this.setTimer(trackName, { statement: PLAY }));
 	}
 }
 
