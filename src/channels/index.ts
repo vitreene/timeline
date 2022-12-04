@@ -36,19 +36,23 @@ export function channelManager(props: ChannelManagerProps) {
 		channel.next = next;
 
 		if (channel instanceof SoundChannel) {
-			channel.setStore(medias.audio);
-			timer.subscribeTick(channel.onTick);
+			if (medias.audio) {
+				channel.setStore(medias.audio);
+				timer.subscribeTick(channel.onTick);
+				channels.set(channel.name, channel);
+			}
 		} else if (channel instanceof ThreeChannel) {
 			const scenes = store.getPersosbyType(PersoElementType.THR3D_SCENE);
 			if (scenes) {
 				channel.setStore(scenes);
-
 				scenes.forEach((scene: PersoThr3dSceneItem) => {
 					scene.initial.content.children.forEach((id) => {
 						const channelStore = scene.child.add(id, medias.thr3d[id]);
 						channelStore && channel.addCallback(scene.id, channelStore);
 					});
 				});
+				timer.subscribeTick(channel.onTick);
+				channels.set(channel.name, channel);
 			}
 			/* 
 			non 
@@ -82,12 +86,10 @@ export function channelManager(props: ChannelManagerProps) {
 			- onUpdate : est ajouté au rendu 
 add to scene
 */
-
-			timer.subscribeTick(channel.onTick);
 		} else {
 			channel.setStore(store);
+			channels.set(channel.name, channel);
 		}
-		channels.set(channel.name, channel);
 	});
 
 	return channels;

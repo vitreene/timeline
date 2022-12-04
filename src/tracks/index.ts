@@ -78,6 +78,8 @@ export class TrackManager {
 		this.controlName = control;
 		action.active.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
+			console.log(trackName, action.timer, this.clock.timers);
+
 			const currentTime = this.clock.timers.get(action.timer[trackName]).currentTime || 0;
 
 			if (track) {
@@ -87,7 +89,7 @@ export class TrackManager {
 			}
 
 			/* 
-			if (track) {
+			if (track) { 
 				console.log('control active ->', trackName, 'get->', action.timer[trackName], currentTime);
 
 				track.onEnter();
