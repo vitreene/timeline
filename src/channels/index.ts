@@ -8,7 +8,7 @@ import { StrapChannel } from './channel-strap';
 import { SoundChannel } from './channel-sound';
 import { ThreeChannel } from './channel-three';
 
-import { Eventime, PersoElementType, PersoThr3dSceneItem } from '../types';
+import { Eventime, THR3DTypes, PersoThr3dSceneItem } from '../types';
 import type { AddEvent } from '../tracks';
 import type { ChannelsMap } from '../tracks/timeline';
 import { MediasStoreProps } from 'src/preload';
@@ -42,7 +42,7 @@ export function channelManager(props: ChannelManagerProps) {
 				channels.set(channel.name, channel);
 			}
 		} else if (channel instanceof ThreeChannel) {
-			const scenes = store.getPersosbyType(PersoElementType.THR3D_SCENE);
+			const scenes = store.getPersosbyType(THR3DTypes.THR3D_SCENE);
 			if (scenes) {
 				channel.setStore(scenes);
 				scenes.forEach((scene: PersoThr3dSceneItem) => {

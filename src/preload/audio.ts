@@ -1,4 +1,4 @@
-import { My, PersoElementType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
+import { My, SoundType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
 
 type SampleAudio = [string, MediaElementAudioSourceNode];
 
@@ -8,7 +8,7 @@ export function getPersoSounds(persos: Store) {
 	const persoOthers: PersoStore = {};
 	const persoSounds: SoundStore = {};
 	for (const id in persos) {
-		persos[id].type === PersoElementType.SOUND
+		persos[id].type === SoundType.SOUND
 			? (persoSounds[id] = persos[id] as SoundNode)
 			: (persoOthers[id] = persos[id] as PersoNode);
 	}

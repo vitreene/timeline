@@ -7,12 +7,21 @@ export class Layer {
 		this.node = node;
 	}
 
-	add(item: HTMLElement, order: number = null) {
-		if (!order) {
-			this.content.add(item);
-		} else {
-			this.content = new Set(Array.from(this.content).splice(order, 0, item));
+	add(item: HTMLElement, order: number | string = undefined) {
+		switch (typeof order) {
+			case 'undefined':
+				this.content.add(item);
+				break;
+			case 'string':
+				if (order === 'last') this.content.add(item);
+				if (order === 'first') this.content = new Set([item, ...this.content]);
+				break;
+
+			case 'number':
+				this.content = new Set(Array.from(this.content).splice(order, 0, item));
+				break;
 		}
+
 		return this.content;
 	}
 	remove(item: HTMLElement) {

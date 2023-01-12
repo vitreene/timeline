@@ -1,4 +1,4 @@
-import { PersoElementType as P } from '../../types';
+import { PersosTypes as P } from '../../types';
 import { LAYER02 } from '../../common/constants';
 
 export const tv = {

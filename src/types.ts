@@ -1,5 +1,4 @@
 import * as CSS from 'csstype';
-import THREE from 'three';
 import { CbStatus } from './clock';
 import { TransformStyle } from './render/transform';
 
@@ -34,7 +33,6 @@ export interface Initial extends BaseInitial {
 export interface Action extends Partial<Initial> {
 	transition?: Transition;
 	action?: 'start' | 'end';
-
 	currentTime?: number;
 	// order?: number;
 	// exit?: boolean;
@@ -51,13 +49,13 @@ export interface BaseNode {
 }
 
 export interface PersoNode extends BaseNode {
-	type: Omit<PersoElementType, PersoElementType.SOUND | PersoElementType.THR3D_SCENE>;
+	type: PersosTypes;
 	initial: Partial<Initial>;
 }
 
 export interface SoundNode extends BaseNode {
-	type: PersoElementType.SOUND;
-	src: string;
+	type: SoundType;
+	// src: string;
 	initial: Partial<Initial>;
 	media?: My;
 }
@@ -69,12 +67,12 @@ export interface My extends MediaElementAudioSourceNode {
 	};
 }
 export interface Thr3dSceneNode extends BaseNode {
-	type: PersoElementType.THR3D_SCENE;
+	type: THR3DTypes.THR3D_SCENE;
 	initial: Partial<BaseInitial> & { content: Partial<THR3D_SCENE> };
 }
 
 export interface Thr3dPersoNode extends BaseNode {
-	type: PersoElementType.THR3D_PERSO;
+	type: THR3DTypes.THR3D_PERSO;
 	initial: Partial<BaseInitial> & { loader: string; content: Partial<THR3D_PERSO> };
 }
 
@@ -84,6 +82,7 @@ interface Item {
 	update: (update?: Partial<Action> | undefined) => void;
 	node: HTMLElement;
 	child: any; // Txt | Layer | Thr3d;
+	parent: string;
 	style: Style;
 	listeners?: Map<keyof HTMLElementEventMap, HandlerListener>;
 	reset: () => void;
@@ -139,6 +138,7 @@ interface EmitEvent {
 export interface Move {
 	to: string;
 	rescale?: boolean;
+	order?: number | string | undefined;
 }
 
 export interface Transition {
@@ -174,19 +174,25 @@ export enum Lang {
 	CN = 'cn',
 }
 
-export enum PersoElementType {
+export enum PersosTypes {
 	TEXT = 'text',
 	IMG = 'img',
 	LIST = 'list',
 	BLOC = 'bloc',
 	ROOT = 'root',
-	SOUND = 'sound',
 	VIDEO = 'video',
 	PROTO = 'proto',
 	LAYER = 'layer',
 	SPRITE = 'sprite',
 	BUTTON = 'button',
 	POLYGON = 'polygon',
+}
+
+export enum THR3DTypes {
 	THR3D_PERSO = 'THR3D_PERSO',
 	THR3D_SCENE = 'THR3D_SCENE',
+}
+
+export enum SoundType {
+	SOUND = 'sound',
 }

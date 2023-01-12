@@ -1,32 +1,31 @@
 import { Txt } from './txt';
 import { Layer } from './layer';
-import { Initial, PersoElementType, Thr3dSceneNode } from '../../types';
+import { Initial, THR3DTypes, SoundType, PersosTypes } from '../../types';
 import { Sprite } from './sprite';
 import { Thr3d } from './thr3d';
 
 interface CreateContentOptions {
 	parentNode: HTMLElement;
-	// initial: Thr3dSceneNode['initial'];
 	initial: Partial<Initial>;
 }
 
-type RegularPersoTypes = Omit<PersoElementType, PersoElementType.SOUND>;
+type RegularPersoTypes = Omit<PersosTypes, SoundType.SOUND>;
 
-const notAppended: RegularPersoTypes[] = [PersoElementType.LAYER /* , PersoElementType.THR3D_SCENE */];
+const notAppended: RegularPersoTypes[] = [PersosTypes.LAYER];
 
 export function createContent(type: RegularPersoTypes, options: CreateContentOptions) {
 	let child: Txt | Layer | Thr3d | Sprite = null;
 	switch (type) {
-		case PersoElementType.TEXT:
+		case PersosTypes.TEXT:
 			child = new Txt();
 			break;
-		case PersoElementType.SPRITE:
+		case PersosTypes.SPRITE:
 			child = new Sprite();
 			break;
-		case PersoElementType.LAYER:
+		case PersosTypes.LAYER:
 			child = new Layer(options.parentNode);
 			break;
-		case PersoElementType.THR3D_SCENE:
+		case THR3DTypes.THR3D_SCENE:
 			child = new Thr3d(options);
 			break;
 		default:

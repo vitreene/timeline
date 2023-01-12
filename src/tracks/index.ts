@@ -78,9 +78,10 @@ export class TrackManager {
 		this.controlName = control;
 		action.active.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
-			console.log(trackName, action.timer, this.clock.timers);
 
-			const currentTime = this.clock.timers.get(action.timer[trackName]).currentTime || 0;
+			const currentTime = this.clock.timers.has(action.timer[trackName])
+				? this.clock.timers.get(action.timer[trackName]).currentTime
+				: 0;
 
 			if (track) {
 				track.onEnter();
@@ -88,15 +89,13 @@ export class TrackManager {
 				track.play();
 			}
 
-			/* 
-			if (track) { 
-				console.log('control active ->', trackName, 'get->', action.timer[trackName], currentTime);
+			/* 			if (track) {
+				// console.log('control active ->', trackName, 'get->', action.timer[trackName], currentTime);
 
 				track.onEnter();
 				this.clock.seekAndPlay(trackName, currentTime);
 				track.play();
-			}
-			*/
+			} */
 		});
 		action.inactive.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
@@ -115,10 +114,10 @@ export class TrackManager {
 		console.log('TELCO', control);
 		this.tracks.forEach((track, name) => {
 			if (track.statement === PLAY) {
-				console.log(name, track.events);
+				// console.log(name, track.events);
 			}
 		});
-		console.log('Clock.timers', statements);
+		// console.log('Clock.timers', statements);
 		console.log('————————————————————————————————');
 	}
 
@@ -162,11 +161,16 @@ export class TrackManager {
 			eventsByChannel.forEach((events, channel) => {
 				if (!events.size) return;
 				if (!runs[channel]) runs[channel] = [];
-				if (events.has(time)) {
-					events.get(time).forEach((name) => {
-						const data = dataByChannel.has(name) && dataByChannel.get(name).has(time) && dataByChannel.get(name).get(time);
-						runs[channel].push({ name, time, data, status });
-					});
+
+				// Les events proches ( < TIME_INTERVAL) sont traités ensemble, dans l'ordre.
+				for (let tvalue = time; tvalue < time + TIME_INTERVAL; tvalue++) {
+					if (events.has(tvalue)) {
+						events.get(tvalue).forEach((name) => {
+							const data =
+								dataByChannel.has(name) && dataByChannel.get(name).has(tvalue) && dataByChannel.get(name).get(tvalue);
+							runs[channel].push({ name, time, data, status });
+						});
+					}
 				}
 			});
 		}

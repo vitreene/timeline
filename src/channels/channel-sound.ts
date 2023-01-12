@@ -32,7 +32,7 @@ export class SoundChannel {
 			if (!this.store.has(track)) this.store.set(track, []);
 			this.store.get(track).push({ id, startTime: 0, ...audio });
 		});
-		console.log('SoundChannel', this.store);
+		// console.log('SoundChannel', this.store);
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
@@ -42,8 +42,8 @@ export class SoundChannel {
 			return;
 		}
 
-		console.log('SoundChannel', status.statement, { name, time, status, data });
-		console.log('SoundChannel', this.store);
+		// console.log('SoundChannel', status.statement, { name, time, status, data });
+		// console.log('SoundChannel', this.store);
 
 		this.store.has(status.trackName) &&
 			this.store.get(status.trackName).forEach((audio) => {

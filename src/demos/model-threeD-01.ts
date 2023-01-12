@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { LAYER01, TRACK_PLAY } from '../common/constants';
 
 import type { RunEvent } from '../channels/channel';
-import { PersoElementType as P, Thr3dPersoNode, Thr3dSceneNode } from '../types';
+import { THR3DTypes as P, Thr3dPersoNode, Thr3dSceneNode } from '../types';
 
 const size = { width: 800, height: 1000 };
 const ratio = size.width / size.height;

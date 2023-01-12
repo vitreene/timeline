@@ -1,6 +1,6 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import { PersoElementType as P } from '../types';
+import { THR3DTypes as P } from '../types';
 import type { Store, PersoStore, PersoNode } from '../types';
 type Thr3DStore = any;
 

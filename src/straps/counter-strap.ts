@@ -42,7 +42,7 @@ export class Counter extends Strap {
 		const startTime = status.currentTime;
 		const endTime = startTime + state.duration;
 		const initState = { ...defaultState, ...state, frequency, startTime, endTime };
-		console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
+		// console.log('COUNTER_INIT', status.currentTime, initState, { ...status });
 
 		return initState;
 	};

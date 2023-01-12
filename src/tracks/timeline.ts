@@ -1,7 +1,7 @@
 import { timeInInterval, TrackManager } from '.';
 import { channelManager } from '../channels';
 
-import { SEEK } from '../common/constants';
+import { INITIAL, SEEK } from '../common/constants';
 
 import type { CbStatus } from '../clock';
 import type { MediasStoreProps } from '../preload';
@@ -52,6 +52,13 @@ export class Timeline {
 	}
 
 	private runSeek(status: CbStatus) {
+		this.channels.forEach((channel) =>
+			channel.run({
+				name: INITIAL,
+				time: 0,
+				status,
+			})
+		);
 		const pastEvents = this.tracks.getSeekEvents(status);
 
 		for (const channelName in pastEvents) {
@@ -71,11 +78,11 @@ export class Timeline {
 
 		ti.forEach((time) => {
 			const runEvents = this.tracks.getEvents(time, status);
-			// console.log(runEvents);
 
 			for (const channelName in runEvents) {
 				this.channels.has(channelName as ChannelName) &&
 					runEvents[channelName].forEach((runEvent: RunEvent) => {
+						// console.log(time, runEvent);
 						this.channels.get(channelName as ChannelName).run(runEvent);
 					});
 			}

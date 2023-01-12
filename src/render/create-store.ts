@@ -8,7 +8,7 @@ import type { Store, Eventime, PersoStore } from '../types';
 const root = document.getElementById('app');
 
 export function createStore(persos: PersoStore, addEvent: AddEvent): StorePersos {
-	addInitialEvents(persos, addEvent);
+	// addInitialEvents(persos, addEvent);
 	const store = new StorePersos(addEvent);
 	for (const id in persos) {
 		const perso = store.add(id, persos[id]);
@@ -22,6 +22,13 @@ function addInitialEvents(persos: PersoStore, addEvent: AddEvent) {
 	for (const id in persos) {
 		persos[id].actions[INITIAL] = persos[id].initial;
 	}
+	/* FIXME
+	en ajoutant un event à 0 pour tout element, cela les force à changer d'aspect en cas de changement de tracks, meme s'il sont pas concernés.
+il faudrait que cet event s'applique lors du premier montage de l'element.
+comment le savoir ?
+-> tenir le compte des éléments montés/démontés;
+-> tester si l'element à un parent ?
+	*/
 	const event: Eventime = {
 		channel: DEFAULT_CHANNEL_NAME,
 		name: INITIAL,

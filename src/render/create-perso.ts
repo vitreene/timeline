@@ -3,9 +3,9 @@ import { createContent } from './components';
 import { resolveStyles } from './resolve-styles';
 
 import type { AddEvent } from '../tracks';
-import { PersoElementType, Thr3dSceneNode } from '../types';
 
 import type { Action, PersoItem, PersoNode, PersoThr3dSceneItem } from '../types';
+import { Layer } from './components/layer';
 
 export interface HandlerEmit {
 	e: Event;
@@ -105,11 +105,10 @@ export class StorePersos {
 	};
 
 	private createPerso(id: string, { type, initial, actions, emit }: PersoNode) {
-		const { tag, content, ...initial_ } = initial;
+		const { tag, ...initial_ } = initial;
 		const node = document.createElement(tag || 'div');
 		node.id = id;
 		const child = createContent(type, { parentNode: node, initial });
-		// if (child && type !== PersoElementType.THR3D_SCENE) child.update(content as any);
 
 		const perso: PersoItem = {
 			id,
@@ -121,20 +120,11 @@ export class StorePersos {
 			prec: {},
 			transform: {},
 			style: initial.style || {},
+			parent: undefined,
 			reset,
 			update,
 			//add/remove/Listener ?
 		};
-
-		const spread = this.spread.bind(this, perso);
-		spread(initial_);
-
-		function update(update: Partial<Action>) {
-			if (update) {
-				if (child && update.content) child.update(update.content as any);
-				spread(update);
-			}
-		}
 
 		if (emit) {
 			node.dataset.id = id;
@@ -144,23 +134,43 @@ export class StorePersos {
 			perso.emit = emit;
 		}
 
+		const spread = spreadProps.bind(this, perso);
+		function update(update: Partial<Action>) {
+			if (update) {
+				if (child && update.content) child.update(update.content as any);
+				spread(update);
+			}
+		}
+
+		update(initial_);
 		return perso;
 	}
+}
 
-	private spread(perso: PersoItem, props: Partial<Action>) {
-		if (!props) return;
-		const { style, ...attributes } = props;
-		const { node } = perso;
+function spreadProps(perso: PersoItem, props: Partial<Action>) {
+	if (!props) return;
+	const { style: style_, move, ...attributes } = props;
+	const { node } = perso;
 
-		const style_ = resolveStyles(style, this.zoom, perso);
-		// style_.transform && console.log('TRANSFORM', style_.transform);
-		for (const key in style_) node.style[key] = style_[key];
+	const style = resolveStyles(style_, this.zoom, perso);
+	for (const key in style) node.style[key] = style[key];
 
-		for (const name in attributes) {
-			if (['content', 'tag', 'id', 'track'].includes(name)) continue;
-			const value = attributes[name];
-			if (name in node) node[name] = value;
-			else node.setAttribute(name, value);
+	for (const name in attributes) {
+		if (['content', 'tag', 'id', 'track'].includes(name)) continue;
+		const value = attributes[name];
+		if (name in node) node[name] = value;
+		else node.setAttribute(name, value);
+	}
+
+	if (move) {
+		const parentId = typeof move === 'string' ? move : move.to;
+		perso.parent = parentId || perso.parent;
+		const layer = this.getPerso(parentId)?.child;
+
+		if (layer instanceof Layer) {
+			const order = typeof move === 'object' ? move.order : undefined;
+			layer.add(perso.node, order);
+			layer.update(layer.content);
 		}
 	}
 }
@@ -169,7 +179,9 @@ function reset() {
 	this.transform = {};
 	this.style = {};
 	this.prec = {};
+	this.parent = undefined;
 	removeAttributes(this.node);
+	this.update(this.initial);
 }
 
 function removeAttributes(node: HTMLElement) {

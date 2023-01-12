@@ -1,4 +1,4 @@
-import { Eventime, PersoElementType as P } from '../../types';
+import { Eventime, SoundType as P } from '../../types';
 import { MAIN, LAYER02, TRACK_ENGLISH, THR3D, TRACK_PLAY } from '../../common/constants';
 
 export const sound_1_7b_e_en = {

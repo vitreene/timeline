@@ -2,7 +2,7 @@ import { Telco } from './telco';
 import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
-import { PersoElementType as P } from '../types';
+import { PersosTypes as P } from '../types';
 import {
 	ROOT,
 	LAYER01,
@@ -128,15 +128,13 @@ const _persos: Store = {
 	},
 	[LAYER02]: {
 		type: P.LAYER,
-		initial: { className: 'root-layer' },
-		actions: {
-			enter: { move: ROOT },
-		},
+		initial: { className: 'root-layer', move: ROOT },
+		actions: {},
 	},
 	[LAYER01]: {
 		type: P.LAYER,
-		initial: { className: 'root-layer' },
-		actions: { enter: { move: ROOT } },
+		initial: { className: 'root-layer', move: ROOT },
+		actions: {},
 	},
 	[ID01]: {
 		type: P.TEXT,
@@ -144,7 +142,7 @@ const _persos: Store = {
 		actions: {
 			enter: {
 				move: LAYER02,
-				style: { color: 'red' },
+				style: { color: 'green' },
 				className: 'init-action02',
 			},
 			action01: {
@@ -187,12 +185,20 @@ const _persos: Store = {
 				style: { 'font-size': 48 },
 				className: 'action01-' + ID02,
 			},
+			pause_enter: {
+				transition: {
+					from: { scale: 1 },
+					to: { scale: 1.4 },
+					duration: 500,
+				},
+			},
 		},
 	},
 	titre: {
 		type: P.TEXT,
 		initial: {
 			style: {
+				position: 'absolute',
 				x: 600,
 				y: 530,
 				width: 300,
@@ -202,7 +208,7 @@ const _persos: Store = {
 				'font-family': 'Helvetica',
 				'text-align': 'center',
 			},
-			move: LAYER02,
+			move: { to: LAYER02, order: 'last' },
 		},
 		actions: {
 			text: {
