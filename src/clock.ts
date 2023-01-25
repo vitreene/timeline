@@ -19,7 +19,7 @@ export interface Status {
 	pauseTime: number;
 	headTime: number;
 	elapsed: number;
-	paused: number;
+	// paused: number;
 	delta: number;
 	statement: string;
 	seekTime?: number;
@@ -44,7 +44,7 @@ export const defaultStatus: Status = {
 	currentTime: 0,
 	statement: PAUSE,
 	timers: getTimers(0),
-	paused: 0,
+	// paused: 0,
 	delta: 0,
 };
 
@@ -54,6 +54,7 @@ class Clock {
 	totalElapsed = 0;
 	oldTime = 0;
 	tick = new Set<Cb>();
+	nextTick = new Set<Cb>();
 	timers = new Map<TrackName, CbStatus>();
 	subscribers = new Map<string, { guard: Guard; cb: Set<Cb> }>();
 	constructor(props: Partial<Props>) {
@@ -108,18 +109,20 @@ class Clock {
 
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
-	nextTick(fct: Cb) {
+	scheduleNextTick = (subcription: Cb) => this.nextTick.add(subcription);
+
+	private once(fct: Cb) {
 		const once: Cb = (timer) => {
 			fct(timer);
-			this.unSubscribeTick(once);
+			this.timers.forEach((t) => console.log('TIMER', timer.currentTime, t.trackName, t.statement));
+			this.tick.delete(once);
 		};
-		this.subscribeTick(once);
+		this.tick.add(once);
 	}
 
 	// LOOP ////////////////
 	loop = (initial: number) => {
 		this.timers.forEach((timer) => (timer.currentTime = initial - TIME_INTERVAL));
-
 		const start = performance.now() - initial;
 
 		const loop_ = () => {
@@ -133,7 +136,8 @@ class Clock {
 			this.totalElapsed = Math.round(now - start);
 
 			this.timers.forEach((timer) => {
-				const elapsed = this.totalElapsed - timer.paused;
+				let tickStatus = timer;
+				const elapsed = this.totalElapsed; /* - timer.paused */
 				const timers = getTimers(elapsed);
 
 				switch (timer.statement) {
@@ -144,8 +148,10 @@ class Clock {
 							A cause de la différence de fréquence, des trames peuvent etre perdues ; cette boucle force l'exécution de chacune.
 							Si la différence entre _currentTime et oldTime n'est pas suffisante, il n'y a pas d'actualisation.
 							*/
+
 							const currentTime = elapsed - timer.pauseTime;
 							const cents = (currentTime - timer.currentTime) / 10;
+							// timer.trackName === 'trackEnglish' && console.log({ currentTime, elapsed, pauseTime: timer.pauseTime });
 
 							for (let c = 1; c <= cents; c++) {
 								setTimeout(() => {
@@ -165,8 +171,7 @@ class Clock {
 								});
 							}
 
-							const tickStatus = { ...timer, currentTime };
-							this.tick.forEach((fn) => fn(tickStatus));
+							tickStatus = { ...timer, currentTime };
 						}
 						break;
 
@@ -199,7 +204,7 @@ class Clock {
 							timer.headTime = Math.max(timer.headTime, timer.seekTime);
 							timer.statement = SEEKING;
 							this.timers.set(timer.trackName, timer);
-							this.tick.forEach((fn) => fn(timer));
+							tickStatus = timer;
 						}
 						break;
 
@@ -214,11 +219,16 @@ class Clock {
 						{
 							timer.pauseTime = elapsed - timer.currentTime;
 							this.timers.set(timer.trackName, timer);
-							this.tick.forEach((fn) => fn(timer));
+							tickStatus = timer;
 						}
 						break;
 				}
+
+				this.tick.forEach((fn) => fn(tickStatus));
 			});
+
+			this.nextTick.forEach((fct) => this.once(fct));
+			this.nextTick.clear();
 
 			this.raf = requestAnimationFrame(loop_);
 		};
@@ -237,8 +247,16 @@ class Clock {
 			console.warn(`Pas de timer à ce nom : ${trackName}`);
 			return;
 		}
-
 		this.timers.set(trackName, { ...timer, ...status });
+	}
+
+	seekAndPlay(trackName: TrackName, seekTime_: Time) {
+		this[SEEK](trackName, seekTime_);
+		const seekTime = getTimers(seekTime_).milliemes;
+		const pauseTime = this.totalElapsed - seekTime;
+		this.scheduleNextTick(() => this.setTimer(trackName, { pauseTime, statement: PLAY }));
+
+		console.log('seekAndPlay', this.nextTick);
 	}
 
 	[SEEK](trackName: TrackName, seekTime_: Time) {
@@ -249,13 +267,9 @@ class Clock {
 		}
 		const seekTime = getTimers(seekTime_).milliemes;
 		if (timer.seekTime === seekTime) return;
-		console.log(SEEK, seekTime);
-		this.timers.set(trackName, { ...timer, statement: SEEK, seekTime });
-	}
 
-	seekAndPlay(trackName: TrackName, seekTime: Time) {
-		this[SEEK](trackName, seekTime);
-		this.nextTick(() => this.setTimer(trackName, { statement: PLAY }));
+		console.log(SEEK, trackName, seekTime);
+		this.timers.set(trackName, { ...timer, statement: SEEK, seekTime });
 	}
 }
 

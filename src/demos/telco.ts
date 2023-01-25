@@ -4,9 +4,14 @@ import { SEEK, TRACK_PAUSE, TRACK_PLAY, TRACK_ENGLISH } from '../common/constant
 import type { Cb } from '../clock';
 import type { TrackName } from '../tracks';
 
-const timerOnEnter = {
+const toggleTimer = {
 	[TRACK_PLAY]: TRACK_ENGLISH,
 	[TRACK_ENGLISH]: TRACK_PLAY,
+	[TRACK_PAUSE]: null,
+};
+const togglePlay = {
+	[TRACK_PLAY]: TRACK_PLAY,
+	[TRACK_ENGLISH]: TRACK_ENGLISH,
 	[TRACK_PAUSE]: null,
 };
 
@@ -33,7 +38,7 @@ export class Telco {
 		const action = {
 			active: Array.from(this._active),
 			inactive: [TRACK_PAUSE, ...Array.from(this._inactive)],
-			timer: timerOnEnter,
+			timer: togglePlay,
 		};
 		console.log('PLAY->', action);
 		this.timeline.tracks.control('play', action);
@@ -43,7 +48,7 @@ export class Telco {
 		const action = {
 			active: [TRACK_PAUSE],
 			inactive: [TRACK_ENGLISH, TRACK_PLAY], //TODO  others
-			timer: timerOnEnter,
+			timer: togglePlay,
 		};
 		console.log('PAUSE->', action);
 		this.timeline.tracks.control('pause', action);

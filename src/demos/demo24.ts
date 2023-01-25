@@ -207,6 +207,7 @@ const _persos: Store = {
 				'font-weight': 'bold',
 				'font-family': 'Helvetica',
 				'text-align': 'center',
+				'z-index': 9999,
 			},
 			move: { to: LAYER02, order: 'last' },
 		},

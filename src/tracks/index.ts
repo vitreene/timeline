@@ -75,50 +75,33 @@ export class TrackManager {
 	}
 
 	control(control: ControlName, action: ControlAction) {
+		console.log('————————————————————————————————');
+		console.log('TELCO', control);
+		console.log('————————————————————————————————');
 		this.controlName = control;
-		action.active.forEach((trackName) => {
-			const track = this.tracks.get(trackName);
-
-			const currentTime = this.clock.timers.has(action.timer[trackName])
-				? this.clock.timers.get(action.timer[trackName]).currentTime
-				: 0;
-
-			if (track) {
-				track.onEnter();
-				this.clock.setTimer(trackName, { statement: PLAY });
-				track.play();
-			}
-
-			/* 			if (track) {
-				// console.log('control active ->', trackName, 'get->', action.timer[trackName], currentTime);
-
-				track.onEnter();
-				this.clock.seekAndPlay(trackName, currentTime);
-				track.play();
-			} */
-		});
 		action.inactive.forEach((trackName) => {
 			const track = this.tracks.get(trackName);
 			if (track) {
 				this.clock.setTimer(trackName, { statement: PAUSE });
 				track.onExit();
-				track.pause();
+			}
+		});
+
+		action.active.forEach((trackName) => {
+			const track = this.tracks.get(trackName);
+			const currentTime = this.clock.timers.has(action.timer[trackName])
+				? this.clock.timers.get(action.timer[trackName]).currentTime
+				: 0;
+			console.log('from', action.timer[trackName], '->', currentTime);
+			if (track) {
+				track.onEnter();
+				this.clock.seekAndPlay(trackName, currentTime);
 			}
 		});
 
 		// LOGS /////////////
 		let statements = [];
 		this.clock.timers.forEach((timer, name) => statements.push(`${name} : ${timer.statement}`));
-
-		console.log('————————————————————————————————');
-		console.log('TELCO', control);
-		this.tracks.forEach((track, name) => {
-			if (track.statement === PLAY) {
-				// console.log(name, track.events);
-			}
-		});
-		// console.log('Clock.timers', statements);
-		console.log('————————————————————————————————');
 	}
 
 	getNext(status: CbStatus): NextStatus[] {

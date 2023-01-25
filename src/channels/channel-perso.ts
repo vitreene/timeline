@@ -2,7 +2,7 @@ import { Channel } from './channel';
 import { Transition } from './transition';
 
 import { ChannelName, PersosTypes } from '../types';
-import { INITIAL, PLAY, TIME_INTERVAL } from '../common/constants';
+import { INITIAL, PLAY, SEEK, TIME_INTERVAL } from '../common/constants';
 
 import type { FromTo } from './transition';
 import type { RunEvent, ChannelOptions } from './channel';
@@ -15,6 +15,7 @@ const persoTypes: string[] = Object.values(PersosTypes);
 export type ProgressInterpolation = (time: number, start: number, end: number) => FromTo;
 
 export class PersoChannel extends Channel {
+	hasReset = new Set<string>();
 	store: StorePersos;
 	name = ChannelName.MAIN;
 	transition: Transition;
@@ -38,12 +39,18 @@ export class PersoChannel extends Channel {
 	}
 
 	run({ name, time, status, data }: RunEvent): void {
+		status.statement === PLAY && this.hasReset.size && this.hasReset.clear();
+
 		const { track, ...data_ } = data || {};
 		this.store.persos.forEach((perso, id) => {
-			if (name === INITIAL) perso.reset();
-
 			const action = perso.actions[name];
 			if (action) {
+				// reinitialiser l'élément si SEEK et 1ere action
+				if (status.statement === SEEK && !this.hasReset.has(perso.id)) {
+					perso.reset();
+					this.hasReset.add(perso.id);
+				}
+
 				if (typeof action === 'boolean') {
 					this.queue.add(id, data_, status);
 				} else {

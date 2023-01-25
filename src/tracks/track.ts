@@ -62,17 +62,18 @@ export class TrackComponent {
 	};
 }
 
+// ne sert pas ?
 export class Track extends TrackComponent {
-	[PLAY]() {
-		this.statement = PLAY;
-	}
-	[PAUSE]() {
-		this.statement = PAUSE;
-	}
+	// [PLAY]() {
+	// 	this.statement = PLAY;
+	// }
+	// [PAUSE]() {
+	// 	this.statement = PAUSE;
+	// }
 
-	[SEEK](time: number) {
-		this.statement = SEEK;
-	}
+	// [SEEK](time: number) {
+	// 	this.statement = SEEK;
+	// }
 
 	onEnter() {
 		console.log(`Track ${this.name} entered`);

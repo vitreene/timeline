@@ -5,7 +5,7 @@ import { INITIAL, SEEK } from '../common/constants';
 
 import type { CbStatus } from '../clock';
 import type { MediasStoreProps } from '../preload';
-import type { ChannelName, Eventime } from '../types';
+import { ChannelName, Eventime } from '../types';
 import type { Channel, RunEvent } from '../channels/channel';
 import type { SoundChannel } from '../channels/channel-sound';
 
@@ -82,7 +82,7 @@ export class Timeline {
 			for (const channelName in runEvents) {
 				this.channels.has(channelName as ChannelName) &&
 					runEvents[channelName].forEach((runEvent: RunEvent) => {
-						// console.log(time, runEvent);
+						channelName === ChannelName.SOUND && console.log(time, runEvent);
 						this.channels.get(channelName as ChannelName).run(runEvent);
 					});
 			}
