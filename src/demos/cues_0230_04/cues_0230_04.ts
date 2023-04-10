@@ -1,4 +1,4 @@
-import { Eventime, PersoElementType as P } from '../../types';
+import { Eventime, SoundType, PersosTypes as P } from '../../types';
 import { MAIN, TRACK_PLAY } from '../../common/constants';
 
 const mouthCues = [
@@ -270,7 +270,7 @@ export const cueEvents: Eventime['events'] = [
 ];
 
 export const sound_23_04 = {
-	type: P.SOUND,
+	type: SoundType.SOUND,
 	initial: { src: '/023_04.ogg', track: TRACK_PLAY },
 	actions: {
 		start_sound_23_04: { action: 'start' },

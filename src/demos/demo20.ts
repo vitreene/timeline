@@ -2,7 +2,7 @@ import { Telco } from './telco';
 import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
-import { PersoElementType as P } from '../types';
+import { PersosTypes as P } from '../types';
 import { ROOT, LAYER01, LAYER02, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';

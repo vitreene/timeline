@@ -2,11 +2,13 @@ import { Telco } from './telco';
 import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
-import { PersoElementType as P } from '../types';
+import { PersosTypes as P } from '../types';
 import { ROOT, MAIN, STRAP, END_SEQUENCE, TRACK_PAUSE, TRACK_PLAY, SOUND } from '../common/constants';
 
 import type { Eventime, Initial, Store } from '../types';
-import { kid, mouth, sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
+import { sound_23_04, cueEvents } from './cues_0230_04/cues_0230_04';
+import { kid, mouth } from './kid';
+
 import { cueEventsThree } from './cues_0230_04/cues_0230_three';
 import { modelWes, talk3d } from './model-threeD-01';
 

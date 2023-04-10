@@ -2,7 +2,7 @@ import { Telco } from './telco';
 import { createTelco } from './create-telco';
 import { preload } from '../preload';
 
-import { PersoElementType as P } from '../types';
+import { PersosTypes as P } from '../types';
 import {
 	ROOT,
 	LAYER01,
