@@ -82,15 +82,42 @@ class Timer {
 	};
 }
 
-// DEMO 02
-const timer = new Timer();
+const app = document.getElementById('app');
 const div = document.createElement('div');
 div.style.fontSize = '48px';
-document.body.appendChild(div);
+app.appendChild(div);
+const timer = new Timer();
+const controller = new Controller();
+controller.ticker.add(timer.update);
+
+// DEMO 3
+
+const events = new Map<number, any>();
+events.set(500, { fontWeight: 'bold' });
+events.set(1000, { color: 'red' });
+events.set(3000, { func: controller.stop });
 
 const transformer01 = (time: number) => {
 	div.textContent = String(time);
+	if (events.has(time)) {
+		const style = events.get(time);
+		for (const item in style) {
+			if (item === 'func') style[item]();
+			else div.style[item] = style[item];
+		}
+	}
 };
+
+timer.ticker.add(transformer01);
+controller.start().play();
+
+/* 
+// DEMO 02
+const timer = new Timer();
+const transformer01 = (time: number) => {
+	div.textContent = String(time);
+};
+
 timer.ticker.add(transformer01);
 
 const controller = new Controller();
@@ -117,3 +144,4 @@ setTimeout(() => {
 setTimeout(() => {
 	controller.stop();
 }, 5000);
+ */
