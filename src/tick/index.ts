@@ -11,6 +11,12 @@ un timer utilise un controller pour fournir des valeurs stables d'un compteur te
 
 */
 
+/* 
+Ticker
+add callbacks : (delta:number)=>void
+update : each tick
+*/
+
 type Callback = (delta: number) => void;
 class Ticker {
 	callbacks = new Set<Callback>();
@@ -26,6 +32,12 @@ class Ticker {
 	};
 }
 
+/* 
+register ticker
+controls : play pause start stop 
+tick (delta) => ticket update(delta) 
+raf tick
+*/
 class Controller {
 	elapsed = 0;
 	pauseElapsed = 0;
@@ -72,6 +84,13 @@ class Controller {
 	}
 }
 
+/* 
+Timer
+register ticker
+update : 
+(delta:number)-> set time 
+ticker update(time)
+*/
 class Timer {
 	ticker = new Ticker();
 	elapsed = 0;
@@ -86,6 +105,46 @@ class Timer {
 		}
 	};
 }
+
+/* 
+class 
+register events
+compose actionner
+*/
+class LoopEvent {
+	events: Map<number, unknown>;
+	actionner = actionner;
+	add(events: Map<number, unknown>) {
+		this.events = events;
+	}
+	update = (time: number) => {
+		if (events.has(time)) {
+			this.actionner(events.get(time));
+		}
+	};
+}
+
+/* 
+class 
+register actions
+register components 
+compose effects
+*/
+const actionner = (event) => {
+	for (const item in event) {
+		if (item === 'func') event[item]();
+		else div.style[item] = event[item];
+	}
+};
+
+/* 
+class 
+register effects
+compose queue
+*/
+const effecter = (effect) => {};
+
+// PREP
 
 const app = document.getElementById('app');
 const div = document.createElement('div');
@@ -102,50 +161,13 @@ events.set(500, { fontWeight: 'bold' });
 events.set(1000, { color: 'red' });
 events.set(3000, { func: controller.stop });
 
+const loopEvent = new LoopEvent();
+loopEvent.add(events);
+timer.ticker.add(loopEvent.update);
+
 const transformer01 = (time: number) => {
 	div.textContent = String(time);
-	if (events.has(time)) {
-		const style = events.get(time);
-		for (const item in style) {
-			if (item === 'func') style[item]();
-			else div.style[item] = style[item];
-		}
-	}
 };
-
 timer.ticker.add(transformer01);
+
 controller.start().play();
-
-// // DEMO 02
-// const timer = new Timer();
-// const transformer01 = (time: number) => {
-// 	div.textContent = String(time);
-// };
-
-// timer.ticker.add(transformer01);
-
-// const controller = new Controller();
-// controller.ticker.add(timer.update);
-
-// const transformer02 = (value = 0) => {
-// 	return (delta: number) => {
-// 		value += delta;
-// 		div.style.color = `hsl(${Math.round((value / 10) % 360)} 80% 50%)`;
-// 	};
-// };
-// controller.ticker.add(transformer02(0));
-
-// controller.start().play();
-
-// setTimeout(() => {
-// 	controller.stop();
-// }, 5000);
-
-// const eventTime = new Map([[1000, controller.pause]]);
-
-// const loopEvent = (time: number) => {
-// 	console.log(time);
-// 	if (eventTime.has(time)) eventTime.get(time)();
-// };
-
-// timer.ticker.add(loopEvent);
