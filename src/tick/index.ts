@@ -11,6 +11,8 @@ un timer utilise un controller pour fournir des valeurs stables d'un compteur te
 
 */
 
+import { Transition } from 'src/types';
+
 /* 
 Ticker
 add callbacks : (delta:number)=>void
@@ -50,6 +52,7 @@ class Controller {
 	ticker = new Ticker<ControllerTimeCallback>();
 	playing = false;
 	paused = false;
+	timeScale = 1;
 	play = () => {
 		this.playing = true;
 		this.raf(this.tick);
@@ -84,7 +87,7 @@ class Controller {
 		this.raf(this.tick);
 	};
 	raf = (fn: (delta: number) => void) => {
-		this.playing && requestAnimationFrame(fn);
+		this.playing && requestAnimationFrame((delta) => fn(delta * this.timeScale));
 	};
 	get totalTime() {
 		return this.elapsed + this.pauseElapsed;
@@ -92,7 +95,7 @@ class Controller {
 }
 
 /* 
-Timer
+Timer update chaque 1/100s (rafraichissement raf)
 register ticker
 update : 
 (delta:number)-> set time 
@@ -131,20 +134,27 @@ class LoopEvent {
 			this.actionner.update({ ...events.get(time), time });
 		}
 	};
+	seek(time: number) {
+		/* 
+		select events en dessous de time
+		update avec delta = time - event.time
+
+		*/
+	}
 }
 
 /* 
 class 
 register actions
-register components 
-compose effects
+register components ?
+compose effects ?
 */
 class Actionner {
 	actions: Map<string, any>;
 	add(actions: Map<string, any>) {
 		this.actions = actions;
 	}
-	update = ({ time, name, data }: { name: string; time: number; data?: any }) => {
+	update = ({ delta, time, name, data }: { delta: number; name: string; time: number; data?: any }) => {
 		const action = { ...this.actions.get(name), ...data };
 		for (const attr in action) {
 			switch (attr) {
@@ -162,7 +172,7 @@ class Actionner {
 					break;
 				case 'transition':
 					console.log(action[attr]);
-					new Tween(action[attr]);
+					new Tween(delta, action[attr]);
 				default:
 					break;
 			}
@@ -183,10 +193,13 @@ class Tween {
 	removeTick: () => void;
 	from: any;
 	to: any;
-	constructor(transition) {
+	constructor(delta = 0, transition: Transition) {
 		this.from = transition.from;
 		this.to = transition.to;
 		this.duration = transition.duration || 500;
+		//TODO selon play ou seek
+		// this.removeTick = ()=>{}
+		//this.tick(delta)
 		this.removeTick = controller.ticker.add(this.tick);
 	}
 
@@ -202,6 +215,7 @@ class Tween {
 	lerp(start: number, end: number, amt: number) {
 		return (1 - amt) * start + amt * end;
 	}
+	// seulement cette partie dans raf
 	updateStyle = (item: string, prop: number) => {
 		switch (item) {
 			case 'x':
@@ -210,6 +224,7 @@ class Tween {
 			case 'font-size':
 				div.style.fontSize = prop + 'px';
 				break;
+			case 'top':
 			case 'right':
 				div.style[item] = prop + 'px';
 				break;
