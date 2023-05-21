@@ -38,10 +38,12 @@ class Controller {
 	};
 	pause = () => {
 		this.playing = false;
+		return this;
 	};
 	stop = () => {
 		this.playing = false;
 		this.ticker.reset();
+		return this;
 	};
 	start = (time = 0) => {
 		this.elapsed = 0;
@@ -77,8 +79,11 @@ class Timer {
 
 	update = (delta: number) => {
 		this.elapsed += delta;
-		this.time = Math.floor(this.elapsed / 10) * 10;
-		this.time % 100 === 0 && this.ticker.update(this.time);
+		const time = Math.round(this.elapsed / 10) * 10;
+		if (this.time !== time) {
+			this.time = time;
+			this.time % 100 === 0 && this.ticker.update(this.time);
+		}
 	};
 }
 
@@ -134,14 +139,14 @@ controller.ticker.add(transformer02(0));
 controller.start().play();
 
 setTimeout(() => {
-	controller.pause();
-}, 1000);
-
-setTimeout(() => {
-	controller.play();
-}, 3000);
-
-setTimeout(() => {
 	controller.stop();
 }, 5000);
- */
+
+const eventTime = new Map([[1000, controller.pause]]);
+
+const loopEvent = (time: number) => {
+	console.log(time);
+	if (eventTime.has(time)) eventTime.get(time)();
+};
+
+timer.ticker.add(loopEvent);
