@@ -116,37 +116,36 @@ const transformer01 = (time: number) => {
 timer.ticker.add(transformer01);
 controller.start().play();
 
-/* 
-// DEMO 02
-const timer = new Timer();
-const transformer01 = (time: number) => {
-	div.textContent = String(time);
-};
+// // DEMO 02
+// const timer = new Timer();
+// const transformer01 = (time: number) => {
+// 	div.textContent = String(time);
+// };
 
-timer.ticker.add(transformer01);
+// timer.ticker.add(transformer01);
 
-const controller = new Controller();
-controller.ticker.add(timer.update);
+// const controller = new Controller();
+// controller.ticker.add(timer.update);
 
-const transformer02 = (value = 0) => {
-	return (delta: number) => {
-		value += delta;
-		div.style.color = `hsl(${Math.round((value / 10) % 360)} 80% 50%)`;
-	};
-};
-controller.ticker.add(transformer02(0));
+// const transformer02 = (value = 0) => {
+// 	return (delta: number) => {
+// 		value += delta;
+// 		div.style.color = `hsl(${Math.round((value / 10) % 360)} 80% 50%)`;
+// 	};
+// };
+// controller.ticker.add(transformer02(0));
 
-controller.start().play();
+// controller.start().play();
 
-setTimeout(() => {
-	controller.stop();
-}, 5000);
+// setTimeout(() => {
+// 	controller.stop();
+// }, 5000);
 
-const eventTime = new Map([[1000, controller.pause]]);
+// const eventTime = new Map([[1000, controller.pause]]);
 
-const loopEvent = (time: number) => {
-	console.log(time);
-	if (eventTime.has(time)) eventTime.get(time)();
-};
+// const loopEvent = (time: number) => {
+// 	console.log(time);
+// 	if (eventTime.has(time)) eventTime.get(time)();
+// };
 
-timer.ticker.add(loopEvent);
+// timer.ticker.add(loopEvent);
