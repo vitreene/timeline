@@ -17,18 +17,24 @@ add callbacks : (delta:number)=>void
 update : each tick
 */
 
-type Callback = (delta: number) => void;
-class Ticker {
-	callbacks = new Set<Callback>();
-	add = (fn: Callback) => {
+type ControllerTimeCallback = (delta: number) => void;
+interface TimeOptions {
+	delta: number;
+	options: { time?: number };
+}
+type TimerCallback = (data: TimeOptions) => void;
+
+class Ticker<T extends Function> {
+	callbacks = new Set<T>();
+	add = (fn: T) => {
 		this.callbacks.add(fn);
 		return () => this.callbacks.delete(fn);
 	};
 	reset = () => {
 		this.callbacks.clear();
 	};
-	update = (delta: number) => {
-		this.callbacks.forEach((fn) => fn(delta));
+	update = (data: any) => {
+		this.callbacks.forEach((fn) => fn(data));
 	};
 }
 
@@ -41,7 +47,7 @@ raf tick
 class Controller {
 	elapsed = 0;
 	pauseElapsed = 0;
-	ticker = new Ticker();
+	ticker = new Ticker<ControllerTimeCallback>();
 	playing = false;
 	paused = false;
 	play = () => {
@@ -55,6 +61,7 @@ class Controller {
 	stop = () => {
 		this.playing = false;
 		this.ticker.reset();
+		console.log('STOP');
 		return this;
 	};
 	start = (time = 0) => {
@@ -72,11 +79,11 @@ class Controller {
 		const effectiveTime = time - this.pauseElapsed;
 		const delta = effectiveTime - this.elapsed;
 		this.elapsed = effectiveTime;
-
+		const payload = { delta, options: { time } };
 		this.ticker.update(delta);
 		this.raf(this.tick);
 	};
-	raf = (fn: Callback) => {
+	raf = (fn: (delta: number) => void) => {
 		this.playing && requestAnimationFrame(fn);
 	};
 	get totalTime() {
@@ -92,7 +99,7 @@ update :
 ticker update(time)
 */
 class Timer {
-	ticker = new Ticker();
+	ticker = new Ticker<TimerCallback>();
 	elapsed = 0;
 	time = 0;
 
@@ -101,7 +108,7 @@ class Timer {
 		const time = Math.round(this.elapsed / 10) * 10;
 		if (this.time !== time) {
 			this.time = time;
-			this.time % 100 === 0 && this.ticker.update(this.time);
+			this.time % 100 === 0 && this.ticker.update({ delta, options: { time } });
 		}
 	};
 }
@@ -113,13 +120,15 @@ compose actionner
 */
 class LoopEvent {
 	events: Map<number, unknown>;
-	actionner = actionner;
+	actionner = new Actionner();
+
 	add(events: Map<number, unknown>) {
 		this.events = events;
 	}
-	update = (time: number) => {
+	update = ({ options }) => {
+		const { time } = options;
 		if (events.has(time)) {
-			this.actionner(events.get(time));
+			this.actionner.update({ ...events.get(time), time });
 		}
 	};
 }
@@ -130,12 +139,36 @@ register actions
 register components 
 compose effects
 */
-const actionner = (event) => {
-	for (const item in event) {
-		if (item === 'func') event[item]();
-		else div.style[item] = event[item];
+class Actionner {
+	actions: Map<string, any>;
+	add(actions: Map<string, any>) {
+		this.actions = actions;
 	}
-};
+	update = ({ time, name, data }: { name: string; time: number; data?: any }) => {
+		const action = { ...this.actions.get(name), ...data };
+		for (const attr in action) {
+			switch (attr) {
+				case 'action':
+					action[attr]();
+					break;
+				case 'style':
+					{
+						const style = action[attr];
+						for (const s in style) div.style[s] = style[s];
+					}
+					break;
+				case 'className':
+					div.classList.add(action[attr]);
+					break;
+				case 'transition':
+					console.log(action[attr]);
+					new Tween(action[attr]);
+				default:
+					break;
+			}
+		}
+	};
+}
 
 /* 
 class 
@@ -144,30 +177,108 @@ compose queue
 */
 const effecter = (effect) => {};
 
+class Tween {
+	duration: number;
+	progress: number = 0;
+	removeTick: () => void;
+	from: any;
+	to: any;
+	constructor(transition) {
+		this.from = transition.from;
+		this.to = transition.to;
+		this.duration = transition.duration || 500;
+		this.removeTick = controller.ticker.add(this.tick);
+	}
+
+	tick = (delta: number) => {
+		this.progress += delta;
+		if (this.progress >= this.duration) this.removeTick();
+
+		for (const item in this.to) {
+			const prop = this.lerp(this.from[item], this.to[item], this.progress / this.duration);
+			this.updateStyle(item, prop);
+		}
+	};
+	lerp(start: number, end: number, amt: number) {
+		return (1 - amt) * start + amt * end;
+	}
+	updateStyle = (item: string, prop: number) => {
+		switch (item) {
+			case 'x':
+				div.style.translate = prop + 'px';
+				break;
+			case 'font-size':
+				div.style.fontSize = prop + 'px';
+				break;
+			case 'right':
+				div.style[item] = prop + 'px';
+				break;
+
+			default:
+				break;
+		}
+		div.style[item] = prop;
+	};
+}
+
 // PREP
 
 const app = document.getElementById('app');
 const div = document.createElement('div');
 div.style.fontSize = '48px';
+div.style.position = 'absolute';
 app.appendChild(div);
 const timer = new Timer();
 const controller = new Controller();
 controller.ticker.add(timer.update);
 
-// DEMO 3
+////////////
+// DEMO 4 //
+////////////
 
-const events = new Map<number, any>();
-events.set(500, { fontWeight: 'bold' });
-events.set(1000, { color: 'red' });
-events.set(3000, { func: controller.stop });
+// INIT
+const events = new Map<number, any>([
+	[500, { name: 'enter' }],
+	[1000, { name: 'action01' }],
+	[3000, { name: 'action02', data: { style: { 'font-size': '150px' } } }],
+]);
 
-const loopEvent = new LoopEvent();
-loopEvent.add(events);
-timer.ticker.add(loopEvent.update);
+const actions = new Map<string, any>(
+	Object.entries({
+		enter: {
+			style: { color: 'orange' },
+			className: 'init-action',
+		},
+		action01: {
+			style: { 'font-weight': 'bold' },
+			className: 'action01',
+			transition: {
+				from: { 'font-size': 16, top: 0, right: 50, x: 0 },
+				to: { 'font-size': 120, top: 100, right: 100, x: -300 },
+				duration: 1500,
+			},
+		},
+		action02: {
+			className: 'action02',
+			action: controller.stop,
+		},
+	})
+);
 
-const transformer01 = (time: number) => {
+const transformer01 = ({ options: { time } }: TimeOptions) => {
 	div.textContent = String(time);
 };
+
+// PROCESS
+const loopEvent = new LoopEvent();
+loopEvent.add(events);
+loopEvent.actionner.add(actions);
+
 timer.ticker.add(transformer01);
+timer.ticker.add(loopEvent.update);
 
 controller.start().play();
+
+setTimeout(() => {
+	if (controller.playing) controller.stop();
+}, 5000);
