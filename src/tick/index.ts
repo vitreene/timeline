@@ -72,6 +72,11 @@ class Controller {
 		this.tick(time);
 		return this;
 	};
+	seek(time = 0) {
+		this.pause();
+		loopEvent.seek(time);
+		return this;
+	}
 	tick = (time: number) => {
 		if (this.paused === true) {
 			this.pauseElapsed += time - this.elapsed;
@@ -121,25 +126,27 @@ class
 register events
 compose actionner
 */
+type MapEvent = Map<number, any>;
 class LoopEvent {
-	events: Map<number, unknown>;
+	events: MapEvent;
 	actionner = new Actionner();
 
-	add(events: Map<number, unknown>) {
+	add(events: Map<number, any>) {
 		this.events = events;
 	}
 	update = ({ options }) => {
 		const { time } = options;
-		if (events.has(time)) {
-			this.actionner.update({ ...events.get(time), time });
+		if (this.events.has(time)) {
+			this.actionner.update({ ...this.events.get(time), time });
 		}
 	};
-	seek(time: number) {
-		/* 
-		select events en dessous de time
-		update avec delta = time - event.time
-
-		*/
+	seek(seek: number) {
+		const { select, last } = selectUpTo(this.events, seek);
+		const delta = seek - last;
+		select.forEach((event, time) => {
+			const delta = seek - time;
+			this.actionner.update({ ...event, delta, time, seek: true });
+		});
 	}
 }
 
@@ -154,10 +161,25 @@ class Actionner {
 	add(actions: Map<string, any>) {
 		this.actions = actions;
 	}
-	update = ({ delta, time, name, data }: { delta: number; name: string; time: number; data?: any }) => {
+	update = ({
+		delta,
+		time,
+		name,
+		data,
+		seek = false,
+	}: {
+		delta: number;
+		name: string;
+		time: number;
+		seek: boolean;
+		data?: any;
+	}) => {
 		const action = { ...this.actions.get(name), ...data };
 		for (const attr in action) {
 			switch (attr) {
+				case 'content':
+					div.textContent = action[attr];
+					break;
 				case 'action':
 					action[attr]();
 					break;
@@ -172,7 +194,7 @@ class Actionner {
 					break;
 				case 'transition':
 					console.log(action[attr]);
-					new Tween(delta, action[attr]);
+					new Tween(delta, action[attr], seek);
 				default:
 					break;
 			}
@@ -193,19 +215,28 @@ class Tween {
 	removeTick: () => void;
 	from: any;
 	to: any;
-	constructor(delta = 0, transition: Transition) {
+
+	constructor(delta = 0, transition: Transition, seek = false) {
+		const duration = transition.duration || 500;
+		if (delta >= duration) {
+			console.log({ delta, duration, seek });
+
+			for (const item in this.to) this.updateStyle(item, this.to[item]);
+			return;
+		}
 		this.from = transition.from;
 		this.to = transition.to;
-		this.duration = transition.duration || 500;
-		//TODO selon play ou seek
-		// this.removeTick = ()=>{}
-		//this.tick(delta)
-		this.removeTick = controller.ticker.add(this.tick);
+		this.duration = duration || 500;
+		if (seek) this.tick(delta);
+		else this.removeTick = controller.ticker.add(this.tick);
 	}
 
 	tick = (delta: number) => {
 		this.progress += delta;
-		if (this.progress >= this.duration) this.removeTick();
+		if (this.progress >= this.duration) {
+			this.progress = this.duration;
+			this.removeTick();
+		}
 
 		for (const item in this.to) {
 			const prop = this.lerp(this.from[item], this.to[item], this.progress / this.duration);
@@ -236,6 +267,18 @@ class Tween {
 	};
 }
 
+function selectUpTo(map: MapEvent, upTo: number): { select: MapEvent; last: number } {
+	const select: MapEvent = new Map();
+	let last = 0;
+	map.forEach((v, k) => {
+		if (k <= upTo) {
+			select.set(k, v);
+			last = Math.max(k, last);
+		}
+	});
+	return { select, last };
+}
+
 // PREP
 
 const app = document.getElementById('app');
@@ -254,6 +297,7 @@ controller.ticker.add(timer.update);
 // INIT
 const events = new Map<number, any>([
 	[500, { name: 'enter' }],
+	[700, { name: 'action03' }],
 	[1000, { name: 'action01' }],
 	[3000, { name: 'action02', data: { style: { 'font-size': '150px' } } }],
 ]);
@@ -277,6 +321,10 @@ const actions = new Map<string, any>(
 			className: 'action02',
 			action: controller.stop,
 		},
+		action03: {
+			className: 'action03',
+			content: 'ToTO',
+		},
 	})
 );
 
@@ -292,8 +340,11 @@ loopEvent.actionner.add(actions);
 timer.ticker.add(transformer01);
 timer.ticker.add(loopEvent.update);
 
-controller.start().play();
+// controller.start().play();
+controller.start().seek(1700);
 
 setTimeout(() => {
 	if (controller.playing) controller.stop();
 }, 5000);
+
+// console.log(selectUpTo(events, 1100));
