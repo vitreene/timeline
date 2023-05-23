@@ -47,37 +47,64 @@ tick (delta) => ticket update(delta)
 raf tick
 */
 class Controller {
+	timestamp = 0;
+	pauseTime = 0;
+	timeOffset = 0;
+
 	elapsed = 0;
 	pauseElapsed = 0;
-	ticker = new Ticker<ControllerTimeCallback>();
-	playing = false;
-	paused = false;
+
 	timeScale = 1;
+	paused = false;
+	playing = false;
+	ticker = new Ticker<ControllerTimeCallback>();
+
+	reset = () => {
+		this.elapsed = 0;
+
+		this.timeOffset = 0;
+		this.timestamp = 0;
+		this.pauseTime = 0;
+	};
+
 	play = () => {
+		if (!this.playing) {
+			this.timeOffset = this.timestamp - this.timeOffset - this.pauseTime;
+			this.pauseTime = 0;
+		}
 		this.playing = true;
 		this.raf(this.tick);
 	};
 	pause = () => {
+		this.pauseTime = this.timestamp;
 		this.playing = false;
 		return this;
 	};
 	stop = () => {
+		cancelAnimationFrame(this.cancelRaf);
 		this.playing = false;
 		this.ticker.reset();
 		console.log('STOP');
 		return this;
 	};
 	start = (time = 0) => {
-		this.elapsed = 0;
-		this.tick(time);
+		this.reset();
+		requestAnimationFrame(this.updateTimeStamp);
+		// this.tick(time);
 		return this;
 	};
-	seek(time = 0) {
-		this.pause();
+
+	seek = (time = 0) => {
+		this.elapsed = time;
+
+		this.playing = false;
 		loopEvent.seek(time);
 		return this;
-	}
+	};
+
 	tick = (time: number) => {
+		console.log('tick', time - this.timeOffset);
+
 		if (this.paused === true) {
 			this.pauseElapsed += time - this.elapsed;
 			this.paused = false;
@@ -91,12 +118,22 @@ class Controller {
 		this.ticker.update(delta);
 		this.raf(this.tick);
 	};
+
 	raf = (fn: (delta: number) => void) => {
-		this.playing && requestAnimationFrame((delta) => fn(delta * this.timeScale));
+		requestAnimationFrame((timestamp) => {
+			this.playing && fn(timestamp * this.timeScale);
+		});
 	};
-	get totalTime() {
-		return this.elapsed + this.pauseElapsed;
-	}
+
+	cancelRaf = null;
+	updateTimeStamp = (timestamp: number) => {
+		this.timestamp = timestamp * this.timeScale;
+		this.cancelRaf = requestAnimationFrame(this.updateTimeStamp);
+	};
+
+	// get totalTime() {
+	// 	return this.elapsed + this.pauseElapsed;
+	// }
 }
 
 /* 
@@ -220,15 +257,14 @@ class Tween {
 		const duration = transition.duration || 500;
 		if (delta >= duration) {
 			console.log({ delta, duration, seek });
-
 			for (const item in this.to) this.updateStyle(item, this.to[item]);
 			return;
 		}
+		if (seek) this.tick(delta);
 		this.from = transition.from;
 		this.to = transition.to;
 		this.duration = duration || 500;
-		if (seek) this.tick(delta);
-		else this.removeTick = controller.ticker.add(this.tick);
+		this.removeTick = controller.ticker.add(this.tick);
 	}
 
 	tick = (delta: number) => {
@@ -319,7 +355,7 @@ const actions = new Map<string, any>(
 		},
 		action02: {
 			className: 'action02',
-			action: controller.stop,
+			// action: controller.stop,
 		},
 		action03: {
 			className: 'action03',
@@ -340,11 +376,25 @@ loopEvent.actionner.add(actions);
 timer.ticker.add(transformer01);
 timer.ticker.add(loopEvent.update);
 
-// controller.start().play();
-controller.start().seek(1700);
+controller.start().play();
+// controller.start().seek(1700).play();
+
+setTimeout(() => {
+	console.log('PAUSE');
+	console.log('timestamp', controller.timestamp);
+	console.log('pauseTime', controller.pauseTime);
+	controller.pause();
+}, 1000);
+
+setTimeout(() => {
+	console.log('PLAY');
+	console.log('timestamp', controller.timestamp);
+	console.log('pauseTime', controller.pauseTime);
+	controller.play();
+}, 3000);
 
 setTimeout(() => {
 	if (controller.playing) controller.stop();
-}, 5000);
+}, 4000);
 
 // console.log(selectUpTo(events, 1100));
