@@ -35,7 +35,7 @@ class Ticker<T extends Function> {
 	reset = () => {
 		this.callbacks.clear();
 	};
-	update = (data: any) => {
+	update = (data: unknown) => {
 		this.callbacks.forEach((fn) => fn(data));
 	};
 }
@@ -147,6 +147,8 @@ class Timer {
 	ticker = new Ticker<TimerCallback>();
 	elapsed = 0;
 	time = 0;
+
+	// seek ?
 
 	update = (delta: number) => {
 		this.elapsed += delta;
@@ -322,9 +324,6 @@ const div = document.createElement('div');
 div.style.fontSize = '48px';
 div.style.position = 'absolute';
 app.appendChild(div);
-const timer = new Timer();
-const controller = new Controller();
-controller.ticker.add(timer.update);
 
 ////////////
 // DEMO 4 //
@@ -369,6 +368,10 @@ const transformer01 = ({ options: { time } }: TimeOptions) => {
 };
 
 // PROCESS
+const timer = new Timer();
+const controller = new Controller();
+controller.ticker.add(timer.update);
+
 const loopEvent = new LoopEvent();
 loopEvent.add(events);
 loopEvent.actionner.add(actions);
@@ -376,6 +379,7 @@ loopEvent.actionner.add(actions);
 timer.ticker.add(transformer01);
 timer.ticker.add(loopEvent.update);
 
+// PLAY
 controller.start().play();
 // controller.start().seek(1700).play();
 
