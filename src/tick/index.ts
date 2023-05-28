@@ -1,64 +1,86 @@
-/* 
-créer une class Ticker 
-- avec subscribe 
-- method tick recoit un delta et le passe aux observables
-
-au dessus, un controller avec
-- method play/stop/pause
-- un compteur elapsed
-
-un timer utilise un controller pour fournir des valeurs stables d'un compteur temps
-
-*/
-
 import { Transition } from 'src/types';
 
-/* 
-Ticker
-add callbacks : (delta:number)=>void
-update : each tick
-*/
+class Controller {
+	timer = new Timer();
+	ticker = new Ticker();
+	loopEvent = null;
+
+	constructor(actions, events) {
+		this.ticker.handlers.store(this.timer.update);
+		this.loopEvent = new LoopEvent(this.ticker.handlers.store);
+		this.registerEvents(events);
+		this.registerActions(actions);
+	}
+
+	registerEvents = (events) => {
+		this.loopEvent.add(events);
+		this.timer.handlers.store(this.loopEvent.update);
+	};
+	registerActions = (actions) => {
+		this.loopEvent.actionner.add(actions);
+	};
+	addToTick = (fn) => {
+		return this.ticker.handlers.store(fn);
+	};
+	addToTimer = (fn) => {
+		return this.timer.handlers.store(fn);
+	};
+
+	reset = () => {
+		this.ticker.reset();
+		return this;
+	};
+	play = () => {
+		this.ticker.play();
+		return this;
+	};
+	pause = () => {
+		this.ticker.pause();
+		return this;
+	};
+	stop = () => {
+		this.ticker.stop();
+		return this;
+	};
+	start = () => {
+		this.ticker.start();
+		return this;
+	};
+	seek = (time = 0) => {
+		this.timer.seek(time);
+		this.loopEvent.seek(time);
+		return this;
+	};
+}
 
 type ControllerTimeCallback = (delta: number) => void;
+
 interface TimeOptions {
 	delta: number;
 	options: { time?: number };
 }
 type TimerCallback = (data: TimeOptions) => void;
 
-class Ticker<T extends Function> {
-	callbacks = new Set<T>();
-	add = (fn: T) => {
-		this.callbacks.add(fn);
-		return () => this.callbacks.delete(fn);
+/* 
+Store
+add callbacks : (delta:number)=>void
+update : each tick
+*/
+
+class Store<T extends Function> extends Set {
+	store = (fn: T) => {
+		this.add(fn);
+		return () => this.delete(fn);
 	};
 	reset = () => {
-		this.callbacks.clear();
+		this.clear();
 	};
 	update = (data: unknown) => {
-		this.callbacks.forEach((fn) => fn(data));
+		this.forEach((fn) => fn(data));
 	};
 }
 
-/* 
-register ticker
-controls : play pause start stop 
-tick (delta) => ticket update(delta) 
-raf tick
-*/
-//  Refaire Controller
-//
-
-/* 
-start = tm
-raf(tm)=> 
-	elapsed = tm-start
-	fn(elapsed)
-pause()=> pause = elapsed
-play() => elapsed = tm - pause
-*/
-
-class Controller {
+class Ticker {
 	timeStamp = 0;
 	timePause = 0;
 	timeScale = 1;
@@ -68,7 +90,7 @@ class Controller {
 	playing = false;
 	cancelRaf = null;
 
-	ticker = new Ticker<ControllerTimeCallback>();
+	handlers = new Store<ControllerTimeCallback>();
 
 	reset = () => {
 		this.timeStamp = 0;
@@ -77,27 +99,21 @@ class Controller {
 		this.timeElapsed = 0;
 	};
 
-	play = () => {
-		this.playing = true;
-		return this;
-	};
-	pause = () => {
-		this.playing = false;
-		return this;
-	};
+	play = () => (this.playing = true);
+
+	pause = () => (this.playing = false);
 
 	stop = () => {
 		cancelAnimationFrame(this.cancelRaf);
 		this.playing = false;
-		this.ticker.reset();
+		this.handlers.reset();
 		console.log('STOP');
-		return this;
 	};
+
 	start = (seconds = 0) => {
 		console.log('START', seconds);
 		this.reset();
 		this.tick(0);
-		return this;
 	};
 
 	tick = (timestamp: number) => {
@@ -113,7 +129,7 @@ class Controller {
 			this.timeElapsed = time;
 			// console.log('TICK', this.timeElapsed, delta);
 
-			this.ticker.update(delta);
+			this.handlers.update(delta);
 		}
 
 		this.raf(this.tick);
@@ -128,31 +144,28 @@ class Controller {
 
 /* 
 Timer update chaque 1/100s (rafraichissement raf)
-register ticker
+register store
 update : 
 (delta:number)-> set time 
-ticker update(time)
+store update(time)
 */
 class Timer {
-	ticker = new Ticker<TimerCallback>();
+	handlers = new Store<TimerCallback>();
 	elapsed = 0;
 	time = 0;
 
 	seek(time: number) {
 		controller.pause();
 		this.elapsed = time;
-		loopEvent.seek(time);
 	}
 
 	update = (delta: number) => {
-		// apres un seek, delta devrait etre à 0
 		// console.log('TIMER', delta, this.elapsed);
-
 		this.elapsed += delta;
 		const time = Math.round(this.elapsed / 10) * 10;
 		if (this.time !== time) {
 			this.time = time;
-			this.time % 100 === 0 && this.ticker.update({ delta, options: { time } });
+			this.time % 100 === 0 && this.handlers.update({ delta, options: { time } });
 		}
 	};
 }
@@ -166,8 +179,11 @@ type MapEvent = Map<number, any>;
 
 class LoopEvent {
 	events: MapEvent;
-	actionner = new Actionner();
+	actionner = null;
 
+	constructor(ticker) {
+		this.actionner = new Actionner(ticker);
+	}
 	add(events: Map<number, any>) {
 		this.events = events;
 	}
@@ -195,6 +211,12 @@ compose effects ?
 */
 class Actionner {
 	actions: Map<string, any>;
+	ticker = null;
+
+	constructor(ticker) {
+		this.ticker = ticker;
+	}
+
 	add(actions: Map<string, any>) {
 		this.actions = actions;
 	}
@@ -231,7 +253,7 @@ class Actionner {
 					break;
 				case 'transition':
 					console.log('transition', time, delta, seek, action[attr]);
-					new Tween(delta, action[attr], seek);
+					new Tween(delta, action[attr], seek, this.ticker);
 				default:
 					break;
 			}
@@ -248,11 +270,13 @@ compose queue
 class Tween {
 	duration: number;
 	progress: number = 0;
-	removeTick: () => void;
 	from: any;
 	to: any;
+	removeTick: () => void;
+	ticker: (fn: (delta: number) => void) => () => void;
 
-	constructor(delta = 0, transition: Transition, seek = false) {
+	constructor(delta = 0, transition: Transition, seek = false, ticker) {
+		this.ticker = ticker;
 		const duration = transition.duration || 500;
 
 		if (delta >= duration) {
@@ -266,7 +290,8 @@ class Tween {
 		this.duration = duration || 500;
 		// si delta ne vaut pas 0, c'est un seek ?
 		if (seek) this.tick(delta);
-		this.removeTick = controller.ticker.add(this.tick);
+		// this.removeTick = controller.ticker.handlers.store(this.tick);
+		this.removeTick = this.ticker(this.tick);
 	}
 
 	tick = (delta: number) => {
@@ -371,25 +396,14 @@ const transformer01 = ({ options: { time } }: TimeOptions) => {
 };
 
 // PROCESS
-const timer = new Timer();
-const controller = new Controller();
-controller.ticker.add(timer.update);
-
-const loopEvent = new LoopEvent();
-loopEvent.add(events);
-loopEvent.actionner.add(actions);
-
-timer.ticker.add(transformer01);
-timer.ticker.add(loopEvent.update);
+const controller = new Controller(actions, events);
+controller.addToTimer(transformer01);
 
 // PLAY
-controller.start().play();
-timer.seek(2000);
+controller.start().play().seek(2000);
 
 setTimeout(() => {
 	console.log('PLAY');
-	console.log('timeElapsed', controller.timeElapsed);
-	console.log('timePause', controller.timePause);
 	controller.play();
 }, 1000);
 
@@ -430,3 +444,15 @@ setTimeout(() => {
 }, 4000);
 
 // console.log(selectUpTo(events, 1100));
+
+/* TODO
+- wait
+- types 
+- queue
+- render
+
+multi components
+tween
+tests events, actions
+
+*/

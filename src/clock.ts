@@ -62,7 +62,7 @@ class Clock {
 		this.addFilter(DEFAULT_TIMER, ({ timers }: Status) => timers.centiemes === timers.diziemes * 10);
 		this.addFilter('seconds', ({ timers }: Status) => timers.diziemes === timers.seconds * 10);
 
-		this.subscribers.get(DEFAULT_TIMER).cb.add(this.onEndLoop(props.endsAt));
+		this.subscribers.get(DEFAULT_TIMER).cb.store(this.onEndLoop(props.endsAt));
 	}
 
 	addFilter(frequency: string, guard: Guard) {
@@ -95,7 +95,7 @@ class Clock {
 		const { cb } = this.subscribers.get(frequency);
 
 		if (!cb.has(subcription)) {
-			cb.add(subcription);
+			cb.store(subcription);
 			return this.unSubscribe(subcription, frequency);
 		} else console.warn('this subcription already exist', subcription.name);
 	};
@@ -103,13 +103,13 @@ class Clock {
 	unSubscribe = (fct: Cb, frequency: string) => () => this.subscribers.get(frequency).cb.delete(fct);
 
 	subscribeTick = (subcription: Cb) => {
-		this.tick.add(subcription);
+		this.tick.store(subcription);
 		return this.unSubscribeTick(subcription);
 	};
 
 	unSubscribeTick = (subcription: Cb) => () => this.tick.delete(subcription);
 
-	scheduleNextTick = (subcription: Cb) => this.nextTick.add(subcription);
+	scheduleNextTick = (subcription: Cb) => this.nextTick.store(subcription);
 
 	private once(fct: Cb) {
 		const once: Cb = (timer) => {
@@ -117,7 +117,7 @@ class Clock {
 			this.timers.forEach((t) => console.log('TIMER', timer.currentTime, t.trackName, t.statement));
 			this.tick.delete(once);
 		};
-		this.tick.add(once);
+		this.tick.store(once);
 	}
 
 	// LOOP ////////////////

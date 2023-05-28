@@ -45,12 +45,12 @@ export class TrackComponent {
 		const channelEvent = this.events.get(channel);
 		if (channelEvent.has(startAt)) {
 			const _events = channelEvent.get(startAt);
-			_events.add(event.name);
+			_events.store(event.name);
 			channelEvent.set(startAt, _events);
 		} else {
 			channelEvent.set(startAt, new Set<string>([event.name]));
 		}
-		this.times.add(startAt);
+		this.times.store(startAt);
 		this.addData(event, startAt);
 	}
 

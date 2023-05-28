@@ -26,9 +26,9 @@ export class Telco {
 	constructor(props) {
 		this.timeline = new Timeline(props);
 		this.toggleActive = this.toggleActive.bind(this);
-		this._active.add(TRACK_PLAY);
+		this._active.store(TRACK_PLAY);
 		// this._inactive.add(TRACK_PAUSE);
-		this._inactive.add(TRACK_ENGLISH);
+		this._inactive.store(TRACK_ENGLISH);
 	}
 	start() {
 		this.play();
@@ -65,13 +65,13 @@ export class Telco {
 	toggleActive() {
 		if (this._active.has(TRACK_PLAY)) {
 			this._active.delete(TRACK_PLAY);
-			this._active.add(TRACK_ENGLISH);
-			this._inactive.add(TRACK_PLAY);
+			this._active.store(TRACK_ENGLISH);
+			this._inactive.store(TRACK_PLAY);
 			this._inactive.delete(TRACK_ENGLISH);
 		} else {
 			this._active.delete(TRACK_ENGLISH);
-			this._active.add(TRACK_PLAY);
-			this._inactive.add(TRACK_ENGLISH);
+			this._active.store(TRACK_PLAY);
+			this._inactive.store(TRACK_ENGLISH);
 			this._inactive.delete(TRACK_PLAY);
 		}
 

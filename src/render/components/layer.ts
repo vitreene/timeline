@@ -10,10 +10,10 @@ export class Layer {
 	add(item: HTMLElement, order: number | string = undefined) {
 		switch (typeof order) {
 			case 'undefined':
-				this.content.add(item);
+				this.content.store(item);
 				break;
 			case 'string':
-				if (order === 'last') this.content.add(item);
+				if (order === 'last') this.content.store(item);
 				if (order === 'first') this.content = new Set([item, ...this.content]);
 				break;
 

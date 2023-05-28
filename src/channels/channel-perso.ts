@@ -48,7 +48,7 @@ export class PersoChannel extends Channel {
 				// reinitialiser l'élément si SEEK et 1ere action
 				if (status.statement === SEEK && !this.hasReset.has(perso.id)) {
 					perso.reset();
-					this.hasReset.add(perso.id);
+					this.hasReset.store(perso.id);
 				}
 
 				if (typeof action === 'boolean') {

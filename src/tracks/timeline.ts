@@ -34,8 +34,8 @@ export class Timeline {
 		this.runSeek = this.runSeek.bind(this);
 
 		this.tracks = new TrackManager(props.tracks, props.options);
-		this.tracks.runs.add(this.run);
-		this.tracks.runs.add(this.runNext);
+		this.tracks.runs.store(this.run);
+		this.tracks.runs.store(this.runNext);
 
 		const addEvent = this.tracks.addEvent.bind(this.tracks);
 		const { medias } = props;

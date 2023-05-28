@@ -69,7 +69,7 @@ export class TrackManager {
 		if (track) {
 			track.addEvent(event);
 			this.tracks.set(trackName, track);
-			track.times.add(startAt);
+			track.times.store(startAt);
 			track.times = sortUnique(track.times);
 		}
 	}
@@ -216,7 +216,7 @@ export function timeInInterval(times_: Set<Time>, currentTime: Time, interval = 
 
 	if (i > -1) {
 		while (times[i] < currentTime + interval) {
-			times[i] !== undefined && timeIndexes.add(times[i]);
+			times[i] !== undefined && timeIndexes.store(times[i]);
 			i++;
 		}
 	}
