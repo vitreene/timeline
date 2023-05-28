@@ -46,40 +46,46 @@ controls : play pause start stop
 tick (delta) => ticket update(delta) 
 raf tick
 */
+//  Refaire Controller
+//
+
+/* 
+start = tm
+raf(tm)=> 
+	elapsed = tm-start
+	fn(elapsed)
+pause()=> pause = elapsed
+play() => elapsed = tm - pause
+*/
+
 class Controller {
-	timestamp = 0;
-	pauseTime = 0;
-	timeOffset = 0;
-
-	elapsed = 0;
-	pauseElapsed = 0;
-
+	timeStamp = 0;
+	timePause = 0;
 	timeScale = 1;
+	timeElapsed = 0;
+
 	paused = false;
 	playing = false;
+	cancelRaf = null;
+
 	ticker = new Ticker<ControllerTimeCallback>();
 
 	reset = () => {
-		this.elapsed = 0;
-
-		this.timeOffset = 0;
-		this.timestamp = 0;
-		this.pauseTime = 0;
+		this.timeStamp = 0;
+		this.timePause = 0;
+		this.timeScale = 1;
+		this.timeElapsed = 0;
 	};
 
 	play = () => {
-		if (!this.playing) {
-			this.timeOffset = this.timestamp - this.timeOffset - this.pauseTime;
-			this.pauseTime = 0;
-		}
 		this.playing = true;
-		this.raf(this.tick);
+		return this;
 	};
 	pause = () => {
-		this.pauseTime = this.timestamp;
 		this.playing = false;
 		return this;
 	};
+
 	stop = () => {
 		cancelAnimationFrame(this.cancelRaf);
 		this.playing = false;
@@ -87,53 +93,46 @@ class Controller {
 		console.log('STOP');
 		return this;
 	};
-	start = (time = 0) => {
+	start = (seconds = 0) => {
+		console.log('START', seconds);
 		this.reset();
-		requestAnimationFrame(this.updateTimeStamp);
-		// this.tick(time);
+		this.tick(0);
 		return this;
 	};
 
-	seek = (time = 0) => {
-		this.elapsed = time;
+	// seek = (time = 0) => {
+	// 	this.timeElapsed = time;
 
-		this.playing = false;
-		loopEvent.seek(time);
-		return this;
-	};
+	// 	this.playing = false;
+	// 	loopEvent.seek(time);
+	// 	timer.elapsed = time;
+	// 	return this;
+	// };
 
-	tick = (time: number) => {
-		console.log('tick', time - this.timeOffset);
-
-		if (this.paused === true) {
-			this.pauseElapsed += time - this.elapsed;
-			this.paused = false;
-		}
+	tick = (timestamp: number) => {
 		if (this.playing === false) this.paused = true;
 
-		const effectiveTime = time - this.pauseElapsed;
-		const delta = effectiveTime - this.elapsed;
-		this.elapsed = effectiveTime;
-		const payload = { delta, options: { time } };
-		this.ticker.update(delta);
+		if (this.playing) {
+			if (this.paused === true) {
+				this.paused = false;
+				this.timePause = timestamp - this.timeElapsed;
+			}
+			const time = timestamp - this.timePause;
+			const delta = time - this.timeElapsed;
+			this.timeElapsed = time;
+			// console.log('TICK', this.timeElapsed, delta);
+
+			this.ticker.update(delta);
+		}
+
 		this.raf(this.tick);
 	};
 
-	raf = (fn: (delta: number) => void) => {
-		requestAnimationFrame((timestamp) => {
-			this.playing && fn(timestamp * this.timeScale);
+	raf = (fn: (time: number) => void) => {
+		this.cancelRaf = requestAnimationFrame((timestamp) => {
+			fn(timestamp * this.timeScale);
 		});
 	};
-
-	cancelRaf = null;
-	updateTimeStamp = (timestamp: number) => {
-		this.timestamp = timestamp * this.timeScale;
-		this.cancelRaf = requestAnimationFrame(this.updateTimeStamp);
-	};
-
-	// get totalTime() {
-	// 	return this.elapsed + this.pauseElapsed;
-	// }
 }
 
 /* 
@@ -151,6 +150,9 @@ class Timer {
 	// seek ?
 
 	update = (delta: number) => {
+		// apres un seek, delta devrait etre à 0
+		// console.log('TIMER', delta, this.elapsed);
+
 		this.elapsed += delta;
 		const time = Math.round(this.elapsed / 10) * 10;
 		if (this.time !== time) {
@@ -166,6 +168,7 @@ register events
 compose actionner
 */
 type MapEvent = Map<number, any>;
+
 class LoopEvent {
 	events: MapEvent;
 	actionner = new Actionner();
@@ -176,6 +179,7 @@ class LoopEvent {
 	update = ({ options }) => {
 		const { time } = options;
 		if (this.events.has(time)) {
+			console.log('EVENT', time);
 			this.actionner.update({ ...this.events.get(time), time });
 		}
 	};
@@ -232,7 +236,7 @@ class Actionner {
 					div.classList.add(action[attr]);
 					break;
 				case 'transition':
-					console.log(action[attr]);
+					console.log('transition', time, delta, seek, action[attr]);
 					new Tween(delta, action[attr], seek);
 				default:
 					break;
@@ -246,7 +250,6 @@ class
 register effects
 compose queue
 */
-const effecter = (effect) => {};
 
 class Tween {
 	duration: number;
@@ -257,20 +260,24 @@ class Tween {
 
 	constructor(delta = 0, transition: Transition, seek = false) {
 		const duration = transition.duration || 500;
+
 		if (delta >= duration) {
 			console.log({ delta, duration, seek });
 			for (const item in this.to) this.updateStyle(item, this.to[item]);
 			return;
 		}
-		if (seek) this.tick(delta);
+
 		this.from = transition.from;
 		this.to = transition.to;
 		this.duration = duration || 500;
+		// si delta ne vaut pas 0, c'est un seek ?
+		if (seek) this.tick(delta);
 		this.removeTick = controller.ticker.add(this.tick);
 	}
 
 	tick = (delta: number) => {
 		this.progress += delta;
+
 		if (this.progress >= this.duration) {
 			this.progress = this.duration;
 			this.removeTick();
@@ -281,6 +288,7 @@ class Tween {
 			this.updateStyle(item, prop);
 		}
 	};
+
 	lerp(start: number, end: number, amt: number) {
 		return (1 - amt) * start + amt * end;
 	}
@@ -332,9 +340,9 @@ app.appendChild(div);
 // INIT
 const events = new Map<number, any>([
 	[500, { name: 'enter' }],
-	[700, { name: 'action03' }],
-	[1000, { name: 'action01' }],
-	[3000, { name: 'action02', data: { style: { 'font-size': '150px' } } }],
+	[700, { name: 'action01' }],
+	[1500, { name: 'action02' }],
+	[3000, { name: 'action03', data: { style: { 'font-size': '200px', color: 'cyan' } } }],
 ]);
 
 const actions = new Map<string, any>(
@@ -344,6 +352,10 @@ const actions = new Map<string, any>(
 			className: 'init-action',
 		},
 		action01: {
+			className: 'action02',
+			content: 'ToTO',
+		},
+		action02: {
 			style: { 'font-weight': 'bold' },
 			className: 'action01',
 			transition: {
@@ -352,13 +364,10 @@ const actions = new Map<string, any>(
 				duration: 1500,
 			},
 		},
-		action02: {
-			className: 'action02',
-			// action: controller.stop,
-		},
+
 		action03: {
 			className: 'action03',
-			content: 'ToTO',
+			// action: controller.stop,
 		},
 	})
 );
@@ -381,24 +390,40 @@ timer.ticker.add(loopEvent.update);
 
 // PLAY
 controller.start().play();
+// controller.start().seek(1700);
+// controller.start().seek(1700);
 // controller.start().seek(1700).play();
 
 setTimeout(() => {
 	console.log('PAUSE');
-	console.log('timestamp', controller.timestamp);
-	console.log('pauseTime', controller.pauseTime);
+	console.log('timeElapsed', controller.timeElapsed);
+	console.log('timePause', controller.timePause);
 	controller.pause();
 }, 1000);
 
 setTimeout(() => {
 	console.log('PLAY');
-	console.log('timestamp', controller.timestamp);
-	console.log('pauseTime', controller.pauseTime);
+	console.log('timeElapsed', controller.timeElapsed);
+	console.log('timePause', controller.timePause);
 	controller.play();
+}, 2000);
+
+setTimeout(() => {
+	console.log('PAUSE');
+	console.log('timeElapsed', controller.timeElapsed);
+	console.log('timePause', controller.timePause);
+	controller.pause();
 }, 3000);
 
 setTimeout(() => {
-	if (controller.playing) controller.stop();
+	console.log('PLAY');
+	console.log('timeElapsed', controller.timeElapsed);
+	console.log('timePause', controller.timePause);
+	controller.play();
 }, 4000);
+
+setTimeout(() => {
+	controller.stop();
+}, 6000);
 
 // console.log(selectUpTo(events, 1100));
