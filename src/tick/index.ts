@@ -100,15 +100,6 @@ class Controller {
 		return this;
 	};
 
-	// seek = (time = 0) => {
-	// 	this.timeElapsed = time;
-
-	// 	this.playing = false;
-	// 	loopEvent.seek(time);
-	// 	timer.elapsed = time;
-	// 	return this;
-	// };
-
 	tick = (timestamp: number) => {
 		if (this.playing === false) this.paused = true;
 
@@ -147,7 +138,11 @@ class Timer {
 	elapsed = 0;
 	time = 0;
 
-	// seek ?
+	seek(time: number) {
+		controller.pause();
+		this.elapsed = time;
+		loopEvent.seek(time);
+	}
 
 	update = (delta: number) => {
 		// apres un seek, delta devrait etre à 0
@@ -184,8 +179,7 @@ class LoopEvent {
 		}
 	};
 	seek(seek: number) {
-		const { select, last } = selectUpTo(this.events, seek);
-		const delta = seek - last;
+		const { select } = selectUpTo(this.events, seek);
 		select.forEach((event, time) => {
 			const delta = seek - time;
 			this.actionner.update({ ...event, delta, time, seek: true });
@@ -390,40 +384,49 @@ timer.ticker.add(loopEvent.update);
 
 // PLAY
 controller.start().play();
+timer.seek(2000);
+
+setTimeout(() => {
+	console.log('PLAY');
+	console.log('timeElapsed', controller.timeElapsed);
+	console.log('timePause', controller.timePause);
+	controller.play();
+}, 1000);
+
 // controller.start().seek(1700);
 // controller.start().seek(1700);
 // controller.start().seek(1700).play();
 
-setTimeout(() => {
-	console.log('PAUSE');
-	console.log('timeElapsed', controller.timeElapsed);
-	console.log('timePause', controller.timePause);
-	controller.pause();
-}, 1000);
+// setTimeout(() => {
+// 	console.log('PAUSE');
+// 	console.log('timeElapsed', controller.timeElapsed);
+// 	console.log('timePause', controller.timePause);
+// 	controller.pause();
+// }, 1000);
 
-setTimeout(() => {
-	console.log('PLAY');
-	console.log('timeElapsed', controller.timeElapsed);
-	console.log('timePause', controller.timePause);
-	controller.play();
-}, 2000);
+// setTimeout(() => {
+// 	console.log('PLAY');
+// 	console.log('timeElapsed', controller.timeElapsed);
+// 	console.log('timePause', controller.timePause);
+// 	controller.play();
+// }, 2000);
 
-setTimeout(() => {
-	console.log('PAUSE');
-	console.log('timeElapsed', controller.timeElapsed);
-	console.log('timePause', controller.timePause);
-	controller.pause();
-}, 3000);
+// setTimeout(() => {
+// 	console.log('PAUSE');
+// 	console.log('timeElapsed', controller.timeElapsed);
+// 	console.log('timePause', controller.timePause);
+// 	controller.pause();
+// }, 3000);
 
-setTimeout(() => {
-	console.log('PLAY');
-	console.log('timeElapsed', controller.timeElapsed);
-	console.log('timePause', controller.timePause);
-	controller.play();
-}, 4000);
+// setTimeout(() => {
+// 	console.log('PLAY');
+// 	console.log('timeElapsed', controller.timeElapsed);
+// 	console.log('timePause', controller.timePause);
+// 	controller.play();
+// }, 4000);
 
 setTimeout(() => {
 	controller.stop();
-}, 6000);
+}, 4000);
 
 // console.log(selectUpTo(events, 1100));
