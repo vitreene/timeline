@@ -1,5 +1,7 @@
 import { Style, Transition } from 'src/types';
 
+type DeltaFn = (delta: number) => void;
+
 class Controller {
 	timer = new Timer();
 	ticker = new Ticker();
@@ -134,7 +136,7 @@ class Ticker {
 	reset = () => {
 		this.timeStamp = 0;
 		this.timePause = 0;
-		this.timeScale = 1;
+		this.timeScale = 0.25;
 		this.timeElapsed = 0;
 	};
 
@@ -168,16 +170,14 @@ class Ticker {
 			this.timeElapsed = time;
 			// console.log('TICK', this.timeElapsed, delta);
 			this.timeStamp = timestamp;
-			this.handlers.update(delta);
+			this.handlers.update(delta * this.timeScale);
 		}
 
 		this.raf(this.tick);
 	};
 
 	raf = (fn: (time: number) => void) => {
-		this.cancelRaf = requestAnimationFrame((timestamp) => {
-			fn(timestamp * this.timeScale);
-		});
+		this.cancelRaf = requestAnimationFrame(fn);
 	};
 }
 
@@ -229,12 +229,12 @@ class LoopEvent {
 	events: MapEvent;
 	actionner = null;
 
-	constructor(ticker) {
+	constructor(ticker: Store<DeltaFn>['store']) {
 		this.actionner = new Actionner(ticker);
 	}
 
 	add(events: Map<number, any>) {
-		this.events = events;
+		this.events = new Map([...this.events, ...events]);
 	}
 
 	update = ({ options }) => {
@@ -242,6 +242,11 @@ class LoopEvent {
 		if (this.events.has(time)) {
 			console.log('EVENT', time, this.events.get(time));
 			this.actionner.update({ ...this.events.get(time), delta: 0, time });
+			/* 
+			// les tweens / straps sont initiées avant queue
+			this.queue.add(id, action)
+			
+			*/
 		}
 	};
 
@@ -255,22 +260,85 @@ class LoopEvent {
 	};
 }
 
+interface Action {
+	className: string;
+	style: Style;
+}
+type Update = Record<string, Partial<Action>>;
+type Render = (update: Update) => void;
+
+class Queue {
+	stack: Map<string, Action[]> = new Map();
+	renderer: Render;
+
+	constructor(renderer) {
+		this.renderer = renderer;
+	}
+	add(id: string, action: Action) {
+		const stack = this.stack.has(id) ? this.stack.get(id) : [];
+		stack.push(action);
+		this.stack.set(id, stack);
+	}
+
+	render = () => {
+		const update = {};
+		this.stack.forEach((stack, id) => {
+			let reduces = {} as Action;
+			stack.forEach((action: Action) => {
+				reduces = mergeAction(action, reduces);
+			});
+			update[id] = reduces;
+		});
+		return update;
+	};
+
+	flush = () => {
+		if (this.stack.size) {
+			const updates = this.render();
+			this.renderer(updates);
+			this.stack.clear();
+		}
+	};
+}
+
+function mergeAction(action = {} as Action, reduce = {} as Action) {
+	const merge = reduce;
+	for (const key in action) {
+		switch (key) {
+			case 'className':
+				merge.className = ((merge.className || '') + ' ' + (action.className || '')).trim();
+				break;
+			case 'style':
+				merge.style = { ...merge.style, ...action.style };
+				break;
+			case 'content':
+
+			default:
+				merge[key] = action[key];
+		}
+	}
+	return merge;
+}
+
 /* 
 class 
 register actions
 register components ?
 compose effects ?
 */
+
 class Actionner {
 	actions: Map<string, any>;
 	ticker = null;
 	tweens = new Set();
+	state = new Map<string, any>();
+
 	constructor(ticker) {
 		this.ticker = ticker;
 	}
 
 	add = (actions: Map<string, any>) => {
-		this.actions = actions;
+		this.actions = new Map([...this.actions, ...actions]);
 	};
 
 	update = ({
@@ -290,6 +358,7 @@ class Actionner {
 			this.tweens.clear();
 		}
 		const action = { ...this.actions.get(name), ...data };
+
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':
@@ -331,9 +400,8 @@ class Tween {
 	from: any;
 	to: any;
 	removeTick: () => void;
-	ticker: (fn: (delta: number) => void) => () => void;
-
-	constructor(delta = 0, transition: Transition, seek = false, ticker) {
+	ticker: Store<DeltaFn>['store'];
+	constructor(delta = 0, transition: Transition, seek = false, ticker: Store<DeltaFn>['store']) {
 		this.ticker = ticker;
 		this.from = transition.from;
 		this.to = transition.to;
