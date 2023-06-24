@@ -11,9 +11,12 @@ export interface Action {
 export type Content = string;
 
 export interface Transition {
-	from: Style;
+	from?: Style;
 	to: Style;
-	duration: number;
+	duration?: number;
+	repeat?: number;
+	yoyo?: boolean;
+	oncomplete?: any;
 }
 
 export interface ActionClassList {
@@ -34,3 +37,4 @@ export type TimerCallback = (data: TimeOptions) => void;
 
 export type MapEvent = Map<number, any>;
 export type MapAction = Map<string, Action>;
+export type Render = (update: MapAction) => void;

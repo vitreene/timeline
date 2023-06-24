@@ -2,7 +2,8 @@ import { Timer } from './timer';
 import { Ticker } from './ticker';
 import { LoopEvent } from './loop-event';
 
-import type { DeltaFn, MapAction, MapEvent, TimerCallback } from './types';
+import type { Render, DeltaFn, MapAction, MapEvent, TimerCallback } from './types';
+import { Actionner } from './actionner';
 
 export class Controller {
 	timer = new Timer();
@@ -10,8 +11,13 @@ export class Controller {
 	loopEvent = null;
 
 	constructor(actions: MapAction, events: MapEvent) {
+		const actionner = new Actionner();
+		this.loopEvent = new LoopEvent(actionner);
+
 		this.ticker.handlers.store(this.timer.update);
-		this.loopEvent = new LoopEvent(this.ticker.handlers.store);
+		this.ticker.handlers.store(actionner.updateTweens);
+		this.ticker.framers.store(actionner.flush);
+
 		this.registerEvents(events);
 		this.registerActions(actions);
 	}
@@ -20,12 +26,15 @@ export class Controller {
 		this.loopEvent.add(events);
 		this.timer.handlers.store(this.loopEvent.update);
 	};
+
 	registerActions = (actions: MapAction) => {
 		this.loopEvent.actionner.add(actions);
 	};
+
 	addToTick = (fn: DeltaFn) => {
 		return this.ticker.handlers.store(fn);
 	};
+
 	addToTimer = (fn: TimerCallback) => {
 		return this.timer.handlers.store(fn);
 	};

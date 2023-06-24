@@ -1,9 +1,9 @@
+import { renderer } from './renderer';
 import { Tween } from './tween';
 
-import type { Action, ActionClassList, AddToTick, DeltaFn, MapAction } from './types';
+import type { Render, MapAction, Style } from './types';
 
 // TODO PROVISOIRE
-import { div } from '.';
 
 /*
 class
@@ -12,74 +12,67 @@ register components ?
 compose effects ?
 */
 
+const id = 'id';
+
 export class Actionner {
 	actions: MapAction = new Map();
-	ticker = null;
-	tweens = new Set();
-	state = new Map<string, any>();
-
-	constructor(addToTick: AddToTick) {
-		this.ticker = addToTick;
-	}
+	tweens = new Set<Tween>();
+	state: MapAction = new Map();
+	renderer: Render = renderer;
 
 	add = (actions: Map<string, any>) => {
 		this.actions = new Map([...this.actions, ...actions]);
 	};
 
 	update = ({
-		delta,
-		time,
+		id,
+		// delta,
+		// time,
 		name,
 		data,
 		seek = false,
 	}: {
-		delta: number;
+		// delta: number;
+		id: string;
 		name: string;
-		time: number;
+		// time: number;
 		seek: boolean;
 		data?: any;
 	}) => {
 		if (seek) {
 			this.tweens.clear();
 		}
-		const action = { ...this.actions.get(name), ...data };
+		const { transition = null, style = null, ...action } = { ...this.actions.get(name), ...data };
 
-		for (const attr in action) {
-			switch (attr) {
-				case 'content':
-					div.textContent = action[attr];
-					break;
-				case 'action':
-					action[attr]();
-					break;
-				case 'style':
-					{
-						const style = action[attr];
-						for (const s in style) {
-							div.style[s] = style[s];
-						}
-					}
-					break;
-				case 'className':
-					updateClassList(div, action[attr]);
-					// div.classList.add(action[attr]);
-					break;
-				case 'transition':
-					console.log('transition', time, delta, seek, action[attr]);
-					this.tweens.add(new Tween(delta, action[attr], seek, this.ticker));
-				default:
-					break;
-			}
+		if (transition) {
+			// console.log('transition', time, delta, seek, transition);
+			this.tweens.add(new Tween({ transition }));
+		}
+
+		if (style) this.mixer(id, style);
+
+		const attrs = this.state.get(id);
+		this.state.set(id, { ...attrs, ...action });
+	};
+
+	updateTweens = (delta: number) => {
+		this.tweens.forEach((tween) => {
+			const update = tween.next(delta);
+			this.mixer(id, update.value);
+			if (update.done) this.tweens.delete(tween);
+		});
+	};
+
+	mixer(id: string, update: Style) {
+		const attrs = this.state.get(id);
+		const newAttrs = { ...attrs, style: { ...attrs?.style, ...update } };
+		this.state.set(id, newAttrs);
+	}
+
+	flush = () => {
+		if (this.state.size) {
+			this.renderer(this.state);
+			this.state.clear();
 		}
 	};
-}
-
-function updateClassList(node: Element, actions: string | ActionClassList) {
-	if (typeof actions === 'string') node.classList.add(...actions.split(' '));
-	else {
-		for (const action in actions) {
-			const className = Array.isArray(actions[action]) ? actions[action] : actions[action].split(' ');
-			node.classList[action](...className);
-		}
-	}
 }

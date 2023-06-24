@@ -3,14 +3,14 @@ import { Actionner } from './actionner';
 // TODO PROVISOIRE
 import { initDiv } from '.';
 
-import type { AddToTick, MapEvent } from './types';
+import type { MapEvent } from './types';
 
 export class LoopEvent {
 	events: MapEvent = new Map();
 	actionner: Actionner = null;
 
-	constructor(addToTick: AddToTick) {
-		this.actionner = new Actionner(addToTick);
+	constructor(actionner: Actionner) {
+		this.actionner = actionner;
 	}
 
 	add(events: MapEvent) {
@@ -22,11 +22,6 @@ export class LoopEvent {
 		if (this.events.has(time)) {
 			console.log('EVENT', time, this.events.get(time));
 			this.actionner.update({ ...this.events.get(time), delta: 0, time });
-			/*
-			// les tweens / straps sont initiées avant queue
-			this.queue.add(id, action)
-		  
-			*/
 		}
 	};
 

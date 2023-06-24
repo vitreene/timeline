@@ -9,9 +9,10 @@ export class Ticker {
 
 	paused = false;
 	playing = false;
-	cancelRaf = null;
+	cancelRaf = new Set<number>();
 
 	handlers = new Store<DeltaFn>();
+	framers = new Store<DeltaFn>();
 
 	reset = () => {
 		this.timeStamp = 0;
@@ -25,9 +26,10 @@ export class Ticker {
 	pause = () => (this.playing = false);
 
 	stop = () => {
-		cancelAnimationFrame(this.cancelRaf);
+		this.cancelRaf.forEach(cancelAnimationFrame);
 		this.playing = false;
 		this.handlers.reset();
+		this.framers.reset();
 		console.log('STOP');
 	};
 
@@ -35,6 +37,7 @@ export class Ticker {
 		console.log('START', seconds);
 		this.reset();
 		this.tick(0);
+		this.frame();
 	};
 
 	tick = (timestamp: number) => {
@@ -53,10 +56,15 @@ export class Ticker {
 			this.handlers.update(delta * this.timeScale);
 		}
 
-		this.raf(this.tick);
+		this.raf((tm) => Promise.resolve(this.tick(tm)));
+	};
+
+	frame = () => {
+		this.framers.update(null);
+		this.raf(this.frame);
 	};
 
 	raf = (fn: DeltaFn) => {
-		this.cancelRaf = requestAnimationFrame(fn);
+		this.cancelRaf.add(requestAnimationFrame(fn));
 	};
 }
