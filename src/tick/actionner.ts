@@ -1,7 +1,7 @@
 import { renderer } from './renderer';
 import { Tween } from './tween';
 
-import type { Render, MapAction, Style } from './types';
+import type { Render, MapAction, Style, PersoAction } from './types';
 
 // TODO PROVISOIRE
 
@@ -12,20 +12,17 @@ register components ?
 compose effects ?
 */
 
-const id = 'id';
-
 export class Actionner {
-	actions: MapAction = new Map();
-	tweens = new Set<Tween>();
+	actions: PersoAction = new Map();
+	tweens = new Map<string, Tween>();
 	state: MapAction = new Map();
 	renderer: Render = renderer;
 
-	add = (actions: Map<string, any>) => {
+	add = (actions: PersoAction) => {
 		this.actions = new Map([...this.actions, ...actions]);
 	};
 
 	update = ({
-		id,
 		// delta,
 		// time,
 		name,
@@ -33,33 +30,35 @@ export class Actionner {
 		seek = false,
 	}: {
 		// delta: number;
-		id: string;
-		name: string;
 		// time: number;
+		name: string;
 		seek: boolean;
 		data?: any;
 	}) => {
 		if (seek) {
 			this.tweens.clear();
 		}
-		const { transition = null, style = null, ...action } = { ...this.actions.get(name), ...data };
 
-		if (transition) {
-			// console.log('transition', time, delta, seek, transition);
-			this.tweens.add(new Tween({ transition }));
-		}
+		this.actions.forEach((actions, id) => {
+			const { transition = null, style = null, ...action } = { ...actions.get(name), ...data };
 
-		if (style) this.mixer(id, style);
+			if (transition) {
+				// console.log('transition', time, delta, seek, transition);
+				this.tweens.set(id, new Tween({ transition }));
+			}
 
-		const attrs = this.state.get(id);
-		this.state.set(id, { ...attrs, ...action });
+			if (style) this.mixer(id, style);
+
+			const attrs = this.state.get(id);
+			this.state.set(id, { ...attrs, ...action });
+		});
 	};
 
 	updateTweens = (delta: number) => {
-		this.tweens.forEach((tween) => {
+		this.tweens.forEach((tween, id) => {
 			const update = tween.next(delta);
 			this.mixer(id, update.value);
-			if (update.done) this.tweens.delete(tween);
+			if (update.done) this.tweens.delete(id);
 		});
 	};
 

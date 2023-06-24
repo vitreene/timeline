@@ -37,4 +37,6 @@ export type TimerCallback = (data: TimeOptions) => void;
 
 export type MapEvent = Map<number, any>;
 export type MapAction = Map<string, Action>;
+export type PersoId = string;
+export type PersoAction = Map<PersoId, MapAction>;
 export type Render = (update: MapAction) => void;

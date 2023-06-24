@@ -1,11 +1,13 @@
 import { Controller } from './controller';
 
-import type { MapAction, MapEvent, TimeOptions } from './types';
+import type { MapAction, MapEvent, PersoAction, TimeOptions } from './types';
 
 // PREP
 
+const id = 'my-div';
 const app = document.getElementById('app');
 export let div = document.createElement('div');
+div.id = id;
 app.appendChild(div);
 initDiv();
 
@@ -62,12 +64,15 @@ const actions: MapAction = new Map(
 	})
 );
 
+const persoActions: PersoAction = new Map();
+persoActions.set(id, actions);
+
 const transformer01 = ({ options: { time } }: TimeOptions) => {
 	div.textContent = String(time);
 };
 
 // PROCESS
-const controller = new Controller(actions, events);
+const controller = new Controller(persoActions, events);
 controller.addToTimer(transformer01);
 
 // PLAY
