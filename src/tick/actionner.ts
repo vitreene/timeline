@@ -1,9 +1,17 @@
-import { renderer } from './renderer';
 import { Tween } from './tween';
+import { Display } from './display';
 
-import type { Render, MapAction, Style, PersosAction, ActionClassList, PersoId, Action, PersoAction } from './types';
-
-// TODO PROVISOIRE
+import type {
+	Render,
+	Style,
+	PersosAction,
+	ActionClassList,
+	PersoId,
+	Action,
+	PersoAction,
+	StateAction,
+	Store,
+} from './types';
 
 /*
 class
@@ -15,8 +23,13 @@ compose effects ?
 export class Actionner {
 	actions: PersosAction = new Map();
 	tweens = new Map<string, Tween>();
-	state: MapAction = new Map();
-	renderer: Render = renderer;
+	state: StateAction = new Map();
+	renderer: Render;
+
+	constructor(store: Store) {
+		const display = new Display(store);
+		this.renderer = display.renderer;
+	}
 
 	add = (id: PersoId, actions: PersoAction) => {
 		// les actions entrantes remplacent les précédentes, pas de fusion
@@ -26,13 +39,13 @@ export class Actionner {
 
 	update = ({
 		delta,
-		time,
+		// time,
 		name,
 		data,
 		seek = false,
 	}: {
 		delta: number;
-		time: number;
+		// time: number;
 		name: string;
 		seek: boolean;
 		data?: any;
@@ -43,13 +56,16 @@ export class Actionner {
 
 		this.actions.forEach((actions, id) => {
 			if (typeof actions[name] === 'boolean') return;
-			const { transition = null, style = null, className = '', ...action } = { ...(actions[name] as Action), ...data };
+			const currentAction = this.mixActions(actions[name] as Action, data);
+			const { transition = null, style = null, className = '', ...action } = currentAction;
+
+			console.log(name, action, data);
 
 			if (transition) {
 				this.tweens.set(id, new Tween({ transition }));
 			}
 			if (style) {
-				this.mixer(id, style);
+				this.mixStyle(id, style);
 			}
 			if (className) {
 				this.mixClassList(id, className);
@@ -67,27 +83,44 @@ export class Actionner {
 	updateTweens = (delta: number) => {
 		this.tweens.forEach((tween, id) => {
 			const update = tween.next(delta);
-			this.mixer(id, update.value);
+			this.mixStyle(id, update.value);
 			if (update.done) this.tweens.delete(id);
 		});
 	};
 
 	// TODO mixer les intensités de chaque propriété
-	mixer(id: PersoId, update: Style) {
-		const attrs = this.state.get(id);
-		const newAttrs = { ...attrs, style: { ...attrs?.style, ...update } };
-		this.state.set(id, newAttrs);
+	mixStyle(id: PersoId, style: Style) {
+		const action = this.state.get(id);
+		const newAction = this.mergeStyle(action, style);
+		this.state.set(id, newAction);
 	}
 
 	mixClassList(id: PersoId, className: ActionClassList | string) {
+		const persoState = this.state.get(id);
+		if (!persoState) return;
+		const action = this.mergeClassList(persoState, className);
+		this.state.set(id, action);
+	}
+
+	mixActions(actionA: Action, actionB: Action) {
+		const action: Action = {
+			...actionB,
+			...actionA,
+			style: this.mergeStyle(actionA, actionB?.style).style,
+			className: this.mergeClassList(actionA, actionB?.className).className,
+		};
+		return action;
+	}
+
+	private mergeStyle(action: Action, style: Style) {
+		return { ...action, style: { ...action?.style, ...style } };
+	}
+
+	private mergeClassList(action: Action, className: ActionClassList | string) {
 		if (typeof className === 'string') {
 			className = { add: [className] };
 		}
-		const persoState = this.state.get(id);
-		if (!persoState) return;
-		const persoNewClassName = persoState.className || {};
-		console.log(persoNewClassName);
-
+		const persoNewClassName = action.className || {};
 		for (const action in className) {
 			const persoClassName = persoNewClassName?.[action]
 				? typeof persoNewClassName[action] === 'string'
@@ -96,7 +129,7 @@ export class Actionner {
 				: [];
 			persoNewClassName[action] = persoClassName.concat(className[action]);
 		}
-		this.state.set(id, { ...persoState, className: persoNewClassName });
+		return { ...action, className: persoNewClassName };
 	}
 
 	flush = () => {

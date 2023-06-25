@@ -44,6 +44,7 @@ export type PersoAction = Record<ActionId, Action | boolean>;
 // types en interne
 export type MapEvent = Map<number, any>;
 export type MapAction = Map<ActionId, Action>;
+export type StateAction = Map<PersoId, Action>;
 export type PersosAction = Map<PersoId, PersoAction>;
 export type Render = (update: MapAction) => void;
 
@@ -56,7 +57,20 @@ export interface BaseNode {
 
 export interface PersoNode extends BaseNode {
 	type: PersosTypes;
-	// initial: Partial<Initial>;
+	initial: Partial<Initial>;
+}
+
+export interface Initial {
+	tag: string;
+	id: string;
+	attr: any;
+	style: Style;
+	classStyle: Style;
+	className?: string | ActionClassList;
+	move: string;
+	src: string;
+	fit: string;
+	content: Content;
 }
 
 export enum PersosTypes {

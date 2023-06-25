@@ -1,10 +1,41 @@
-// import { div as node } from '.';
-const node = document.createElement('div');
+/* 
+construire et stocker les persos
+alimenter le renderer, mettre en dependance?
+*/
 
-import type { ActionClassList, StateAction } from './types';
+import { Action, PersosTypes } from './types';
+import { ActionClassList, Initial, PersoId, StateAction, Store } from './types';
+import { ROOT, app } from '.';
 
-function renderer(actions: StateAction) {
-	actions.forEach((action, id) => {
+interface Perso {
+	initial: Partial<Initial>;
+	node: HTMLElement;
+}
+
+export class Display {
+	persos = new Map<PersoId, Perso>();
+
+	constructor(store: Store) {
+		for (const id in store) {
+			const perso = store[id];
+			const initial = perso.initial;
+			const node = createPerso(perso.type, { id, ...initial });
+			this.render(node, initial);
+			this.persos.set(id, { initial, node });
+		}
+		const root = this.persos.get(ROOT).node;
+		app.appendChild(root);
+	}
+
+	renderer = (actions: StateAction) => {
+		actions.forEach((action, id) => {
+			const perso = this.persos.get(id);
+			const node = perso.node;
+			this.render(node, action);
+		});
+	};
+
+	render = (node: HTMLElement, action: Action) => {
 		// console.log('renderer', action);
 		for (const attr in action) {
 			switch (attr) {
@@ -30,10 +61,26 @@ function renderer(actions: StateAction) {
 					break;
 			}
 		}
-	});
+	};
 }
 
-export function updateClassList(node: Element, actions: string | ActionClassList) {
+function createPerso(type: PersosTypes, props: Partial<Initial>) {
+	switch (type) {
+		case PersosTypes.TEXT:
+			return createText(props);
+
+		default:
+			break;
+	}
+}
+
+function createText(props) {
+	const node = document.createElement(props.tag || 'div');
+	node.id = props.id;
+	return node;
+}
+
+export function updateClassList(node: HTMLElement, actions: string | ActionClassList) {
 	if (typeof actions === 'string') node.classList.add(...actions.split(' '));
 	else {
 		for (const action in actions) {

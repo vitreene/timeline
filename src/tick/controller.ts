@@ -11,7 +11,7 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 
 	constructor(store: Store, events: MapEvent) {
-		const actionner = new Actionner();
+		const actionner = new Actionner(store);
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.timer.update);
@@ -19,12 +19,7 @@ export class Controller {
 		this.ticker.framers.store(actionner.flush);
 
 		this.registerEvents(events);
-
-		for (const id in store) {
-			const perso = store[id];
-
-			this.registerActions(id, perso.actions);
-		}
+		this.registerActions(store);
 	}
 
 	registerEvents = (events: MapEvent) => {
@@ -32,8 +27,11 @@ export class Controller {
 		this.timer.handlers.store(this.loopEvent.update);
 	};
 
-	registerActions = (id: PersoId, actions: PersoAction) => {
-		this.loopEvent.actionner.add(id, actions);
+	registerActions = (store: Store) => {
+		for (const id in store) {
+			const perso = store[id];
+			this.loopEvent.actionner.add(id, perso.actions);
+		}
 	};
 
 	addToTick = (fn: DeltaFn) => {

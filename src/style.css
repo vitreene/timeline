@@ -1,3 +1,7 @@
+body {
+	font-family: Dogma, Helvetica, sans-serif;
+}
+
 #app {
 	display: grid;
 	grid-template-columns: 1fr;

@@ -4,21 +4,9 @@ import type { MapEvent, Store, TimeOptions } from './types';
 import { PersosTypes } from './types';
 
 // PREP
-const id = 'my-div';
-const app = document.getElementById('app');
-export let div = document.createElement('div');
-div.id = id;
-app.appendChild(div);
-initDiv();
+export const ROOT = 'root';
+export const app = document.getElementById('app');
 
-// TODO utiliser une vraie fonction
-export function initDiv() {
-	div.removeAttribute('style');
-	div.removeAttribute('className');
-	// div.textContent = '';
-	div.style.fontSize = '48px';
-	div.style.position = 'absolute';
-}
 ////////////
 // DEMO 4 //
 ////////////
@@ -32,18 +20,22 @@ const events: MapEvent = new Map([
 ]);
 
 const store: Store = {
-	[id]: {
+	[ROOT]: {
 		type: PersosTypes.TEXT,
+		initial: {
+			className: 'initial',
+			content: 'ReToTO',
+			style: { top: 0, left: 0, backgroundColor: 'orangered', position: 'absolute', padding: '1rem' },
+		},
 		actions: {
 			enter: {
-				style: { color: 'orange' },
 				className: 'enter',
-				content: 'ToTO',
 			},
 			action01: {
 				className: {
 					add: ['action01', 'action12'],
 				},
+				content: 'roots',
 			},
 			action02: {
 				style: { 'font-weight': 'bold', top: 0 },
@@ -61,6 +53,9 @@ const store: Store = {
 
 			action03: {
 				className: 'action03',
+				style: {
+					backgroundColor: 'blue',
+				},
 				// action: controller.stop,
 			},
 		},
@@ -68,7 +63,7 @@ const store: Store = {
 };
 
 const transformer01 = ({ options: { time } }: TimeOptions) => {
-	div.textContent = String(time);
+	// div.textContent = String(time);
 };
 
 // PROCESS
@@ -77,7 +72,10 @@ controller.addToTimer(transformer01);
 
 // PLAY
 // la priorité sur le seek n'est aps la meme que pour le play
-controller.start().seek(2500).play();
+controller
+	.start()
+	// .seek(2500)
+	.play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

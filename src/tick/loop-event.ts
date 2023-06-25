@@ -1,8 +1,5 @@
 import { Actionner } from './actionner';
 
-// TODO PROVISOIRE
-import { initDiv } from '.';
-
 import type { MapEvent } from './types';
 
 export class LoopEvent {
@@ -45,4 +42,8 @@ function selectUpTo(map: MapEvent, upTo: number): { select: MapEvent; last: numb
 		}
 	});
 	return { select, last };
+}
+
+function initDiv() {
+	console.log('initDiv : Function not implemented.');
 }
