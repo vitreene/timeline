@@ -1,9 +1,9 @@
 import { Controller } from './controller';
 
-import type { MapAction, MapEvent, PersoAction, TimeOptions } from './types';
+import type { MapEvent, Store, TimeOptions } from './types';
+import { PersosTypes } from './types';
 
 // PREP
-
 const id = 'my-div';
 const app = document.getElementById('app');
 export let div = document.createElement('div');
@@ -31,56 +31,53 @@ const events: MapEvent = new Map([
 	[3000, { name: 'action03', data: { style: { 'font-size': '200px', color: 'cyan' } } }],
 ]);
 
-const actions: MapAction = new Map(
-	Object.entries({
-		enter: {
-			style: { color: 'orange' },
-			className: 'enter',
-			content: 'ToTO',
-		},
-		action01: {
-			className: {
-				add: ['action01', 'action12'],
+const store: Store = {
+	[id]: {
+		type: PersosTypes.TEXT,
+		actions: {
+			enter: {
+				style: { color: 'orange' },
+				className: 'enter',
+				content: 'ToTO',
 			},
-		},
-		action02: {
-			style: { 'font-weight': 'bold', top: 0 },
-			className: {
-				add: 'action2',
-				toggle: 'action01',
-				remove: 'action12',
+			action01: {
+				className: {
+					add: ['action01', 'action12'],
+				},
 			},
-			transition: {
-				from: { 'font-size': 16, x: 0, y: 0 },
-				to: { 'font-size': 120, x: 300, y: 200 },
-				duration: 1500,
+			action02: {
+				style: { 'font-weight': 'bold', top: 0 },
+				className: {
+					add: 'action2',
+					toggle: 'action01',
+					remove: 'action12',
+				},
+				transition: {
+					from: { 'font-size': 16, x: 0, y: 0 },
+					to: { 'font-size': 120, x: 300, y: 200 },
+					duration: 1500,
+				},
 			},
-		},
 
-		action03: {
-			className: 'action03',
-			// action: controller.stop,
+			action03: {
+				className: 'action03',
+				// action: controller.stop,
+			},
 		},
-	})
-);
-
-const persoActions: PersoAction = new Map();
-persoActions.set(id, actions);
+	},
+};
 
 const transformer01 = ({ options: { time } }: TimeOptions) => {
 	div.textContent = String(time);
 };
 
 // PROCESS
-const controller = new Controller(persoActions, events);
+const controller = new Controller(store, events);
 controller.addToTimer(transformer01);
 
 // PLAY
 // la priorité sur le seek n'est aps la meme que pour le play
-controller
-	.start()
-	// .seek(3000);
-	.play();
+controller.start().seek(2500).play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

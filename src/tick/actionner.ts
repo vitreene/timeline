@@ -1,7 +1,7 @@
 import { renderer } from './renderer';
 import { Tween } from './tween';
 
-import type { Render, MapAction, Style, PersoAction, ActionClassList, PersoId } from './types';
+import type { Render, MapAction, Style, PersosAction, ActionClassList, PersoId, Action, PersoAction } from './types';
 
 // TODO PROVISOIRE
 
@@ -13,13 +13,15 @@ compose effects ?
 */
 
 export class Actionner {
-	actions: PersoAction = new Map();
+	actions: PersosAction = new Map();
 	tweens = new Map<string, Tween>();
 	state: MapAction = new Map();
 	renderer: Render = renderer;
 
-	add = (actions: PersoAction) => {
-		this.actions = new Map([...this.actions, ...actions]);
+	add = (id: PersoId, actions: PersoAction) => {
+		// les actions entrantes remplacent les précédentes, pas de fusion
+		const newActions = { ...this.actions.get(id), ...actions };
+		this.actions.set(id, newActions);
 	};
 
 	update = ({
@@ -40,7 +42,8 @@ export class Actionner {
 		}
 
 		this.actions.forEach((actions, id) => {
-			const { transition = null, style = null, className = '', ...action } = { ...actions.get(name), ...data };
+			if (typeof actions[name] === 'boolean') return;
+			const { transition = null, style = null, className = '', ...action } = { ...(actions[name] as Action), ...data };
 
 			if (transition) {
 				this.tweens.set(id, new Tween({ transition }));

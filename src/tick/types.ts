@@ -35,8 +35,40 @@ export interface TimeOptions {
 }
 export type TimerCallback = (data: TimeOptions) => void;
 
-export type MapEvent = Map<number, any>;
-export type MapAction = Map<string, Action>;
 export type PersoId = string;
-export type PersoAction = Map<PersoId, MapAction>;
+export type ActionId = string;
+
+// types en entrée
+export type PersoAction = Record<ActionId, Action | boolean>;
+
+// types en interne
+export type MapEvent = Map<number, any>;
+export type MapAction = Map<ActionId, Action>;
+export type PersosAction = Map<PersoId, PersoAction>;
 export type Render = (update: MapAction) => void;
+
+export type Store = Record<PersoId, PersoNode>;
+
+export interface BaseNode {
+	actions: PersoAction;
+	// emit?: { [prop in keyof Emit]: Partial<Eventime> };
+}
+
+export interface PersoNode extends BaseNode {
+	type: PersosTypes;
+	// initial: Partial<Initial>;
+}
+
+export enum PersosTypes {
+	TEXT = 'text',
+	IMG = 'img',
+	LIST = 'list',
+	BLOC = 'bloc',
+	ROOT = 'root',
+	VIDEO = 'video',
+	PROTO = 'proto',
+	LAYER = 'layer',
+	SPRITE = 'sprite',
+	BUTTON = 'button',
+	POLYGON = 'polygon',
+}
