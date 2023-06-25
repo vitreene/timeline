@@ -34,7 +34,7 @@ const events: MapEvent = new Map([
 const actions: MapAction = new Map(
 	Object.entries({
 		enter: {
-			style: { color: 'orange', transform: 'translate( var(--translate-x) , var(--translate-y) )' },
+			style: { color: 'orange' },
 			className: 'enter',
 			content: 'ToTO',
 		},
@@ -79,7 +79,7 @@ controller.addToTimer(transformer01);
 // la priorité sur le seek n'est aps la meme que pour le play
 controller
 	.start()
-	// .seek(3000)
+	// .seek(3000);
 	.play();
 
 // setTimeout(() => {

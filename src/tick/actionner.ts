@@ -1,7 +1,7 @@
 import { renderer } from './renderer';
 import { Tween } from './tween';
 
-import type { Render, MapAction, Style, PersoAction } from './types';
+import type { Render, MapAction, Style, PersoAction, ActionClassList, PersoId } from './types';
 
 // TODO PROVISOIRE
 
@@ -23,14 +23,14 @@ export class Actionner {
 	};
 
 	update = ({
-		// delta,
-		// time,
+		delta,
+		time,
 		name,
 		data,
 		seek = false,
 	}: {
-		// delta: number;
-		// time: number;
+		delta: number;
+		time: number;
 		name: string;
 		seek: boolean;
 		data?: any;
@@ -40,18 +40,25 @@ export class Actionner {
 		}
 
 		this.actions.forEach((actions, id) => {
-			const { transition = null, style = null, ...action } = { ...actions.get(name), ...data };
+			const { transition = null, style = null, className = '', ...action } = { ...actions.get(name), ...data };
 
 			if (transition) {
-				// console.log('transition', time, delta, seek, transition);
 				this.tweens.set(id, new Tween({ transition }));
 			}
-
-			if (style) this.mixer(id, style);
+			if (style) {
+				this.mixer(id, style);
+			}
+			if (className) {
+				this.mixClassList(id, className);
+			}
 
 			const attrs = this.state.get(id);
 			this.state.set(id, { ...attrs, ...action });
 		});
+
+		if (seek) {
+			this.updateTweens(delta);
+		}
 	};
 
 	updateTweens = (delta: number) => {
@@ -62,10 +69,31 @@ export class Actionner {
 		});
 	};
 
-	mixer(id: string, update: Style) {
+	// TODO mixer les intensités de chaque propriété
+	mixer(id: PersoId, update: Style) {
 		const attrs = this.state.get(id);
 		const newAttrs = { ...attrs, style: { ...attrs?.style, ...update } };
 		this.state.set(id, newAttrs);
+	}
+
+	mixClassList(id: PersoId, className: ActionClassList | string) {
+		if (typeof className === 'string') {
+			className = { add: [className] };
+		}
+		const persoState = this.state.get(id);
+		if (!persoState) return;
+		const persoNewClassName = persoState.className || {};
+		console.log(persoNewClassName);
+
+		for (const action in className) {
+			const persoClassName = persoNewClassName?.[action]
+				? typeof persoNewClassName[action] === 'string'
+					? [persoNewClassName[action]]
+					: persoNewClassName[action]
+				: [];
+			persoNewClassName[action] = persoClassName.concat(className[action]);
+		}
+		this.state.set(id, { ...persoState, className: persoNewClassName });
 	}
 
 	flush = () => {

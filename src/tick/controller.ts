@@ -68,6 +68,7 @@ export class Controller {
 		this.pause();
 		this.timer.seek(time);
 		this.loopEvent.seek(time);
+
 		return this;
 	};
 
