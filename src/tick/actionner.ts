@@ -1,6 +1,8 @@
 import { Tween } from './tween';
 import { Display } from './display';
 
+import { APP } from '.';
+
 import type {
 	Render,
 	Style,
@@ -22,13 +24,15 @@ compose effects ?
 
 export class Actionner {
 	actions: PersosAction = new Map();
-	tweens = new Map<string, Tween>();
+	transitions = new Map<string, Tween>();
 	state: StateAction = new Map();
 	renderer: Render;
+	resetPersos;
 
 	constructor(store: Store) {
-		const display = new Display(store);
+		const display = new Display(APP, store);
 		this.renderer = display.renderer;
+		this.resetPersos = display.reset;
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -51,7 +55,7 @@ export class Actionner {
 		data?: any;
 	}) => {
 		if (seek) {
-			this.tweens.clear();
+			this.transitions.clear();
 		}
 
 		this.actions.forEach((actions, id) => {
@@ -62,7 +66,7 @@ export class Actionner {
 			console.log(name, action, data);
 
 			if (transition) {
-				this.tweens.set(id, new Tween({ transition }));
+				this.transitions.set(id, new Tween({ transition }));
 			}
 			if (style) {
 				this.mixStyle(id, style);
@@ -76,15 +80,15 @@ export class Actionner {
 		});
 
 		if (seek) {
-			this.updateTweens(delta);
+			this.updateTransitions(delta);
 		}
 	};
 
-	updateTweens = (delta: number) => {
-		this.tweens.forEach((tween, id) => {
+	updateTransitions = (delta: number) => {
+		this.transitions.forEach((tween, id) => {
 			const update = tween.next(delta);
 			this.mixStyle(id, update.value);
-			if (update.done) this.tweens.delete(id);
+			if (update.done) this.transitions.delete(id);
 		});
 	};
 
@@ -112,11 +116,12 @@ export class Actionner {
 		return action;
 	}
 
-	private mergeStyle(action: Action, style: Style) {
+	mergeStyle(action: Action, style: Style) {
 		return { ...action, style: { ...action?.style, ...style } };
 	}
 
-	private mergeClassList(action: Action, className: ActionClassList | string) {
+	mergeClassList(action: Action, className: ActionClassList | string) {
+		// NOTE traiter ce cas en dehors du runtime
 		if (typeof className === 'string') {
 			className = { add: [className] };
 		}

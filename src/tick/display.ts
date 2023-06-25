@@ -3,29 +3,38 @@ construire et stocker les persos
 alimenter le renderer, mettre en dependance?
 */
 
-import { Action, PersosTypes } from './types';
-import { ActionClassList, Initial, PersoId, StateAction, Store } from './types';
-import { ROOT, app } from '.';
+import { ROOT } from '.';
+import { PersosTypes } from './types';
+
+import type { Action, ActionClassList, Initial, PersoId, StateAction, Store } from './types';
 
 interface Perso {
 	initial: Partial<Initial>;
 	node: HTMLElement;
+	nodeInitial: HTMLElement;
 }
 
 export class Display {
+	app: HTMLElement;
 	persos = new Map<PersoId, Perso>();
 
-	constructor(store: Store) {
+	constructor(appId: string, store: Store) {
+		this.app = document.getElementById(appId);
 		for (const id in store) {
 			const perso = store[id];
 			const initial = perso.initial;
 			const node = createPerso(perso.type, { id, ...initial });
 			this.render(node, initial);
-			this.persos.set(id, { initial, node });
+			const nodeInitial = node.cloneNode(true);
+			this.persos.set(id, { initial, node, nodeInitial });
 		}
-		const root = this.persos.get(ROOT).node;
-		app.appendChild(root);
+		this.root();
 	}
+
+	root = () => {
+		const root = this.persos.get(ROOT).node;
+		this.app.appendChild(root);
+	};
 
 	renderer = (actions: StateAction) => {
 		actions.forEach((action, id) => {
@@ -61,6 +70,16 @@ export class Display {
 					break;
 			}
 		}
+	};
+
+	reset = () => {
+		const root = this.persos.get(ROOT).node;
+		this.app.removeChild(root);
+
+		this.persos.forEach((perso) => {
+			perso.node = perso.nodeInitial.cloneNode(true) as HTMLElement;
+		});
+		this.root();
 	};
 }
 

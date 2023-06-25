@@ -3,7 +3,7 @@ import { Ticker } from './ticker';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
 
-import type { Store, PersoId, DeltaFn, MapEvent, PersoAction, TimerCallback } from './types';
+import type { Store, DeltaFn, MapEvent, TimerCallback } from './types';
 
 export class Controller {
 	timer = new Timer();
@@ -15,7 +15,7 @@ export class Controller {
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.timer.update);
-		this.ticker.handlers.store(actionner.updateTweens);
+		this.ticker.handlers.store(actionner.updateTransitions);
 		this.ticker.framers.store(actionner.flush);
 
 		this.registerEvents(events);

@@ -1,11 +1,12 @@
 import { Controller } from './controller';
 
-import type { MapEvent, Store, TimeOptions } from './types';
 import { PersosTypes } from './types';
+
+import type { MapEvent, Store, TimeOptions } from './types';
 
 // PREP
 export const ROOT = 'root';
-export const app = document.getElementById('app');
+export const APP = 'app';
 
 ////////////
 // DEMO 4 //
@@ -72,10 +73,8 @@ controller.addToTimer(transformer01);
 
 // PLAY
 // la priorité sur le seek n'est aps la meme que pour le play
-controller
-	.start()
-	// .seek(2500)
-	.play();
+controller.start().play();
+// controller.start().seek(2500).play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

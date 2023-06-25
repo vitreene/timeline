@@ -8,6 +8,7 @@ export class LoopEvent {
 
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
+		this.actionner.resetPersos();
 	}
 
 	add(events: MapEvent) {
@@ -23,7 +24,8 @@ export class LoopEvent {
 	};
 
 	seek = (seek: number) => {
-		initDiv();
+		this.actionner.resetPersos();
+
 		const { select } = selectUpTo(this.events, seek);
 		select.forEach((event, time) => {
 			const delta = seek - time;
@@ -42,8 +44,4 @@ function selectUpTo(map: MapEvent, upTo: number): { select: MapEvent; last: numb
 		}
 	});
 	return { select, last };
-}
-
-function initDiv() {
-	console.log('initDiv : Function not implemented.');
 }
