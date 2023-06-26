@@ -73,10 +73,10 @@ export class Display {
 	};
 
 	reset = () => {
-		const root = this.persos.get(ROOT).node;
-		this.app.removeChild(root);
-
 		this.persos.forEach((perso) => {
+			// NOTE cela va-t-il fonctionner avec des conteneurs ?
+			// les events sont délégués
+			perso.node.remove();
 			perso.node = perso.nodeInitial.cloneNode(true) as HTMLElement;
 		});
 		this.root();

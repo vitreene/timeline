@@ -74,7 +74,7 @@ controller.addToTimer(transformer01);
 // PLAY
 // la priorité sur le seek n'est aps la meme que pour le play
 controller.start().play();
-// controller.start().seek(2500).play();
+// controller.start().seek(1500).play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

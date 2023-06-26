@@ -29,6 +29,7 @@ export class Actionner {
 	renderer: Render;
 	resetPersos;
 
+	// recoit Display plutot que Store
 	constructor(store: Store) {
 		const display = new Display(APP, store);
 		this.renderer = display.renderer;
