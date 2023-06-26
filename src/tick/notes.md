@@ -107,9 +107,10 @@ La Queue ne garde que :
 
 ### notes todo 26/06
 
-- instance Display dans Controller,
-  - méthodes accessibles
-  - pouvoir ajouter un perso
+[x] instance Display dans Controller,
+
+- méthodes accessibles
+- pouvoir ajouter un perso
 - depuis tween :
   - transport des valeurs
     - distinguer unit et valeurs

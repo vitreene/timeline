@@ -1,8 +1,6 @@
 import { Tween } from './tween';
 import { Display } from './display';
 
-import { APP } from '.';
-
 import type {
 	Render,
 	Style,
@@ -27,13 +25,9 @@ export class Actionner {
 	transitions = new Map<string, Tween>();
 	state: StateAction = new Map();
 	renderer: Render;
-	resetPersos;
 
-	// recoit Display plutot que Store
-	constructor(store: Store) {
-		const display = new Display(APP, store);
+	constructor(display: Display) {
 		this.renderer = display.renderer;
-		this.resetPersos = display.reset;
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {

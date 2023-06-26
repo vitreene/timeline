@@ -4,7 +4,7 @@ alimenter le renderer, mettre en dependance?
 */
 
 import { ROOT } from '.';
-import { PersosTypes } from './types';
+import { PersoNode, PersosTypes } from './types';
 
 import type { Action, ActionClassList, Initial, PersoId, StateAction, Store } from './types';
 
@@ -22,13 +22,17 @@ export class Display {
 		this.app = document.getElementById(appId);
 		for (const id in store) {
 			const perso = store[id];
-			const initial = perso.initial;
-			const node = createPerso(perso.type, { id, ...initial });
-			this.render(node, initial);
-			const nodeInitial = node.cloneNode(true);
-			this.persos.set(id, { initial, node, nodeInitial });
+			this.add(id, perso);
 		}
 		this.root();
+	}
+
+	add(id: PersoId, perso: PersoNode) {
+		const initial = perso.initial;
+		const node = createPerso(perso.type, { id, ...initial });
+		this.render(node, initial);
+		const nodeInitial = node.cloneNode(true);
+		this.persos.set(id, { initial, node, nodeInitial });
 	}
 
 	root = () => {
