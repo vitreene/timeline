@@ -104,3 +104,30 @@ La Queue ne garde que :
     - transform
     - couleurs
   - alimenté en direct - set - ou par flux - tween -
+
+### notes todo 26/06
+
+[x] instance Display dans Controller,
+
+- méthodes accessibles
+- pouvoir ajouter un perso
+- depuis tween :
+  - transport des valeurs
+    - distinguer unit et valeurs
+    - arrays et pattern pour les couleurs
+  - definir "from" si absent
+- modules Strap sur le modele Tween
+  - possibilité de generer un event
+- styles :
+  - zoom
+  - transform via matrix
+- attr : setAttribute , valeur null/undefined pour supprimer l'attribut
+- persos
+  - state style + transform
+  - parent
+- definir Content
+  - anticiper List (add/remove/move) et micro-interactions
+  - Static : Html avec slots dynamiques
+  - Components
+  - third-party : threejs, autres
+  -

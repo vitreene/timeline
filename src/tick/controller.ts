@@ -1,7 +1,10 @@
 import { Timer } from './timer';
 import { Ticker } from './ticker';
+import { Display } from './display';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
+
+import { APP } from '.';
 
 import type { Store, DeltaFn, MapEvent, TimerCallback } from './types';
 
@@ -9,9 +12,11 @@ export class Controller {
 	timer = new Timer();
 	ticker = new Ticker();
 	loopEvent: LoopEvent = null;
+	display: Display;
 
 	constructor(store: Store, events: MapEvent) {
-		const actionner = new Actionner(store);
+		this.display = new Display(APP, store);
+		const actionner = new Actionner(this.display);
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.timer.update);
