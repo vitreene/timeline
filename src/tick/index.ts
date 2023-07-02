@@ -1,8 +1,8 @@
 import { Controller } from './controller';
 
-import { PersosTypes } from './types';
+import { PersosTypes as P } from './types';
 
-import type { MapEvent, Store, TimeOptions } from './types';
+import type { MapEvent, Perso, PersoId, PersoNode, Store, TimeOptions } from './types';
 
 // PREP
 export const ROOT = 'root';
@@ -17,16 +17,31 @@ const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
 	[700, { name: 'action01' }],
 	[1500, { name: 'action02' }],
-	[3000, { name: 'action03', data: { style: { 'font-size': '200px', color: 'cyan' } } }],
+	[3000, { name: 'action03', data: { style: { 'font-size': '200px', backgroundColor: 'cyan' } } }],
 ]);
 
-const store: Store = {
+const store: Record<PersoId, Perso> = {
 	[ROOT]: {
-		type: PersosTypes.TEXT,
+		type: P.LAYER,
+		initial: {
+			tag: 'div',
+			className: 'root',
+			style: {
+				position: 'relative',
+				backgroundColor: 'yellowgreen',
+			},
+		},
+		actions: {
+			action03: true,
+		},
+	},
+	text1: {
+		type: P.TEXT,
 		initial: {
 			className: 'initial',
-			content: 'ReToTO',
+			content: 'Roudoudou',
 			style: { top: 0, left: 0, backgroundColor: 'orangered', position: 'absolute', padding: '1rem' },
+			move: ROOT,
 		},
 		actions: {
 			enter: {
@@ -51,13 +66,46 @@ const store: Store = {
 					duration: 1500,
 				},
 			},
-
 			action03: {
 				className: 'action03',
 				style: {
-					backgroundColor: 'blue',
+					color: 'blue',
 				},
 				// action: controller.stop,
+			},
+		},
+	},
+	text2: {
+		type: P.TEXT,
+		initial: {
+			content: '2e texte',
+			style: {
+				'background-color': 'purple',
+				padding: '1rem',
+				color: 'yellow',
+				position: 'absolute',
+				x: 200,
+				y: 200,
+				width: 400,
+				height: 100,
+				display: 'flex',
+				'justify-content': 'center',
+				'align-items': 'center',
+				'font-size': 48,
+			},
+		},
+		actions: {
+			action01: {
+				style: { 'font-size': 48 },
+				className: 'action01-text2',
+				move: ROOT,
+			},
+			action02: {
+				transition: {
+					from: { scale: 1 },
+					to: { scale: 1.8 },
+					duration: 1500,
+				},
 			},
 		},
 	},
@@ -72,9 +120,9 @@ const controller = new Controller(store, events);
 controller.addToTimer(transformer01);
 
 // PLAY
-// la priorité sur le seek n'est aps la meme que pour le play
-controller.start().play();
-// controller.start().seek(2500).play();
+// FIXME la priorité sur le seek n'est aps la meme que pour le play
+// controller.start().play();
+controller.start().seek(2500).play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

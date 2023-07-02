@@ -4,31 +4,35 @@ alimenter le renderer, mettre en dependance?
 */
 
 import { ROOT } from '.';
-import { PersosTypes } from './types';
+import { createPersoBase } from './display/base';
+import { Layer } from './display/layer';
 
-import type { Action, ActionClassList, Initial, PersoId, StateAction, Store } from './types';
-
-interface Perso {
-	initial: Partial<Initial>;
-	node: HTMLElement;
-	nodeInitial: HTMLElement;
-}
+import {
+	PersosTypes,
+	type Action,
+	type ActionClassList,
+	type PersoId,
+	type PersoNode,
+	type StateAction,
+	type Store,
+} from './types';
 
 export class Display {
 	app: HTMLElement;
-	persos = new Map<PersoId, Perso>();
+	persos = new Map<PersoId, PersoNode>();
 
 	constructor(appId: string, store: Store) {
 		this.app = document.getElementById(appId);
-		for (const id in store) {
-			const perso = store[id];
-			const initial = perso.initial;
-			const node = createPerso(perso.type, { id, ...initial });
-			this.render(node, initial);
-			const nodeInitial = node.cloneNode(true);
-			this.persos.set(id, { initial, node, nodeInitial });
-		}
+		this.initPersos(store);
 		this.root();
+	}
+
+	initPersos(store: Store) {
+		for (const id in store) {
+			const perso = createPersoBase(id, store[id]) as PersoNode;
+			this.render(perso, perso.initial);
+			this.persos.set(id, perso);
+		}
 	}
 
 	root = () => {
@@ -39,33 +43,47 @@ export class Display {
 	renderer = (actions: StateAction) => {
 		actions.forEach((action, id) => {
 			const perso = this.persos.get(id);
-			const node = perso.node;
-			this.render(node, action);
+			this.render(perso, action);
 		});
 	};
+	b;
 
-	render = (node: HTMLElement, action: Action) => {
+	render = (perso: PersoNode, action: Action) => {
 		// console.log('renderer', action);
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':
-					node.textContent = action[attr];
+					if (perso.type === PersosTypes.TEXT) {
+						perso.child.update(action.content);
+					}
 					break;
-				case 'action':
-					action[attr]();
-					break;
+				case 'move': {
+					const move = action.move;
+					const parentId = typeof move === 'string' ? move : move.to;
+					parentId && (perso.parent = parentId);
+					const layer = this.persos.get(parentId)?.child;
+
+					if (layer instanceof Layer) {
+						const order = typeof move === 'object' ? move.order : undefined;
+						layer.add(perso.node, order);
+						layer.update(layer.content);
+					}
+				}
+
 				case 'style':
 					{
-						const style = action[attr];
+						const style = action.style;
 						for (const s in style) {
-							updateStyle(node, s, style[s]);
+							updateStyle(perso.node, s, style[s]);
 						}
 					}
 					break;
 				case 'className':
-					updateClassList(node, action[attr]);
+					updateClassList(perso.node, action.className);
 					break;
-
+				case 'action':
+					action[attr]();
+					break;
 				default:
 					break;
 			}
@@ -73,33 +91,16 @@ export class Display {
 	};
 
 	reset = () => {
-		const root = this.persos.get(ROOT).node;
-		this.app.removeChild(root);
-
-		this.persos.forEach((perso) => {
-			perso.node = perso.nodeInitial.cloneNode(true) as HTMLElement;
+		this.persos.forEach((perso, id) => {
+			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));
+			perso.node.id = id;
+			this.render(perso, perso.initial);
 		});
 		this.root();
 	};
 }
 
-function createPerso(type: PersosTypes, props: Partial<Initial>) {
-	switch (type) {
-		case PersosTypes.TEXT:
-			return createText(props);
-
-		default:
-			break;
-	}
-}
-
-function createText(props) {
-	const node = document.createElement(props.tag || 'div');
-	node.id = props.id;
-	return node;
-}
-
-export function updateClassList(node: HTMLElement, actions: string | ActionClassList) {
+export function updateClassList(node: HTMLElement | SVGElement, actions: string | ActionClassList) {
 	if (typeof actions === 'string') node.classList.add(...actions.split(' '));
 	else {
 		for (const action in actions) {
@@ -109,7 +110,7 @@ export function updateClassList(node: HTMLElement, actions: string | ActionClass
 	}
 }
 
-function updateStyle(node: HTMLElement, item: string, prop: number) {
+function updateStyle(node: HTMLElement | SVGElement, item: string, prop: number) {
 	// console.log('updateStyle', item, prop);
 
 	if ('x' === item || 'y' === item) {

@@ -59,8 +59,9 @@ export class Actionner {
 		}
 
 		this.actions.forEach((actions, id) => {
-			if (typeof actions[name] === 'boolean') return;
-			const currentAction = this.mixActions(actions[name] as Action, data);
+			if (!actions[name]) return;
+			const currentAction = typeof actions[name] === 'boolean' ? data : this.mixActions(actions[name] as Action, data);
+
 			const { transition = null, style = null, className = '', ...action } = currentAction;
 
 			console.log(name, action, data);
@@ -125,7 +126,7 @@ export class Actionner {
 		if (typeof className === 'string') {
 			className = { add: [className] };
 		}
-		const persoNewClassName = action.className || {};
+		const persoNewClassName = action?.className || {};
 		for (const action in className) {
 			const persoClassName = persoNewClassName?.[action]
 				? typeof persoNewClassName[action] === 'string'

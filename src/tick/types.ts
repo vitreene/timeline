@@ -1,4 +1,8 @@
 import * as CSS from 'csstype';
+import { Layer } from './display/layer';
+import { Txt } from './display/text';
+import { Sprite } from './display/sprite';
+
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
 export interface Action {
@@ -6,6 +10,12 @@ export interface Action {
 	style?: Style;
 	content?: Content;
 	transition?: Transition;
+	move?: string | moveAction;
+}
+
+interface moveAction {
+	to: string;
+	order?: number;
 }
 
 export type Content = string;
@@ -48,17 +58,40 @@ export type StateAction = Map<PersoId, Action>;
 export type PersosAction = Map<PersoId, PersoAction>;
 export type Render = (update: MapAction) => void;
 
-export type Store = Record<PersoId, PersoNode>;
+export type Store = Record<PersoId, Perso>;
 
 export interface BaseNode {
 	actions: PersoAction;
 	// emit?: { [prop in keyof Emit]: Partial<Eventime> };
 }
 
-export interface PersoNode extends BaseNode {
+export interface Perso extends BaseNode {
 	type: PersosTypes;
 	initial: Partial<Initial>;
 }
+
+interface NodePerso extends Perso {
+	parent: string;
+	node: HTMLElement | SVGElement;
+}
+
+interface PersoText extends NodePerso {
+	type: PersosTypes.TEXT;
+	child: Txt;
+}
+
+interface PersoLayer extends NodePerso {
+	type: PersosTypes.LAYER;
+	child: Layer;
+}
+
+export interface PersoSprite extends NodePerso {
+	type: PersosTypes.SPRITE;
+	child: Sprite;
+	initial: Partial<Initial> & SpriteInitial;
+}
+
+export type PersoNode = PersoText | PersoLayer | PersoSprite;
 
 export interface Initial {
 	tag: string;
@@ -68,9 +101,12 @@ export interface Initial {
 	classStyle: Style;
 	className?: string | ActionClassList;
 	move: string;
-	src: string;
-	fit: string;
 	content: Content;
+}
+
+export interface SpriteInitial {
+	src: string;
+	fit?: string;
 }
 
 export enum PersosTypes {
