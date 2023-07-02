@@ -18,6 +18,7 @@ export class Controller {
 		this.display = new Display(APP, store);
 		const actionner = new Actionner(this.display);
 		this.loopEvent = new LoopEvent(actionner);
+		this.loopEvent.resetPersos = this.display.reset;
 
 		this.ticker.handlers.store(this.timer.update);
 		this.ticker.handlers.store(actionner.updateTransitions);

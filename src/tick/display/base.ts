@@ -5,14 +5,6 @@ import type { Perso, PersoId, PersoNode, PersoSprite } from '../types';
 import { Layer } from './layer';
 import { Sprite } from './sprite';
 
-/* 
-quelle interface pour les composants :
-- node 
-- content
-- update
-
--> ici les deux composants n'ont pas la mem interface
-*/
 export function createPersoBase(id: PersoId, perso: Perso) {
 	const node = document.createElement(perso.initial.tag || 'div');
 	node.id = id;

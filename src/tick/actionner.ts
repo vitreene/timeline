@@ -37,14 +37,14 @@ export class Actionner {
 	};
 
 	update = ({
-		delta,
 		// time,
+		delta,
 		name,
 		data,
 		seek = false,
 	}: {
-		delta: number;
 		// time: number;
+		delta: number;
 		name: string;
 		seek: boolean;
 		data?: any;

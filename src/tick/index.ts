@@ -98,7 +98,7 @@ const store: Record<PersoId, Perso> = {
 			action01: {
 				style: { 'font-size': 48 },
 				className: 'action01-text2',
-				move: ROOT,
+				move: { to: ROOT, order: 'first' },
 			},
 			action02: {
 				transition: {

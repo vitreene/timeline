@@ -15,7 +15,7 @@ export interface Action {
 
 interface moveAction {
 	to: string;
-	order?: number;
+	order?: string | number;
 }
 
 export type Content = string;

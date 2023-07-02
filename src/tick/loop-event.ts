@@ -5,10 +5,9 @@ import type { MapEvent } from './types';
 export class LoopEvent {
 	events: MapEvent = new Map();
 	actionner: Actionner = null;
-
+	resetPersos;
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
-		this.actionner.resetPersos();
 	}
 
 	add(events: MapEvent) {
@@ -24,7 +23,7 @@ export class LoopEvent {
 	};
 
 	seek = (seek: number) => {
-		this.actionner.resetPersos();
+		this.resetPersos();
 
 		const { select } = selectUpTo(this.events, seek);
 		select.forEach((event, time) => {
