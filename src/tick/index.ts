@@ -2,7 +2,7 @@ import { Controller } from './controller';
 
 import { PersosTypes as P } from './types';
 
-import type { MapEvent, Perso, PersoId, PersoNode, Store, TimeOptions } from './types';
+import type { MapEvent, Perso, PersoId, TimeOptions } from './types';
 
 // PREP
 export const ROOT = 'root';
@@ -39,7 +39,7 @@ const store: Record<PersoId, Perso> = {
 		type: P.TEXT,
 		initial: {
 			className: 'initial',
-			content: 'Roudoudou',
+			content: 'start',
 			style: { top: 0, left: 0, backgroundColor: 'orangered', position: 'absolute', padding: '1rem' },
 			move: ROOT,
 		},
@@ -121,8 +121,8 @@ controller.addToTimer(transformer01);
 
 // PLAY
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
-// controller.start().play();
-controller.start().seek(2500).play();
+controller.start().play();
+// controller.start().seek(2000).play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');

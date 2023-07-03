@@ -9,6 +9,9 @@ update :
 store update(time)
 */
 
+const TIME_LEAP = 10;
+const TIMER_UPDATE = 100;
+
 export class Timer {
 	handlers = new Store<TimerCallback>();
 	elapsed = 0;
@@ -28,12 +31,12 @@ export class Timer {
 			this.waiting -= delta;
 		} else {
 			this.waiting = 0;
-			// console.log('TIMER', delta, this.elapsed);
 			this.elapsed += delta;
-			const time = Math.round(this.elapsed / 10) * 10;
-			if (this.time !== time) {
-				this.time = time;
-				this.time % 100 === 0 && Promise.resolve(this.handlers.update({ delta, options: { time } }));
+			const elapsed = Math.round(this.elapsed / TIME_LEAP) * TIME_LEAP;
+			const consumed = (elapsed - this.time) / TIME_LEAP;
+			for (let t = 0; t <= consumed; t++) {
+				this.time += TIME_LEAP;
+				this.time % TIMER_UPDATE === 0 && Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
 			}
 		}
 	};
