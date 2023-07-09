@@ -1,5 +1,7 @@
+const APP = 'app';
+
 // ZOOM////////////
-const root = document.getElementById('app');
+const root = document.getElementById(APP);
 const stage = {
 	width: 1000,
 	height: 750,
@@ -14,10 +16,18 @@ export function calculateZoom() {
 	const wZoom = width / stage.width;
 	const hScene = wZoom * stage.height;
 
+	const vw = window.innerWidth / 100;
+	const vh = window.innerHeight / 100;
+	const units = round({
+		vw,
+		vh,
+		vmin: Math.min(vw, vh),
+		vmax: Math.max(vw, vh),
+	});
 	if (hScene > height) {
 		const zoom = height / stage.height;
 		const wScene = stage.width * zoom;
-		return round({
+		const wProps = round({
 			left: (width - wScene) / 2,
 			top: 0,
 			width: wScene,
@@ -25,8 +35,9 @@ export function calculateZoom() {
 			ratio: wScene / height,
 			zoom,
 		});
+		return { ...wProps, units };
 	} else {
-		return round({
+		const hProps = round({
 			left: 0,
 			top: (height - hScene) / 2,
 			width,
@@ -34,13 +45,15 @@ export function calculateZoom() {
 			ratio: hScene / width,
 			zoom: wZoom,
 		});
+		return { units, ...hProps };
 	}
 }
-type Round = Record<string, number>;
-export function round(obj: Round): Round {
-	const r = {};
+
+export function round<T extends Object>(obj: T): T {
+	const r = {} as T;
 	for (const e in obj) {
-		r[e] = typeof obj[e] === 'number' ? parseFloat((obj[e] as number).toFixed(2)) : obj[e];
+		if (typeof obj[e] === 'number') r[String(e)] = parseFloat((obj[e] as number).toFixed(2));
+		else r[e] = obj[e];
 	}
 	return r;
 }

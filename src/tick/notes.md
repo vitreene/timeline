@@ -131,3 +131,60 @@ La Queue ne garde que :
   - Components
   - third-party : threejs, autres
   -
+
+notes 09/07
+propriétés de Perso :
+
+Perso
+
+- id
+- tag
+- initial
+- actions
+- emit
+- node
+- parent
+- transform -> etat, prop brutes
+- style -> etat, prop brutes. Toutes props hors transform
+- matrix -> prop résolue
+
+style et transform contiennent les propriétés courantes, non-résolues :
+
+- chaque valeur est individuelle, exprimée si besoin par son alias
+  (ex : x, y pur translateX et translateY)
+- chaque propriété est décrite de l'une de ces façons :
+  - valeur absolue {value: number, unit: string}
+  - tableau de valeurs (couleurs) : {value : number[], mask: regex}
+  - unitless : number|string ; si number, est multiplié par zoom
+- transform :
+  des valeurs distinctes pourraient etre attribuées à un deplacement scénarisé et un lié à un mouvement (souris par exemple). Ces valeurs sont fusionnées au rendu.
+  on aurait :
+- x, y pour des mouvements absolus
+- dx, dy mouvements additifs
+- pointerX, pointerY pour la souris/ touch,
+- pointerDX, pointerDY en additif.
+  -> verifier si j'ai besoin des deux derniers, ou si un seul suffit.
+  -> eventuellement, la meme chose pour rotation.
+- une valeur matrix contient le résultat des calculs pour l'élément, est utilisé par les enfants pour calculer leur position absolue.
+- autoriser quand meme une valeur matrix en entrée dans transform. ce matrix sera une prop directe de Perso.
+  Note : si une props transform est passée en entrée, la recomposer en valeurs directes. A faire en pré-traitement (ou dissuader de le faire: ignorer/warn)
+
+A l'update, les valeurs ajoutent ou remplacent les présentes.
+
+A quel endroit sont résolues les valeurs ? idéalement, avant raf.
+Cependant, je n'ai pas trouvé de moyen d'arreter l'arrivée de valeurs en entrée pour réaliser les calculs. une proposition :
+
+-> Les valeurs issues d'une action peuvent etre connues à l'avance :
+
+- regrouper les actions par perso
+- calculs
+- fusion des résultats
+- raf
+
+entre deux rendus du timer, d'autres modifications peuvent arriver sur chaque tick :
+
+- input
+- tween/straps
+  -> il pourrait y avoir un décalage ou le tick place les entrées dans une queue de calcul, traitée dans le cycle suivant
+
+en résumé , les entrées du cycle précédent sont calculés le cycle suivant

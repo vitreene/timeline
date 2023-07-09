@@ -11,10 +11,10 @@ const Matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
  * @param m1  [a, c, e, b, d, f, 0, 0, 1]
  * @param m2  [a, c, e, b, d, f, 0, 0, 1]
  */
-function combine(...arg) {
-	const args = [].slice.call(arguments) || [];
-	let m1 = args[0] || Matrix;
-	args.map((m2, idx) => {
+function combine(...args) {
+	const arg = args.filter(Boolean);
+	let m1 = arg[0] || Matrix;
+	arg.map((m2, idx) => {
 		if (idx >= 1) {
 			m1 = [
 				m1[0] * m2[0] + m1[1] * m2[3] + m1[2] * m2[6],
@@ -29,6 +29,7 @@ function combine(...arg) {
 			];
 		}
 	});
+
 	return m1;
 }
 

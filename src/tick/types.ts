@@ -2,6 +2,7 @@ import * as CSS from 'csstype';
 import { Layer } from './display/layer';
 import { Txt } from './display/text';
 import { Sprite } from './display/sprite';
+import { Matrix2D, TransformProperty } from './transform-types';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -73,6 +74,9 @@ export interface Perso extends BaseNode {
 interface NodePerso extends Perso {
 	parent: string;
 	node: HTMLElement | SVGElement;
+	style: Style;
+	transform: TransformProperty;
+	matrix: Matrix2D | [];
 }
 
 interface PersoText extends NodePerso {

@@ -2,10 +2,13 @@
 construire et stocker les persos
 alimenter le renderer, mettre en dependance?
 */
+import { matrix } from '../common/matrix';
 
 import { ROOT } from '.';
-import { createPersoBase } from './display/base';
 import { Layer } from './display/layer';
+import { createPersoBase } from './display/base';
+import { calculateZoom } from '../common/zoom';
+import { addSuffix, stringSnakeToCamel } from '../common/utils';
 
 import {
 	PersosTypes,
@@ -16,16 +19,41 @@ import {
 	type StateAction,
 	type Store,
 } from './types';
+import { Matrix2D, transformAliases, transformKeys } from './transform-types';
 
 export class Display {
 	app: HTMLElement;
 	persos = new Map<PersoId, PersoNode>();
+	zoom = 1;
+	removeResize: () => void;
 
 	constructor(appId: string, store: Store) {
 		this.app = document.getElementById(appId);
 		this.initPersos(store);
 		this.root();
+		this.initResize();
 	}
+
+	initResize() {
+		console.log('initResize');
+		window.addEventListener('resize', this.resize);
+		this.removeResize = () => window.removeEventListener('resize', this.resize);
+		this.resize();
+	}
+
+	resize = () => {
+		const { zoom } = calculateZoom();
+		if (zoom === this.zoom) return;
+		this.zoom = zoom;
+		console.log('resize', zoom);
+		requestAnimationFrame(() =>
+			this.persos.forEach((perso: PersoNode) => {
+				this.render(perso, { style: perso.style });
+				// TODO appliquer le zoom sur les composants enfants
+				// if (perso.child.resize) perso.child.resize(this.zoom);
+			})
+		);
+	};
 
 	initPersos(store: Store) {
 		for (const id in store) {
@@ -72,10 +100,19 @@ export class Display {
 
 				case 'style':
 					{
-						const style = action.style;
-						for (const s in style) {
-							updateStyle(perso.node, s, style[s]);
+						perso.style = { ...perso.style, ...action.style };
+						const style = {};
+						const transformProps = {};
+
+						for (const s in action.style) {
+							if (transformKeys.includes(s)) transformProps[s] = action.style[s];
+							else style[s] = action.style[s];
 						}
+
+						const transform = transformStyle(perso, transformProps, this.zoom);
+						// console.log(transform);
+
+						updateStyle(perso.node, { transform, ...style }, this.zoom);
 					}
 					break;
 				case 'className':
@@ -110,32 +147,26 @@ export function updateClassList(node: HTMLElement | SVGElement, actions: string 
 	}
 }
 
-function updateStyle(node: HTMLElement | SVGElement, item: string, prop: number) {
-	// console.log('updateStyle', item, prop);
-
-	if ('x' === item || 'y' === item) {
-		node.style.translate = 'var(--translate-x) var(--translate-y)';
+function transformStyle(perso: PersoNode, transform, zoom) {
+	let matrice: Matrix2D[] = [];
+	Object.entries({ ...perso.transform, ...transform }).forEach(([key, t]) => {
+		const prop = transformAliases[key] || key;
+		if (typeof t === 'number') {
+			matrice.push(matrix[prop](t));
+		}
+	});
+	if (matrice.length) {
+		const combine = matrix.combine(...matrice);
+		perso.transform = { ...perso.transform, transform };
+		return `matrix(${matrix.getStyleMatrix2d(combine)})`;
 	}
-	switch (item) {
-		case 'x':
-			node.style.setProperty('--translate-x', prop + 'px');
-			break;
-		case 'y':
-			node.style.setProperty('--translate-y', prop + 'px');
-			break;
-		case 'font-size':
-			// console.log('font-size', Math.round(prop));
-			node.style.fontSize = prop + 'px';
-			break;
-		case 'top':
-		case 'bottom':
-		case 'left':
-		case 'right':
-			node.style[item] = prop + 'px';
-			break;
+}
 
-		default:
-			break;
-	}
-	node.style[item] = prop;
+function updateStyle(node: HTMLElement | SVGElement, style, zoom: number) {
+	Object.entries(style).forEach(([key, css]) => {
+		const value = addSuffix(key, css, zoom);
+		const prop = stringSnakeToCamel(key);
+		node.style[prop] = value;
+		// prop === 'transform' && console.log(prop, value);
+	});
 }

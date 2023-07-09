@@ -17,7 +17,7 @@ const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
 	[700, { name: 'action01' }],
 	[1500, { name: 'action02' }],
-	[3000, { name: 'action03', data: { style: { 'font-size': '200px', backgroundColor: 'cyan' } } }],
+	[3000, { name: 'action03', data: { style: { 'font-size': 260, backgroundColor: 'cyan' } } }],
 ]);
 
 const store: Record<PersoId, Perso> = {
@@ -61,8 +61,8 @@ const store: Record<PersoId, Perso> = {
 					remove: 'action12',
 				},
 				transition: {
-					from: { 'font-size': 16, x: 0, y: 0 },
-					to: { 'font-size': 120, x: 300, y: 200 },
+					from: { 'font-size': 16, x: 0, y: 0, rotate: 0 },
+					to: { 'font-size': 120, x: 300, y: 200, rotate: 45 },
 					duration: 1500,
 				},
 			},
@@ -148,7 +148,7 @@ setTimeout(() => {
 
 	controller.stop();
 	console.log(controller);
-}, 5000);
+}, 15000);
 
 /* TODO
 - wait

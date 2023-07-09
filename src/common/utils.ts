@@ -12,7 +12,7 @@ export function objectToString(obj: Style) {
 	return str;
 }
 
-export function addSuffix(key, value: string, zoom = 1) {
+export function addSuffix(key: string, value: unknown, zoom = 1) {
 	if (Number(value) && whiteListCssProps.has(key)) return Number(value) * zoom + 'px';
 	return value;
 }

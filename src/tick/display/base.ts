@@ -30,7 +30,7 @@ export function createPersoBase(id: PersoId, perso: Perso) {
 		default:
 			break;
 	}
-
+	persoNode.matrix = null;
 	persoNode.node = node;
 	return persoNode;
 }
