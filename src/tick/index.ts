@@ -81,11 +81,12 @@ const store: Record<PersoId, Perso> = {
 			content: '2e texte',
 			style: {
 				'background-color': 'purple',
+				'text-align': 'center',
 				padding: '1rem',
 				color: 'yellow',
 				position: 'absolute',
-				x: 200,
-				y: 200,
+				x: 0,
+				y: 0,
 				width: 400,
 				height: 100,
 				display: 'flex',
@@ -102,9 +103,9 @@ const store: Record<PersoId, Perso> = {
 			},
 			action02: {
 				transition: {
-					from: { scale: 1 },
-					to: { scale: 1.8 },
-					duration: 1500,
+					from: { y: 0, rotate: 0, scale: 1 },
+					to: { y: 200, rotate: 360, scale: 1.8 },
+					duration: 1400,
 				},
 			},
 		},
@@ -121,27 +122,30 @@ controller.addToTimer(transformer01);
 
 // PLAY
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
-controller.start().play();
-// controller.start().seek(2000).play();
+// controller.start().play().wait(1900);
+controller.start().seek(2900).play();
+// controller.start().play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');
 // 	controller.seek(1500).play();
 // }, 1000);
 
+// const pause01 = 1000;
 // setTimeout(() => {
-// 	console.log('PAUSE');
-// 	console.log('timeElapsed', controller.timeElapsed);
-// 	console.log('timePause', controller.timePause);
+// 	console.log('-> PAUSE', pause01);
+// 	console.log('timeElapsed', controller.timer.elapsed);
+// 	console.log('time', controller.timer.time);
 // 	controller.pause();
-// }, 1000);
+// }, pause01);
 
+// const play01 = 2000;
 // setTimeout(() => {
-// 	console.log('PLAY');
-// 	console.log('timeElapsed', controller.timeElapsed);
-// 	console.log('timePause', controller.timePause);
+// 	console.log('-> PLAY', play01);
+// 	console.log('timeElapsed', controller.timer.elapsed);
+// 	console.log('time', controller.timer.time);
 // 	controller.play();
-// }, 2000);
+// }, play01);
 
 setTimeout(() => {
 	console.log('timeout');

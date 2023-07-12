@@ -16,28 +16,21 @@ export class Timer {
 	handlers = new Store<TimerCallback>();
 	elapsed = 0;
 	time = 0;
-	waiting = 0;
 
 	seek(time: number) {
 		this.elapsed = time;
 	}
 
-	wait = (time: number) => {
-		this.waiting = time;
-	};
-
 	update = (delta: number) => {
-		if (this.waiting > 0) {
-			this.waiting -= delta;
-		} else {
-			this.waiting = 0;
-			this.elapsed += delta;
-			const elapsed = Math.round(this.elapsed / TIME_LEAP) * TIME_LEAP;
-			const consumed = (elapsed - this.time) / TIME_LEAP;
-			for (let t = 0; t <= consumed; t++) {
-				this.time += TIME_LEAP;
-				this.time % TIMER_UPDATE === 0 && Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
-			}
+		console.log('TIMER', this.elapsed, delta);
+
+		this.elapsed += delta;
+		const elapsed = Math.round(this.elapsed / TIME_LEAP) * TIME_LEAP;
+		const consumed = (elapsed - this.time) / TIME_LEAP;
+
+		for (let t = 0; t <= consumed; t++) {
+			this.time % TIMER_UPDATE === 0 && Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
+			this.time += TIME_LEAP;
 		}
 	};
 }

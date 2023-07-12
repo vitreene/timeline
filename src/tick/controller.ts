@@ -82,33 +82,24 @@ export class Controller {
 	};
 
 	wait = (wait = 0) => {
-		this.timer.wait(wait);
-		return this.pause();
-		// manquent :
-		// bloquer les tweens
-		// faire attendre la fonction suivante
-	};
-	/*
-	wait pourrait fonctionner comme pause, pour le Timer
-	*/
-	/* 	wait = (wait = 0) => {
-			let ticker = new Ticker();
-			let timer = new Timer();
-			const delTimer = ticker.handlers.store(timer.update);
-			timer.handlers.store(({ options: { time } }) => {
-					console.log('oh, wait', time);
-					if (time >= wait) {
-							delTimer();
-							timer = null;
-							ticker = null;
-							this.play();
-					}
-			});
-			ticker.start();
-			ticker.play();
+		console.log('WAIT', wait);
 
-			return this.pause();
-	}; */
+		const waitTimer = new Timer();
+		const waitTicker = new Ticker();
+		const abortTimer = waitTicker.handlers.store(waitTimer.update);
+		waitTimer.handlers.store(({ options }) => {
+			const { time } = options;
+			if (time >= wait) {
+				abortTimer();
+				waitTicker.stop();
+				this.play();
+			}
+		});
+		waitTicker.start();
+		waitTicker.play();
+		return this.pause();
+	};
+
 	log = () => {
 		console.log(this);
 		return this;

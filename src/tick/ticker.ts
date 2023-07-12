@@ -2,7 +2,7 @@ import { Store } from './store';
 import { DeltaFn } from './types';
 
 export class Ticker {
-	timeStamp = 0;
+	// timeStamp = 0;
 	timePause = 0;
 	timeScale = 1;
 	timeElapsed = 0;
@@ -15,7 +15,7 @@ export class Ticker {
 	framers = new Store<DeltaFn>();
 
 	reset = () => {
-		this.timeStamp = 0;
+		// this.timeStamp = 0;
 		this.timePause = 0;
 		this.timeScale = 1;
 		this.timeElapsed = 0;
@@ -41,18 +41,19 @@ export class Ticker {
 	};
 
 	tick = (timestamp: number) => {
+		const elapsed = timestamp - this.timePause;
+		const delta = elapsed - this.timeElapsed;
+		this.timeElapsed = elapsed;
+
 		if (this.playing === false) this.paused = true;
 
 		if (this.playing) {
 			if (this.paused === true) {
 				this.paused = false;
-				this.timePause = this.timeStamp - this.timeElapsed;
+				this.timePause = timestamp - this.timeElapsed;
 			}
-			const time = timestamp - this.timePause;
-			const delta = time - this.timeElapsed;
-			this.timeElapsed = time;
 			// console.log('TICK', this.timeElapsed, delta);
-			this.timeStamp = timestamp;
+			// this.timeStamp = timestamp;
 			this.handlers.update(delta * this.timeScale);
 		}
 

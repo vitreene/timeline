@@ -16,7 +16,6 @@ export class LoopEvent {
 
 	update = ({ options }) => {
 		const { time } = options;
-
 		if (this.events.has(time)) {
 			console.log('EVENT', time, this.events.get(time));
 			this.actionner.update({ ...this.events.get(time), delta: 0, time });

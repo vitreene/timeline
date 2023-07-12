@@ -21,9 +21,10 @@ export class Tween {
 
 	next = (delta: number) => {
 		this.progress += delta;
-
 		if (this.progress >= this.duration) {
 			this.progress = this.duration;
+			console.log('D9ONE', delta, this.duration);
+
 			return { value: this.to, done: true };
 		}
 
