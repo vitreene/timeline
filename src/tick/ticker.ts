@@ -41,22 +41,17 @@ export class Ticker {
 	};
 
 	tick = (timestamp: number) => {
-		const elapsed = timestamp - this.timePause;
-		const delta = elapsed - this.timeElapsed;
-		this.timeElapsed = elapsed;
-
 		if (this.playing === false) this.paused = true;
-
 		if (this.playing) {
 			if (this.paused === true) {
 				this.paused = false;
 				this.timePause = timestamp - this.timeElapsed;
 			}
-			// console.log('TICK', this.timeElapsed, delta);
-			// this.timeStamp = timestamp;
+			const elapsed = timestamp - this.timePause;
+			const delta = elapsed - this.timeElapsed;
+			this.timeElapsed = elapsed;
 			this.handlers.update(delta * this.timeScale);
 		}
-
 		this.raf((tm) => Promise.resolve(this.tick(tm)));
 	};
 

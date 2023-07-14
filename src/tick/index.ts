@@ -123,7 +123,8 @@ controller.addToTimer(transformer01);
 // PLAY
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
 // controller.start().play().wait(1900);
-controller.start().seek(2900).play();
+// controller.start().seek(2800);
+controller.start().seek(2000).play();
 // controller.start().play();
 
 // setTimeout(() => {
@@ -152,9 +153,9 @@ setTimeout(() => {
 
 	controller.stop();
 	console.log(controller);
-}, 15000);
+}, 4000);
 
-/* TODO
+/* TODOÒ
 - wait
 - types 
 - queue

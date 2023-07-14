@@ -51,7 +51,6 @@ export class Actionner {
 	}) => {
 		if (seek) {
 			this.transitions.clear();
-			console.log('actioner SEEK', delta, name);
 		}
 
 		this.actions.forEach((actions, id) => {
@@ -82,7 +81,6 @@ export class Actionner {
 	updateTransitions = (delta: number) => {
 		this.transitions.forEach((tween, id) => {
 			const update = tween.next(delta);
-			console.log('updateTransitions', delta, update);
 			this.mixStyle(id, update.value);
 			if (update.done) this.transitions.delete(id);
 		});

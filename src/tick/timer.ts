@@ -18,12 +18,11 @@ export class Timer {
 	time = 0;
 
 	seek(time: number) {
+		this.time = time;
 		this.elapsed = time;
 	}
 
 	update = (delta: number) => {
-		console.log('TIMER', this.elapsed, delta);
-
 		this.elapsed += delta;
 		const elapsed = Math.round(this.elapsed / TIME_LEAP) * TIME_LEAP;
 		const consumed = (elapsed - this.time) / TIME_LEAP;
