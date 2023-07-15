@@ -53,3 +53,9 @@ export function splitUnitValue(val: string | number | undefined) {
 		unit: match[2],
 	};
 }
+
+// renvoie un tableau s'il n'en est pas un :
+export function toArray<T>(value: T | T[]): T[] {
+	if (!value) return [];
+	return Array.isArray(value) ? value : [value];
+}

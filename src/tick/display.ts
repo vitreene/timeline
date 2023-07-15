@@ -10,15 +10,10 @@ import { createPersoBase } from './display/base';
 import { calculateZoom } from '../common/zoom';
 import { addSuffix, stringSnakeToCamel } from '../common/utils';
 
-import {
-	PersosTypes,
-	type Action,
-	type ActionClassList,
-	type PersoId,
-	type PersoNode,
-	type StateAction,
-	type Store,
-} from './types';
+import { PersosTypes } from './types';
+
+import type { Action, ActionClassList, PersoId, PersoNode, StateAction, PersoStore } from './types';
+
 import { Matrix2D, transformAliases, transformKeys } from './transform-types';
 
 export class Display {
@@ -27,7 +22,7 @@ export class Display {
 	zoom = 1;
 	removeResize: () => void;
 
-	constructor(appId: string, store: Store) {
+	constructor(appId: string, store: PersoStore) {
 		this.app = document.getElementById(appId);
 		this.initPersos(store);
 		this.root();
@@ -55,7 +50,7 @@ export class Display {
 		);
 	};
 
-	initPersos(store: Store) {
+	initPersos(store: PersoStore) {
 		for (const id in store) {
 			const perso = createPersoBase(id, store[id]) as PersoNode;
 			this.render(perso, perso.initial);

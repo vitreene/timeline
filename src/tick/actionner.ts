@@ -55,13 +55,17 @@ export class Actionner {
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
-			const currentAction = typeof actions[name] === 'boolean' ? data : this.mixActions(actions[name] as Action, data);
+			const currentAction = this.mixActions(actions[name] as Action, data);
 
-			const { transition = null, style = null, className = '', ...action } = currentAction;
+			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
 
 			if (transition) {
 				this.transitions.set(id, new Tween({ transition }));
 			}
+
+			if (strap) {
+			}
+
 			if (style) {
 				this.mixStyle(id, style);
 			}
@@ -101,6 +105,7 @@ export class Actionner {
 	}
 
 	mixActions(actionA: Action, actionB: Action) {
+		if (typeof actionA === 'boolean') return actionB;
 		const action: Action = {
 			...actionB,
 			...actionA,

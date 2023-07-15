@@ -6,12 +6,30 @@ import { Matrix2D, TransformProperty } from './transform-types';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
+/* 
+ecrire les interfzces par type d'élement en entrée
+
+*/
+export interface PersoBaseDef {
+	type: PersosTypes;
+	initial: Partial<Initial>;
+	actions?: Record<string, Action | boolean>;
+}
+export interface PersoImgDef extends PersoBaseDef {
+	type: PersosTypes.IMG | PersosTypes.SPRITE;
+	initial: Partial<Initial> & { content: Img };
+	actions?: Record<string, Action & { content: Img }>;
+}
+
+export type PersoDef = PersoBaseDef | PersoImgDef;
+
 export interface Action {
 	className?: string | ActionClassList;
 	style?: Style;
 	content?: Content;
 	transition?: Transition;
 	move?: string | moveAction;
+	strap?: { type: string } & unknown;
 }
 
 interface moveAction {
@@ -50,6 +68,7 @@ export type PersoId = string;
 export type ActionId = string;
 
 // types en entrée
+export type PersoStore = Record<PersoId, PersoDef>;
 export type PersoAction = Record<ActionId, Action | boolean>;
 
 // types en interne
@@ -92,7 +111,7 @@ interface PersoLayer extends NodePerso {
 export interface PersoSprite extends NodePerso {
 	type: PersosTypes.SPRITE;
 	child: Sprite;
-	initial: Partial<Initial> & SpriteInitial;
+	initial: Partial<Initial> & Img;
 }
 
 export type PersoNode = PersoText | PersoLayer | PersoSprite;
@@ -108,10 +127,14 @@ export interface Initial {
 	content: Content;
 }
 
-export interface SpriteInitial {
+export interface Img {
 	src: string;
 	fit?: string;
+	ratio?: number;
+	width?: number;
+	height?: number;
 }
+export type ImagesCollection = Map<string, Img>;
 
 export enum PersosTypes {
 	TEXT = 'text',

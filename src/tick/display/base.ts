@@ -1,11 +1,11 @@
 import { Txt } from './text';
 import { PersosTypes } from '../types';
 
-import type { Perso, PersoId, PersoNode, PersoSprite } from '../types';
+import type { PersoDef, PersoId, PersoNode, PersoSprite } from '../types';
 import { Layer } from './layer';
 import { Sprite } from './sprite';
 
-export function createPersoBase(id: PersoId, perso: Perso) {
+export function createPersoBase(id: PersoId, perso: PersoDef) {
 	const node = document.createElement(perso.initial.tag || 'div');
 	node.id = id;
 	const persoNode = perso as PersoNode;

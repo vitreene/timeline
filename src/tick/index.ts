@@ -2,7 +2,7 @@ import { Controller } from './controller';
 
 import { PersosTypes as P } from './types';
 
-import type { MapEvent, Perso, PersoId, TimeOptions } from './types';
+import type { MapEvent, Perso, PersoId, PersoStore, TimeOptions } from './types';
 
 // PREP
 export const ROOT = 'root';
@@ -20,7 +20,7 @@ const events: MapEvent = new Map([
 	[3000, { name: 'action03', data: { style: { 'font-size': 260, backgroundColor: 'cyan' } } }],
 ]);
 
-const store: Record<PersoId, Perso> = {
+const store: PersoStore = {
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {

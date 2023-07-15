@@ -1,4 +1,4 @@
-import { SpriteInitial } from '../types';
+import { Img } from '../types';
 
 export class Sprite {
 	node = document.createElement('img');
@@ -7,7 +7,7 @@ export class Sprite {
 		this.node.style.height = '100%';
 		this.node.style.objectFit = 'contain';
 	}
-	update({ src, fit = 'contain' }: SpriteInitial) {
+	update({ src, fit = 'contain' }: Img) {
 		// console.log(src);
 
 		this.node.src = src;

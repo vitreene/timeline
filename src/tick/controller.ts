@@ -6,7 +6,7 @@ import { LoopEvent } from './loop-event';
 
 import { APP } from '.';
 
-import type { Store, DeltaFn, MapEvent, TimerCallback } from './types';
+import type { PersoStore, DeltaFn, MapEvent, TimerCallback } from './types';
 
 export class Controller {
 	timer = new Timer();
@@ -14,7 +14,7 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 	display: Display;
 
-	constructor(store: Store, events: MapEvent) {
+	constructor(store: PersoStore, events: MapEvent) {
 		this.display = new Display(APP, store);
 		const actionner = new Actionner(this.display);
 		this.loopEvent = new LoopEvent(actionner);
@@ -33,7 +33,7 @@ export class Controller {
 		this.timer.handlers.store(this.loopEvent.update);
 	};
 
-	registerActions = (store: Store) => {
+	registerActions = (store: PersoStore) => {
 		for (const id in store) {
 			const perso = store[id];
 			this.loopEvent.actionner.add(id, perso.actions);
