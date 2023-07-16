@@ -143,10 +143,10 @@ export class Actionner {
 	};
 
 	// TODO mixer les intensités de chaque propriété
-	mixStyle(id: PersoId, style: Style) {
+	mixStyle(id: PersoId, styleB: Style) {
 		const action = this.state.get(id);
-		const newAction = mergeStyle(action, style);
-		this.state.set(id, newAction);
+		const style = mergeStyle(action?.style, styleB);
+		this.state.set(id, { ...action, style });
 	}
 
 	mixClassList(id: PersoId, className: ActionClassList | string) {
@@ -181,16 +181,37 @@ function mergeClassList(action: Action, className: ActionClassList | string) {
 	return { ...action, className: persoNewClassName };
 }
 
-function mergeStyle(action: Action, style: Style) {
-	return { ...action, style: { ...action?.style, ...style } };
+function mergeStyle(styleA: Style, styleB: Style) {
+	return { ...styleA, ...styleB };
 }
 
-function mixActions(actionA: Action, actionB: Action) {
+/* 
+FIXME dans play(), StyleA n'est pas disponible comme après seek()
+-> aller chercher le dernier état de style dans le perso dans ce cas
+*/
+function ___mergeStyle(styleA: Style, styleB: Style): Style {
+	if (!styleA) return styleB;
+	if (!styleB) return styleA;
+	const newStyle = styleA;
+
+	for (const s in styleB) {
+		console.log(s, styleA[s], styleB[s]);
+		if (s in styleA && typeof styleA[s] === 'number' && typeof styleB[s] === 'number') {
+			newStyle[s] = (styleA[s] + styleB[s]) / 2;
+		} else newStyle[s] = styleB[s];
+	}
+
+	return newStyle;
+
+	// return { ...action, style: { ...action?.style, ...style } };
+}
+
+function mixActions(actionA: Action, actionB: Action): Action {
 	if (typeof actionA === 'boolean') return actionB;
 	const action: Action = {
 		...actionB,
 		...actionA,
-		style: mergeStyle(actionA, actionB?.style).style,
+		style: mergeStyle(actionA?.style, actionB?.style),
 		className: mergeClassList(actionA, actionB?.className).className,
 	};
 	return action;

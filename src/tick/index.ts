@@ -50,7 +50,7 @@ const store: PersoStore = {
 					type: 'counter',
 					initial: {
 						id: 'counter01',
-						duration: 4000,
+						duration: 2000,
 						start: 0,
 						end: 50,
 						complete: { lost: 'PERDU', win: 'terminé' },
@@ -134,7 +134,7 @@ controller.addToTimer(transformer01);
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
 // controller.start().play().wait(1900);
 // controller.start().seek(2800);
-controller.start().seek(3800).play();
+controller.start().seek(2000).play();
 // controller.start().play();
 
 // setTimeout(() => {
