@@ -91,6 +91,7 @@ export interface BaseNode {
 }
 
 export interface Perso extends BaseNode {
+	id: string;
 	type: PersosTypes;
 	initial: Partial<Initial>;
 }

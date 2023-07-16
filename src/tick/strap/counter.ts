@@ -47,11 +47,11 @@ export class Counter extends Strap {
 		if (this.progress >= this.duration) {
 			this.progress = this.duration;
 			this.counter = counter;
-			console.log('DONE', this.progress, this.counter);
+			// console.log('DONE', this.progress, this.counter);
 			return { value: { content: this.counter }, done: true };
 		} else if (counter !== this.counter) {
 			this.counter = counter;
-			console.log('NEXT', this.progress, this.counter);
+			// console.log('NEXT', this.progress, this.counter);
 			return { value: { content: this.counter }, done: false };
 		}
 		return { value: null, done: false };

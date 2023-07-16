@@ -1,5 +1,5 @@
-import { Store } from './store';
-import type { Transition, DeltaFn, MapAction, Style } from './types';
+import { hasOwn } from '../common/utils';
+import type { Transition, Style, PersoNode } from './types';
 
 /*
 class
@@ -8,15 +8,20 @@ compose queue
 */
 
 export class Tween {
+	perso: PersoNode;
 	duration: number;
 	progress: number = 0;
 	from: Style;
 	to: Style;
 
-	constructor({ transition }: { transition: Transition }) {
-		this.from = transition.from;
+	constructor({ perso, transition }: { perso: PersoNode; transition: Transition }) {
+		this.perso = perso;
+		this.from = transition.from || getFrom(perso, transition);
+
 		this.to = transition.to;
 		this.duration = transition.duration || 500;
+		console.log(perso.id, perso.style);
+		console.log(this.from, this.to);
 	}
 
 	next = (
@@ -44,4 +49,18 @@ export class Tween {
 	lerp(start: number, end: number, amt: number) {
 		return (1 - amt) * start + amt * end;
 	}
+}
+
+function getFrom(perso: PersoNode, transition: Transition) {
+	const to = transition.to;
+	if (!perso.style) return to;
+	const from = {};
+	for (const s in to) {
+		from[s] = has(perso.style, s) ?? has(perso.initial, s) ?? to[s];
+	}
+	return from;
+}
+
+function has(property, key) {
+	return hasOwn(property, key) ? property[key] : null;
 }

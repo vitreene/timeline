@@ -5,7 +5,7 @@ import type { MapEvent } from './types';
 export class LoopEvent {
 	events: MapEvent = new Map();
 	actionner: Actionner = null;
-	resetPersos;
+	resetPersos; //this.display.reset
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
 	}

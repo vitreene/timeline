@@ -39,11 +39,13 @@ export class Actionner {
 	transitions = new Map<TransitionId, Tween | Strap>();
 	tempTransitions = new Map<TransitionId, Tween | Strap>();
 	state: StateAction = new Map();
-	renderer: Render;
+	display: Display;
+	// renderer: Render;
 	seekMode = false;
 
 	constructor(display: Display) {
-		this.renderer = display.renderer;
+		this.display = display;
+		// this.renderer = display.renderer;
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -53,13 +55,13 @@ export class Actionner {
 	};
 
 	update = ({
-		time,
+		// time,
 		delta,
 		name,
 		data,
 		seek = false,
 	}: {
-		time: number;
+		// time: number;
 		delta: number;
 		name: string;
 		seek: boolean;
@@ -82,7 +84,8 @@ export class Actionner {
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
 
 			if (transition) {
-				const tween = new Tween({ transition });
+				const perso = this.display.persos.get(id);
+				const tween = new Tween({ perso, transition });
 				const key = { id, type: transitionType.TRANSITION, name };
 				if (seek) this.updateTween(key, tween, delta);
 				this.transitions.set(key, tween);
@@ -158,7 +161,7 @@ export class Actionner {
 
 	flush = () => {
 		if (this.state.size) {
-			this.renderer(this.state);
+			this.display.renderer(this.state);
 			this.state.clear();
 		}
 	};

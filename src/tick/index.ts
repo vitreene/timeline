@@ -40,7 +40,17 @@ const store: PersoStore = {
 		initial: {
 			className: 'initial',
 			content: 'start',
-			style: { top: 0, left: 0, backgroundColor: 'orangered', position: 'absolute', padding: '1rem' },
+			style: {
+				top: 0,
+				left: 0,
+				backgroundColor: 'orangered',
+				position: 'absolute',
+				padding: '1rem',
+				'font-size': 16,
+				x: 0,
+				y: 0,
+				rotate: 0,
+			},
 			move: ROOT,
 		},
 		actions: {
@@ -50,7 +60,7 @@ const store: PersoStore = {
 					type: 'counter',
 					initial: {
 						id: 'counter01',
-						duration: 2000,
+						duration: 3500,
 						start: 0,
 						end: 50,
 						complete: { lost: 'PERDU', win: 'terminé' },
@@ -71,7 +81,7 @@ const store: PersoStore = {
 					remove: 'action12',
 				},
 				transition: {
-					from: { 'font-size': 16, x: 0, y: 0, rotate: 0 },
+					// from: { 'font-size': 16, x: 0, y: 0, rotate: 0 },
 					to: { 'font-size': 120, x: 300, y: 200, rotate: 45 },
 					duration: 1500,
 				},
@@ -134,8 +144,8 @@ controller.addToTimer(transformer01);
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
 // controller.start().play().wait(1900);
 // controller.start().seek(2800);
-controller.start().seek(2000).play();
-// controller.start().play();
+// controller.start().seek(2000).play();
+controller.start().play();
 
 // setTimeout(() => {
 // 	console.log('stout PLAY');
