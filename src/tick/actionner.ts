@@ -11,7 +11,10 @@ import type {
 	PersoAction,
 	StateAction,
 	Store,
+	StrapType,
 } from './types';
+import { Strap } from './strap/strap';
+import { Counter } from './strap/counter';
 
 /*
 class
@@ -20,11 +23,24 @@ register components ?
 compose effects ?
 */
 
+const transitionType = {
+	TRANSITION: 'transition',
+	STRAP: 'strap',
+};
+
+interface TransitionId {
+	id: string;
+	type: string;
+	name: string;
+}
+
 export class Actionner {
 	actions: PersosAction = new Map();
-	transitions = new Map<string, Tween>();
+	transitions = new Map<TransitionId, Tween | Strap>();
+	tempTransitions = new Map<TransitionId, Tween | Strap>();
 	state: StateAction = new Map();
 	renderer: Render;
+	seekMode = false;
 
 	constructor(display: Display) {
 		this.renderer = display.renderer;
@@ -37,33 +53,44 @@ export class Actionner {
 	};
 
 	update = ({
-		// time,
+		time,
 		delta,
 		name,
 		data,
 		seek = false,
 	}: {
-		// time: number;
+		time: number;
 		delta: number;
 		name: string;
 		seek: boolean;
 		data?: any;
 	}) => {
 		if (seek) {
-			this.transitions.clear();
+			if (this.seekMode === false) {
+				this.seekMode = true;
+				this.transitions.clear();
+			}
+		}
+		if (this.seekMode && !seek) {
+			this.seekMode = false;
 		}
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
-			const currentAction = this.mixActions(actions[name] as Action, data);
+			const currentAction = mixActions(actions[name] as Action, data);
 
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
 
 			if (transition) {
-				this.transitions.set(id, new Tween({ transition }));
+				const tween = new Tween({ transition });
+				const key = { id, type: transitionType.TRANSITION, name };
+				if (seek) this.updateTween(key, tween, delta);
+				this.transitions.set(key, tween);
 			}
 
 			if (strap) {
+				const key = { id, type: transitionType.STRAP, name };
+				this.straps(key, strap, delta, seek);
 			}
 
 			if (style) {
@@ -76,64 +103,57 @@ export class Actionner {
 			const attrs = this.state.get(id);
 			this.state.set(id, { ...attrs, ...action });
 		});
+	};
 
-		if (seek) {
-			this.updateTransitions(delta);
-		}
+	/* TODO
+	- register strap
+	- dispatch strap
+	- vérifier si le strap existe 
+	*/
+	straps = (key: TransitionId, { type, initial }: StrapType, delta, seek) => {
+		const strap = new Counter(initial);
+		if (seek) this.updateStrap(key, strap, delta);
+		this.transitions.set(key, strap);
 	};
 
 	updateTransitions = (delta: number) => {
-		this.transitions.forEach((tween, id) => {
-			const update = tween.next(delta);
-			this.mixStyle(id, update.value);
-			if (update.done) this.transitions.delete(id);
+		// for (const key of this.transitions.keys()) console.log(key);
+		this.transitions.forEach((transition, key) => {
+			if (transition instanceof Tween) {
+				this.updateTween(key, transition, delta);
+			}
+			if (transition instanceof Strap) {
+				this.updateStrap(key, transition, delta);
+			}
 		});
+	};
+
+	updateStrap = (key: TransitionId, transition: Strap, delta: number) => {
+		const update = transition.next(delta);
+		update.value && this.state.set(key.id, update.value);
+		if (update.done) {
+			this.transitions.delete(key);
+		}
+	};
+
+	updateTween = (key: TransitionId, transition: Tween, delta: number) => {
+		const update = transition.next(delta);
+		this.mixStyle(key.id, update.value);
+		if (update.done) this.transitions.delete(key);
 	};
 
 	// TODO mixer les intensités de chaque propriété
 	mixStyle(id: PersoId, style: Style) {
 		const action = this.state.get(id);
-		const newAction = this.mergeStyle(action, style);
+		const newAction = mergeStyle(action, style);
 		this.state.set(id, newAction);
 	}
 
 	mixClassList(id: PersoId, className: ActionClassList | string) {
 		const persoState = this.state.get(id);
 		if (!persoState) return;
-		const action = this.mergeClassList(persoState, className);
+		const action = mergeClassList(persoState, className);
 		this.state.set(id, action);
-	}
-
-	mixActions(actionA: Action, actionB: Action) {
-		if (typeof actionA === 'boolean') return actionB;
-		const action: Action = {
-			...actionB,
-			...actionA,
-			style: this.mergeStyle(actionA, actionB?.style).style,
-			className: this.mergeClassList(actionA, actionB?.className).className,
-		};
-		return action;
-	}
-
-	mergeStyle(action: Action, style: Style) {
-		return { ...action, style: { ...action?.style, ...style } };
-	}
-
-	mergeClassList(action: Action, className: ActionClassList | string) {
-		// NOTE traiter ce cas en dehors du runtime
-		if (typeof className === 'string') {
-			className = { add: [className] };
-		}
-		const persoNewClassName = action?.className || {};
-		for (const action in className) {
-			const persoClassName = persoNewClassName?.[action]
-				? typeof persoNewClassName[action] === 'string'
-					? [persoNewClassName[action]]
-					: persoNewClassName[action]
-				: [];
-			persoNewClassName[action] = persoClassName.concat(className[action]);
-		}
-		return { ...action, className: persoNewClassName };
 	}
 
 	flush = () => {
@@ -142,4 +162,36 @@ export class Actionner {
 			this.state.clear();
 		}
 	};
+}
+
+function mergeClassList(action: Action, className: ActionClassList | string) {
+	// NOTE traiter ce cas en dehors du runtime
+	if (typeof className === 'string') {
+		className = { add: [className] };
+	}
+	const persoNewClassName = action?.className || {};
+	for (const action in className) {
+		const persoClassName = persoNewClassName?.[action]
+			? typeof persoNewClassName[action] === 'string'
+				? [persoNewClassName[action]]
+				: persoNewClassName[action]
+			: [];
+		persoNewClassName[action] = persoClassName.concat(className[action]);
+	}
+	return { ...action, className: persoNewClassName };
+}
+
+function mergeStyle(action: Action, style: Style) {
+	return { ...action, style: { ...action?.style, ...style } };
+}
+
+function mixActions(actionA: Action, actionB: Action) {
+	if (typeof actionA === 'boolean') return actionB;
+	const action: Action = {
+		...actionB,
+		...actionA,
+		style: mergeStyle(actionA, actionB?.style).style,
+		className: mergeClassList(actionA, actionB?.className).className,
+	};
+	return action;
 }

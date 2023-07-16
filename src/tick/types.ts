@@ -29,10 +29,15 @@ export interface Action {
 	content?: Content;
 	transition?: Transition;
 	move?: string | moveAction;
-	strap?: { type: string } & unknown;
+	strap?: StrapType;
 }
 
-interface moveAction {
+export interface StrapType {
+	type: string;
+	initial: any;
+}
+
+export interface moveAction {
 	to: string;
 	order?: string | number;
 }

@@ -19,12 +19,16 @@ export class Tween {
 		this.duration = transition.duration || 500;
 	}
 
-	next = (delta: number) => {
+	next = (
+		delta: number
+	): {
+		value: Style;
+		done: boolean;
+	} => {
 		this.progress += delta;
 		if (this.progress >= this.duration) {
 			this.progress = this.duration;
-			console.log('D9ONE', delta, this.duration);
-
+			console.log('DONE', delta, this.duration);
 			return { value: this.to, done: true };
 		}
 

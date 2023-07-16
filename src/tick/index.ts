@@ -35,7 +35,7 @@ const store: PersoStore = {
 			action03: true,
 		},
 	},
-	text1: {
+	'text-counter': {
 		type: P.TEXT,
 		initial: {
 			className: 'initial',
@@ -46,12 +46,22 @@ const store: PersoStore = {
 		actions: {
 			enter: {
 				className: 'enter',
+				strap: {
+					type: 'counter',
+					initial: {
+						id: 'counter01',
+						duration: 4000,
+						start: 0,
+						end: 50,
+						complete: { lost: 'PERDU', win: 'terminé' },
+					},
+				},
 			},
 			action01: {
 				className: {
 					add: ['action01', 'action12'],
 				},
-				content: 'roots',
+				// content: 'roots',
 			},
 			action02: {
 				style: { 'font-weight': 'bold', top: 0 },
@@ -124,7 +134,7 @@ controller.addToTimer(transformer01);
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
 // controller.start().play().wait(1900);
 // controller.start().seek(2800);
-controller.start().seek(2000).play();
+controller.start().seek(3800).play();
 // controller.start().play();
 
 // setTimeout(() => {
