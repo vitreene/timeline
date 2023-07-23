@@ -25,6 +25,9 @@ export function stringSnakeToCamel(str: string) {
 	return str.toLowerCase().replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 }
 
+export const toKebabCase = (str: string) =>
+	str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase());
+
 // affiner diff pour renoyer la différence, pas si l'object est différent
 // recursive diff between two objects
 export function diff(prec: any, next: any) {

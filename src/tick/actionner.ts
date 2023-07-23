@@ -2,7 +2,6 @@ import { Tween } from './tween';
 import { Display } from './display';
 
 import type {
-	Render,
 	Style,
 	PersosAction,
 	ActionClassList,
@@ -10,8 +9,8 @@ import type {
 	Action,
 	PersoAction,
 	StateAction,
-	Store,
 	StrapType,
+	PersoNode,
 } from './types';
 import { Strap } from './strap/strap';
 import { Counter } from './strap/counter';
@@ -33,19 +32,24 @@ interface TransitionId {
 	type: string;
 	name: string;
 }
+interface StrapsProps {
+	key: TransitionId;
+	strap: StrapType;
+	delta: number;
+	seek: boolean;
+	perso: PersoNode;
+}
 
 export class Actionner {
+	display: Display;
+	seekMode = false;
+	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, Tween | Strap>();
 	tempTransitions = new Map<TransitionId, Tween | Strap>();
-	state: StateAction = new Map();
-	display: Display;
-	// renderer: Render;
-	seekMode = false;
 
 	constructor(display: Display) {
 		this.display = display;
-		// this.renderer = display.renderer;
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -67,15 +71,7 @@ export class Actionner {
 		seek: boolean;
 		data?: any;
 	}) => {
-		if (seek) {
-			if (this.seekMode === false) {
-				this.seekMode = true;
-				this.transitions.clear();
-			}
-		}
-		if (this.seekMode && !seek) {
-			this.seekMode = false;
-		}
+		this.setSeekMode(seek);
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
@@ -85,15 +81,16 @@ export class Actionner {
 
 			if (transition) {
 				const perso = this.display.persos.get(id);
-				const tween = new Tween({ perso, transition });
 				const key = { id, type: transitionType.TRANSITION, name };
+				const tween = new Tween({ perso, transition });
 				if (seek) this.updateTween(key, tween, delta);
 				this.transitions.set(key, tween);
 			}
 
 			if (strap) {
+				const perso = this.display.persos.get(id);
 				const key = { id, type: transitionType.STRAP, name };
-				this.straps(key, strap, delta, seek);
+				this.straps({ key, strap, delta, seek, perso });
 			}
 
 			if (style) {
@@ -108,12 +105,23 @@ export class Actionner {
 		});
 	};
 
+	private setSeekMode = (seek: boolean) => {
+		if (seek) {
+			if (this.seekMode === false) {
+				this.seekMode = true;
+				this.transitions.clear();
+			}
+		}
+		if (this.seekMode && !seek) {
+			this.seekMode = false;
+		}
+	};
 	/* TODO
 	- register strap
 	- dispatch strap
 	- vérifier si le strap existe 
 	*/
-	straps = (key: TransitionId, { type, initial }: StrapType, delta, seek) => {
+	straps = ({ key, strap: { type, initial }, delta, seek, perso }: StrapsProps) => {
 		const strap = new Counter(initial);
 		if (seek) this.updateStrap(key, strap, delta);
 		this.transitions.set(key, strap);

@@ -8,11 +8,11 @@ import { ROOT } from '.';
 import { Layer } from './display/layer';
 import { createPersoBase } from './display/base';
 import { calculateZoom } from '../common/zoom';
-import { addSuffix, stringSnakeToCamel } from '../common/utils';
+import { addSuffix, stringSnakeToCamel, toKebabCase } from '../common/utils';
 
 import { PersosTypes } from './types';
 
-import type { Action, ActionClassList, PersoId, PersoNode, StateAction, PersoStore } from './types';
+import type { Action, ActionClassList, PersoId, PersoNode, StateAction, PersoStore, Style } from './types';
 
 import { Matrix2D, transformAliases, transformKeys } from './transform-types';
 
@@ -147,7 +147,8 @@ function transformStyle(perso: PersoNode, transform, zoom) {
 	Object.entries({ ...perso.transform, ...transform }).forEach(([key, t]) => {
 		const prop = transformAliases[key] || key;
 		if (typeof t === 'number') {
-			matrice.push(matrix[prop](t));
+			const z = zoomable[key] ? zoom : 1;
+			matrice.push(matrix[prop](t * z));
 		}
 	});
 	if (matrice.length) {
@@ -157,11 +158,30 @@ function transformStyle(perso: PersoNode, transform, zoom) {
 	}
 }
 
-function updateStyle(node: HTMLElement | SVGElement, style, zoom: number) {
-	Object.entries(style).forEach(([key, css]) => {
-		const value = addSuffix(key, css, zoom);
-		const prop = stringSnakeToCamel(key);
+function updateStyle(node: HTMLElement | SVGElement, style: Style, zoom: number) {
+	Object.entries(style).forEach(([key, val]) => {
+		const value = addSuffix(key, val, zoom);
+
+		const prop = toKebabCase(key);
+		// prop === 'width' && console.log(prop, val, value);
 		node.style[prop] = value;
 		// prop === 'transform' && console.log(prop, value);
 	});
 }
+
+const zoomable = {
+	translate: true,
+	translateX: true,
+	translateY: true,
+	x: true,
+	y: true,
+	dX: true,
+	dY: true,
+	rotate: false,
+	scale: false,
+	scaleX: false,
+	scaleY: false,
+	skew: false,
+	skewX: false,
+	skewY: false,
+};

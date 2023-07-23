@@ -1,7 +1,6 @@
 import { Strap } from './strap';
 
 interface CounterProps {
-	id: string;
 	duration: number;
 	start: number;
 	end: number;
@@ -19,7 +18,7 @@ const defaultState = {
 
 export class Counter extends Strap {
 	static type = 'counter';
-	id: string;
+
 	duration: number;
 	start: number;
 	end: number;
@@ -31,7 +30,6 @@ export class Counter extends Strap {
 	constructor(props: CounterProps) {
 		super();
 		const defaults = { ...defaultState, ...props };
-		this.id = defaults.id;
 		this.duration = defaults.duration;
 		this.start = defaults.start;
 		this.end = defaults.end;

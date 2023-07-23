@@ -9,7 +9,7 @@ body {
 	position: relative;
 	padding: 2rem;
 	border: 1px solid grey;
-	min-height: 50vh;
+	/* min-height: 50vh; */
 	overflow: hidden;
 	aspect-ratio: 16 / 9;
 }

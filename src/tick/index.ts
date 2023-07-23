@@ -17,7 +17,7 @@ const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
 	[700, { name: 'action01' }],
 	[1500, { name: 'action02' }],
-	[3000, { name: 'action03', data: { style: { 'font-size': 260, backgroundColor: 'cyan' } } }],
+	[3000, { name: 'action03', data: { style: { 'font-size': 260, 'background-color': 'cyan' } } }],
 ]);
 
 const store: PersoStore = {
@@ -32,7 +32,7 @@ const store: PersoStore = {
 			},
 		},
 		actions: {
-			action03: true,
+			[ROOT]: true,
 		},
 	},
 	'text-counter': {
@@ -41,15 +41,17 @@ const store: PersoStore = {
 			className: 'initial',
 			content: 'start',
 			style: {
-				top: 0,
-				left: 0,
 				backgroundColor: 'orangered',
 				position: 'absolute',
 				padding: '1rem',
 				'font-size': 16,
+				height: 50,
 				x: 0,
 				y: 0,
 				rotate: 0,
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
 			},
 			move: ROOT,
 		},
@@ -59,11 +61,9 @@ const store: PersoStore = {
 				strap: {
 					type: 'counter',
 					initial: {
-						id: 'counter01',
-						duration: 3500,
+						duration: 2000,
 						start: 0,
 						end: 50,
-						complete: { lost: 'PERDU', win: 'terminé' },
 					},
 				},
 			},
@@ -71,7 +71,6 @@ const store: PersoStore = {
 				className: {
 					add: ['action01', 'action12'],
 				},
-				// content: 'roots',
 			},
 			action02: {
 				style: { 'font-weight': 'bold', top: 0 },
@@ -84,6 +83,14 @@ const store: PersoStore = {
 					// from: { 'font-size': 16, x: 0, y: 0, rotate: 0 },
 					to: { 'font-size': 120, x: 300, y: 200, rotate: 45 },
 					duration: 1500,
+				},
+				strap: {
+					type: 'counter',
+					initial: {
+						duration: 2500,
+						start: 50,
+						end: 0,
+					},
 				},
 			},
 			action03: {
@@ -102,7 +109,7 @@ const store: PersoStore = {
 			style: {
 				'background-color': 'purple',
 				'text-align': 'center',
-				padding: '1rem',
+				padding: 10,
 				color: 'yellow',
 				position: 'absolute',
 				x: 0,
@@ -117,7 +124,7 @@ const store: PersoStore = {
 		},
 		actions: {
 			action01: {
-				style: { 'font-size': 48 },
+				style: { 'font-size': 48, 'transform-origin': 'left top' },
 				className: 'action01-text2',
 				move: { to: ROOT, order: 'first' },
 			},

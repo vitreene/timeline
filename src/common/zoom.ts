@@ -5,7 +5,7 @@ const root = document.getElementById(APP);
 const stage = {
 	width: 1000,
 	height: 750,
-	ratio: 4 / 3,
+	ratio: 16 / 9,
 };
 export function calculateZoom() {
 	const el = root;
@@ -24,6 +24,7 @@ export function calculateZoom() {
 		vmin: Math.min(vw, vh),
 		vmax: Math.max(vw, vh),
 	});
+
 	if (hScene > height) {
 		const zoom = height / stage.height;
 		const wScene = stage.width * zoom;
