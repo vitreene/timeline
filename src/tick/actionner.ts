@@ -14,6 +14,7 @@ import type {
 } from './types';
 import { Strap } from './strap/strap';
 import { Counter } from './strap/counter';
+import { Layer } from './display/layer';
 
 /*
 class
@@ -46,7 +47,6 @@ export class Actionner {
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, Tween | Strap>();
-	tempTransitions = new Map<TransitionId, Tween | Strap>();
 
 	constructor(display: Display) {
 		this.display = display;
@@ -75,12 +75,13 @@ export class Actionner {
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
+			const perso = this.display.persos.get(id);
 			const currentAction = mixActions(actions[name] as Action, data);
 
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
+			console.log(name, id, currentAction);
 
 			if (transition) {
-				const perso = this.display.persos.get(id);
 				const key = { id, type: transitionType.TRANSITION, name };
 				const tween = new Tween({ perso, transition });
 				if (seek) this.updateTween(key, tween, delta);
@@ -88,7 +89,6 @@ export class Actionner {
 			}
 
 			if (strap) {
-				const perso = this.display.persos.get(id);
 				const key = { id, type: transitionType.STRAP, name };
 				this.straps({ key, strap, delta, seek, perso });
 			}
@@ -96,12 +96,90 @@ export class Actionner {
 			if (style) {
 				this.mixStyle(id, style);
 			}
+
 			if (className) {
 				this.mixClassList(id, className);
 			}
 
 			const attrs = this.state.get(id);
 			this.state.set(id, { ...attrs, ...action });
+
+			if (action.move) {
+				const move = action.move;
+
+				// si traité ici, ne fonctionne plus dans initial
+				// une version simplifiée pourrait exister pour initial
+
+				/* 
+				move : true -> crée une transition de la position actuelle à la nouvelle, par exemple si le déplacement est justifié par un changement de classes
+				*/
+				if (typeof move === 'boolean') {
+					const oldRect = perso.node.getBoundingClientRect();
+					const oldWidth = perso.node.clientWidth;
+					const oldHeight = perso.node.clientHeight;
+					console.log(oldWidth, oldHeight);
+
+					// mettre à jour le perso !
+					this.display.render(perso, this.state.get(id));
+					const newRect = perso.node.getBoundingClientRect();
+					const newWidth = perso.node.clientWidth;
+					const newHeight = perso.node.clientHeight;
+					console.log(newWidth, newHeight);
+
+					const diff = {
+						x: (oldRect.x - newRect.x) / this.display.zoom,
+						y: (oldRect.y - newRect.y) / this.display.zoom,
+					};
+					const from = {
+						...diff,
+						// width: oldRect.width / this.display.zoom,
+						// height: oldRect.height / this.display.zoom,
+						width: oldWidth / this.display.zoom,
+						height: oldHeight / this.display.zoom,
+					};
+
+					const style = {
+						...from,
+						position: 'absolute' as const,
+					};
+					this.display.render(perso, { style });
+					const to = {
+						x: 0,
+						y: 0,
+						// width: newRect.width / this.display.zoom,
+						// height: newRect.height / this.display.zoom,
+						width: newWidth / this.display.zoom,
+						height: newHeight / this.display.zoom,
+					};
+					const onComplete = () => {
+						const rect = perso.node.getBoundingClientRect();
+						console.log('onComplete');
+						console.log({ newRect, rect });
+						console.log({ width: rect.width / this.display.zoom, height: rect.height / this.display.zoom });
+
+						const action = this.state.get(id);
+						this.state.set(id, {
+							...action,
+							style: { ...action.style, position: undefined, width: undefined, height: undefined },
+						});
+					};
+
+					const key = { id, type: transitionType.TRANSITION, name: 'move' };
+					const tween = new Tween({ perso, transition: { from, to, duration: 300, onComplete } });
+					if (seek) this.updateTween(key, tween, delta);
+					this.transitions.set(key, tween);
+				} else {
+					const parentId = typeof move === 'string' ? move : move.to;
+					const layer = this.display.persos.get(parentId)?.child;
+
+					if (layer instanceof Layer) {
+						parentId && (perso.parent = parentId);
+						const order = typeof move === 'object' ? move.order : undefined;
+						layer.add(perso.node, order);
+						layer.update(layer.content);
+					}
+				}
+			}
 		});
 	};
 
@@ -141,8 +219,10 @@ export class Actionner {
 
 	updateStrap = (key: TransitionId, transition: Strap, delta: number) => {
 		const update = transition.next(delta);
-		update.value && this.state.set(key.id, update.value);
+		const action = this.state.get(key.id);
+		update.value && this.state.set(key.id, { ...action, ...update.value });
 		if (update.done) {
+			// transition.onComplete && transition.onComplete();
 			this.transitions.delete(key);
 		}
 	};
@@ -150,7 +230,10 @@ export class Actionner {
 	updateTween = (key: TransitionId, transition: Tween, delta: number) => {
 		const update = transition.next(delta);
 		this.mixStyle(key.id, update.value);
-		if (update.done) this.transitions.delete(key);
+		if (update.done) {
+			transition.onComplete && transition.onComplete();
+			this.transitions.delete(key);
+		}
 	};
 
 	// TODO mixer les intensités de chaque propriété
@@ -161,13 +244,15 @@ export class Actionner {
 	}
 
 	mixClassList(id: PersoId, className: ActionClassList | string) {
-		const persoState = this.state.get(id);
-		if (!persoState) return;
+		const persoState = this.state.get(id) || {};
 		const action = mergeClassList(persoState, className);
 		this.state.set(id, action);
 	}
 
 	flush = () => {
+		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
+		// eviter le syndrome !important
+
 		if (this.state.size) {
 			this.display.renderer(this.state);
 			this.state.clear();
@@ -219,10 +304,11 @@ function ___mergeStyle(styleA: Style, styleB: Style): Style {
 
 function mixActions(actionA: Action, actionB: Action): Action {
 	if (typeof actionA === 'boolean') return actionB;
+	const style = mergeStyle(actionA?.style, actionB?.style);
 	const action: Action = {
 		...actionB,
 		...actionA,
-		style: mergeStyle(actionA?.style, actionB?.style),
+		...(Object.keys(style).length > 0 && { style }),
 		className: mergeClassList(actionA, actionB?.className).className,
 	};
 	return action;

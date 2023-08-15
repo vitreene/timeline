@@ -6,8 +6,13 @@ import { Matrix2D, TransformProperty } from './transform-types';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
+export type StyleEntry =
+	| Style
+	| Record<string, { value: number; unit: string }>
+	| Record<string, { value: number[]; pattern: string }>;
+
 /* 
-ecrire les interfzces par type d'élement en entrée
+ecrire les interfaces par type d'élement en entrée
 
 */
 export interface PersoBaseDef {
@@ -28,7 +33,7 @@ export interface Action {
 	style?: Style;
 	content?: Content;
 	transition?: Transition;
-	move?: string | moveAction;
+	move?: true | string | moveAction;
 	strap?: StrapType;
 }
 
@@ -50,7 +55,7 @@ export interface Transition {
 	duration?: number;
 	repeat?: number;
 	yoyo?: boolean;
-	oncomplete?: any;
+	onComplete?: () => void;
 }
 
 export interface ActionClassList {

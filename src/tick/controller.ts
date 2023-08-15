@@ -4,7 +4,7 @@ import { Display } from './display';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
 
-import { APP } from '.';
+import { APP } from './constants';
 
 import type { PersoStore, DeltaFn, MapEvent, TimerCallback } from './types';
 

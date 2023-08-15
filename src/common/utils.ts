@@ -66,3 +66,7 @@ export function toArray<T>(value: T | T[]): T[] {
 // raccourci pour hasOwnProperty
 export const hasOwn = (obj: Record<string, unknown>, key: string): boolean =>
 	Object.prototype.hasOwnProperty.call(obj, key);
+
+export function has(property: Style, key: string) {
+	return Object.prototype.hasOwnProperty.call(property, key) ? property[key] : null;
+}

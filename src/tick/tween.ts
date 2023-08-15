@@ -1,4 +1,4 @@
-import { hasOwn } from '../common/utils';
+import { has } from '../common/utils';
 import type { Transition, Style, PersoNode } from './types';
 
 /*
@@ -13,6 +13,7 @@ export class Tween {
 	progress: number = 0;
 	from: Style;
 	to: Style;
+	onComplete?: () => void;
 
 	constructor({ perso, transition }: { perso: PersoNode; transition: Transition }) {
 		this.perso = perso;
@@ -20,8 +21,9 @@ export class Tween {
 
 		this.to = transition.to;
 		this.duration = transition.duration || 500;
-		console.log(perso.id, perso.style);
-		console.log(this.from, this.to);
+		transition.onComplete && (this.onComplete = transition.onComplete);
+		// console.log(perso.id, perso.style);
+		// console.log(this.from, this.to);
 	}
 
 	next = (
@@ -33,7 +35,7 @@ export class Tween {
 		this.progress += delta;
 		if (this.progress >= this.duration) {
 			this.progress = this.duration;
-			console.log('DONE', delta, this.duration);
+			console.log('DONE', this.to, this.duration);
 			return { value: this.to, done: true };
 		}
 
@@ -59,8 +61,4 @@ function getFrom(perso: PersoNode, transition: Transition) {
 		from[s] = has(perso.style, s) ?? has(perso.initial, s) ?? to[s];
 	}
 	return from;
-}
-
-function has(property, key) {
-	return hasOwn(property, key) ? property[key] : null;
 }

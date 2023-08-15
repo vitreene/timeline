@@ -1,12 +1,9 @@
-import { Controller } from './controller';
+import { ROOT } from '../constants';
+import { Controller } from '../controller';
 
-import { PersosTypes as P } from './types';
+import { PersosTypes as P } from '../types';
 
-import type { MapEvent, Perso, PersoId, PersoStore, TimeOptions } from './types';
-
-// PREP
-export const ROOT = 'root';
-export const APP = 'app';
+import type { MapEvent, Perso, PersoId, PersoStore, TimeOptions } from '../types';
 
 ////////////
 // DEMO 4 //
@@ -39,11 +36,11 @@ const store: PersoStore = {
 		type: P.TEXT,
 		initial: {
 			className: 'initial',
-			content: 'start',
+			// content: 'start',
 			style: {
 				backgroundColor: 'orangered',
 				position: 'absolute',
-				padding: '1rem',
+				padding: 8,
 				'font-size': 16,
 				height: 50,
 				x: 0,
@@ -53,10 +50,10 @@ const store: PersoStore = {
 				justifyContent: 'center',
 				alignItems: 'center',
 			},
-			move: ROOT,
 		},
 		actions: {
 			enter: {
+				move: ROOT,
 				className: 'enter',
 				strap: {
 					type: 'counter',
@@ -105,7 +102,7 @@ const store: PersoStore = {
 	text2: {
 		type: P.TEXT,
 		initial: {
-			content: '2e texte',
+			// content: '2e texte',
 			style: {
 				'background-color': 'purple',
 				'text-align': 'center',

@@ -4,11 +4,10 @@ alimenter le renderer, mettre en dependance?
 */
 import { matrix } from '../common/matrix';
 
-import { ROOT } from '.';
-import { Layer } from './display/layer';
+import { ROOT } from './constants';
 import { createPersoBase } from './display/base';
 import { calculateZoom } from '../common/zoom';
-import { addSuffix, stringSnakeToCamel, toKebabCase } from '../common/utils';
+import { addSuffix, toKebabCase } from '../common/utils';
 
 import { PersosTypes } from './types';
 
@@ -80,18 +79,18 @@ export class Display {
 						perso.child.update(action.content);
 					}
 					break;
-				case 'move': {
+				/* 				case 'move': {
 					const move = action.move;
 					const parentId = typeof move === 'string' ? move : move.to;
-					parentId && (perso.parent = parentId);
 					const layer = this.persos.get(parentId)?.child;
-
+					
 					if (layer instanceof Layer) {
+						parentId && (perso.parent = parentId);
 						const order = typeof move === 'object' ? move.order : undefined;
 						layer.add(perso.node, order);
 						layer.update(layer.content);
 					}
-				}
+				} */
 
 				case 'style':
 					{
@@ -160,12 +159,13 @@ function transformStyle(perso: PersoNode, transform, zoom) {
 
 function updateStyle(node: HTMLElement | SVGElement, style: Style, zoom: number) {
 	Object.entries(style).forEach(([key, val]) => {
-		const value = addSuffix(key, val, zoom);
-
-		const prop = toKebabCase(key);
-		// prop === 'width' && console.log(prop, val, value);
-		node.style[prop] = value;
-		// prop === 'transform' && console.log(prop, value);
+		if (val === undefined) {
+			node.style.removeProperty(key);
+		} else {
+			const value = addSuffix(key, val, zoom);
+			const prop = toKebabCase(key);
+			node.style[prop] = value;
+		}
 	});
 }
 
