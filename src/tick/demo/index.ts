@@ -14,7 +14,7 @@ const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
-	[3000, { name: 'action03', data: { style: { 'font-size': 260, 'background-color': 'cyan' } } }],
+	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
 ]);
 
 const store: PersoStore = {
@@ -72,20 +72,20 @@ const store: PersoStore = {
 				className: 'item4',
 				move: true,
 				style: { 'font-weight': 'bold' },
-				// strap: {
-				// 	type: 'counter',
-				// 	initial: {
-				// 		duration: 2500,
-				// 		start: 50,
-				// 		end: 0,
-				// 	},
-				// },
+				strap: {
+					type: 'counter',
+					initial: {
+						duration: 2500,
+						start: 50,
+						end: 0,
+					},
+				},
 			},
-			/* 		action03: {
+			action03: {
 				style: {
 					color: 'blue',
 				},
-			}, */
+			},
 		},
 	},
 	text2: {

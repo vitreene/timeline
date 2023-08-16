@@ -97,15 +97,11 @@ export class Display {
 						perso.style = { ...perso.style, ...action.style };
 						const style = {};
 						const transformProps = {};
-
 						for (const s in action.style) {
 							if (transformKeys.includes(s)) transformProps[s] = action.style[s];
 							else style[s] = action.style[s];
 						}
-
 						const transform = transformStyle(perso, transformProps, this.zoom);
-						// console.log(transform);
-
 						updateStyle(perso.node, { transform, ...style }, this.zoom);
 					}
 					break;

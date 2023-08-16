@@ -44,6 +44,7 @@ export class Tween {
 			const prop = this.lerp(this.from[item], this.to[item], this.progress / this.duration);
 			update[item] = prop;
 		}
+		// console.log(update);
 
 		return { value: update, done: false };
 	};

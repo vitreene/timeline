@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 body {
 	font-family: Dogma, Helvetica, sans-serif;
 }
@@ -91,7 +95,7 @@ body {
 	border: var(--size) solid green;
 }
 .item4 {
-	grid-area: 50 / 30 / span 20 / span 30;
+	grid-area: 70 / 60 / span 50 / span 60;
 }
 
 .item3 {

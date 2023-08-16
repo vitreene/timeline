@@ -115,27 +115,15 @@ export class Actionner {
 				*/
 				if (typeof move === 'boolean') {
 					const oldRect = perso.node.getBoundingClientRect();
-					const oldWidth = perso.node.clientWidth;
-					const oldHeight = perso.node.clientHeight;
-					console.log(oldWidth, oldHeight);
 
 					// mettre à jour le perso !
 					this.display.render(perso, this.state.get(id));
 					const newRect = perso.node.getBoundingClientRect();
-					const newWidth = perso.node.clientWidth;
-					const newHeight = perso.node.clientHeight;
-					console.log(newWidth, newHeight);
-
-					const diff = {
+					const from = {
 						x: (oldRect.x - newRect.x) / this.display.zoom,
 						y: (oldRect.y - newRect.y) / this.display.zoom,
-					};
-					const from = {
-						...diff,
-						// width: oldRect.width / this.display.zoom,
-						// height: oldRect.height / this.display.zoom,
-						width: oldWidth / this.display.zoom,
-						height: oldHeight / this.display.zoom,
+						width: oldRect.width / this.display.zoom,
+						height: oldRect.height / this.display.zoom,
 					};
 
 					const style = {
@@ -143,13 +131,16 @@ export class Actionner {
 						position: 'absolute' as const,
 					};
 					this.display.render(perso, { style });
+					const rectUpdated = perso.node.getBoundingClientRect();
+					// les dimensions ne sont pas celles que j'attends !
+					// proportionnel au zoom : 16px -> 100% 8px-> 50%
+					console.log({ style, from: oldRect, to: newRect, init: rectUpdated });
+
 					const to = {
 						x: 0,
 						y: 0,
-						// width: newRect.width / this.display.zoom,
-						// height: newRect.height / this.display.zoom,
-						width: newWidth / this.display.zoom,
-						height: newHeight / this.display.zoom,
+						width: newRect.width / this.display.zoom,
+						height: newRect.height / this.display.zoom,
 					};
 					const onComplete = () => {
 						const rect = perso.node.getBoundingClientRect();
@@ -165,7 +156,7 @@ export class Actionner {
 					};
 
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
-					const tween = new Tween({ perso, transition: { from, to, duration: 300, onComplete } });
+					const tween = new Tween({ perso, transition: { from, to, duration: 1000, onComplete } });
 					if (seek) this.updateTween(key, tween, delta);
 					this.transitions.set(key, tween);
 				} else {
