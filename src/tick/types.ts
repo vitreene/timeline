@@ -6,10 +6,13 @@ import { Matrix2D, TransformProperty } from './transform-types';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
-export type StyleEntry =
-	| Style
-	| Record<string, { value: number; unit: string }>
-	| Record<string, { value: number[]; pattern: string }>;
+export interface StyleEntry {
+	[x: string]:
+		| string
+		| number
+		| { value: number; unit?: string; ease?: string }
+		| { value: number[]; pattern: string; ease?: string };
+}
 
 /* 
 ecrire les interfaces par type d'élement en entrée
@@ -56,6 +59,7 @@ export interface Transition {
 	repeat?: number;
 	yoyo?: boolean;
 	onComplete?: () => void;
+	ease?: string | Array<string | Record<string, string>>;
 }
 
 export interface ActionClassList {

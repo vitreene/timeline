@@ -41,6 +41,12 @@ interface StrapsProps {
 	perso: PersoNode;
 }
 
+/* TODO
+
+traiter les les actions comme des modules 
+ex: className.bind(this)
+*/
+
 export class Actionner {
 	display: Display;
 	seekMode = false;
@@ -115,10 +121,10 @@ export class Actionner {
 				*/
 				if (typeof move === 'boolean') {
 					const oldRect = perso.node.getBoundingClientRect();
-
-					// mettre à jour le perso !
+					// mettre à jour le perso
 					this.display.render(perso, this.state.get(id));
 					const newRect = perso.node.getBoundingClientRect();
+
 					const from = {
 						x: (oldRect.x - newRect.x) / this.display.zoom,
 						y: (oldRect.y - newRect.y) / this.display.zoom,
@@ -131,10 +137,6 @@ export class Actionner {
 						position: 'absolute' as const,
 					};
 					this.display.render(perso, { style });
-					const rectUpdated = perso.node.getBoundingClientRect();
-					// les dimensions ne sont pas celles que j'attends !
-					// proportionnel au zoom : 16px -> 100% 8px-> 50%
-					console.log({ style, from: oldRect, to: newRect, init: rectUpdated });
 
 					const to = {
 						x: 0,
@@ -143,11 +145,7 @@ export class Actionner {
 						height: newRect.height / this.display.zoom,
 					};
 					const onComplete = () => {
-						const rect = perso.node.getBoundingClientRect();
 						console.log('onComplete');
-						console.log({ newRect, rect });
-						console.log({ width: rect.width / this.display.zoom, height: rect.height / this.display.zoom });
-
 						const action = this.state.get(id);
 						this.state.set(id, {
 							...action,
@@ -156,7 +154,10 @@ export class Actionner {
 					};
 
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
-					const tween = new Tween({ perso, transition: { from, to, duration: 1000, onComplete } });
+					const tween = new Tween({
+						perso,
+						transition: { from, to, duration: 500, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+					});
 					if (seek) this.updateTween(key, tween, delta);
 					this.transitions.set(key, tween);
 				} else {
@@ -222,8 +223,8 @@ export class Actionner {
 		const update = transition.next(delta);
 		this.mixStyle(key.id, update.value);
 		if (update.done) {
-			transition.onComplete && transition.onComplete();
 			this.transitions.delete(key);
+			transition.onComplete && transition.onComplete();
 		}
 	};
 

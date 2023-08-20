@@ -70,3 +70,11 @@ export const hasOwn = (obj: Record<string, unknown>, key: string): boolean =>
 export function has(property: Style, key: string) {
 	return Object.prototype.hasOwnProperty.call(property, key) ? property[key] : null;
 }
+
+export const noop = <T>(any: T): T => any;
+
+export type DevMessage = (check: boolean, message: string) => void;
+
+let warning: DevMessage = noop;
+let invariant: DevMessage = noop;
+export { warning, invariant };

@@ -48,6 +48,7 @@ const store: PersoStore = {
 			enter: {
 				move: ROOT,
 				className: 'enter',
+
 				strap: {
 					type: 'counter',
 					initial: {
@@ -62,11 +63,6 @@ const store: PersoStore = {
 			*/
 			action01: {
 				className: 'action01',
-				// style: { 'background-color': 'green' },
-				// className: {
-				// 	add: ['item4', 'action12'],
-				// 	remove: ['initial', 'item2'],
-				// },
 			},
 			action02: {
 				className: 'item4',
@@ -79,6 +75,10 @@ const store: PersoStore = {
 						start: 50,
 						end: 0,
 					},
+				},
+				transition: {
+					to: { 'font-size': 120 },
+					duration: 1500,
 				},
 			},
 			action03: {
@@ -146,7 +146,7 @@ setTimeout(() => {
 
 	controller.stop();
 	console.log(controller);
-}, 4000);
+}, 8000);
 
 /* TODOÒ
 - wait
