@@ -3,7 +3,7 @@ import { Controller } from '../controller';
 
 import { PersosTypes as P } from '../types';
 
-import type { MapEvent, Perso, PersoId, PersoStore, TimeOptions } from '../types';
+import type { MapEvent, PersoStore } from '../types';
 
 ////////////
 // DEMO 5 //
@@ -58,9 +58,6 @@ const store: PersoStore = {
 					},
 				},
 			},
-			/* FIXME
-			l'action du strap ne permet pas à action01 de se produire
-			*/
 			action01: {
 				className: 'action01',
 			},
@@ -88,24 +85,46 @@ const store: PersoStore = {
 			},
 		},
 	},
-	text2: {
-		type: P.TEXT,
+	img1: {
+		type: P.IMG,
 		initial: {
 			className: 'item1',
 			style: {
 				'background-color': 'purple',
-				'text-align': 'center',
-				padding: 10,
-				color: 'yellow',
-				'font-size': 48,
 			},
+			content: { src: '/mandrake.jpg', fit: 'cover' },
 		},
 		actions: {
 			action01: {
-				className: 'action01-text2',
+				className: 'action01-img1',
 				move: { to: ROOT, order: 'first' },
 			},
 			action02: {},
+		},
+	},
+	text3: {
+		type: P.TEXT,
+		initial: {
+			content: 'automatique',
+			className: 'text3 item5',
+			style: {
+				padding: 16,
+			},
+		},
+		actions: {
+			enter: {
+				move: { to: ROOT, order: 'last' },
+			},
+			action01: {
+				content: 'grande ligne semi-magnétique',
+			},
+			action02: {
+				className: {
+					add: 'item55',
+					remove: 'item5',
+				},
+				move: true,
+			},
 		},
 	},
 };

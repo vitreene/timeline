@@ -23,10 +23,10 @@ export interface PersoBaseDef {
 	initial: Partial<Initial>;
 	actions?: Record<string, Action | boolean>;
 }
-export interface PersoImgDef extends PersoBaseDef {
+export interface PersoImgDef {
 	type: PersosTypes.IMG | PersosTypes.SPRITE;
-	initial: Partial<Initial> & { content: Img };
-	actions?: Record<string, Action & { content: Img }>;
+	initial: Partial<Omit<Initial, 'content'>> & { content: Img };
+	actions?: Record<string, Action & { content?: Img }>;
 }
 
 export type PersoDef = PersoBaseDef | PersoImgDef;
@@ -126,7 +126,7 @@ interface PersoLayer extends NodePerso {
 export interface PersoSprite extends NodePerso {
 	type: PersosTypes.SPRITE;
 	child: Sprite;
-	initial: Partial<Initial> & Img;
+	initial: Partial<Initial> & Img; // FIXME
 }
 
 export type PersoNode = PersoText | PersoLayer | PersoSprite;

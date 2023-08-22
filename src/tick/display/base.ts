@@ -1,7 +1,7 @@
 import { Txt } from './text';
 import { PersosTypes } from '../types';
 
-import type { PersoDef, PersoId, PersoNode, PersoSprite } from '../types';
+import type { PersoDef, PersoId, PersoImgDef, PersoNode } from '../types';
 import { Layer } from './layer';
 import { Sprite } from './sprite';
 
@@ -16,9 +16,10 @@ export function createPersoBase(id: PersoId, perso: PersoDef) {
 			node.appendChild(text.node);
 			persoNode.child = text;
 			break;
+		case PersosTypes.IMG:
 		case PersosTypes.SPRITE:
 			const sprite = new Sprite();
-			sprite.update((perso as PersoSprite).initial);
+			sprite.update((perso as PersoImgDef).initial.content);
 			node.appendChild(sprite.node);
 			persoNode.child = sprite;
 			break;

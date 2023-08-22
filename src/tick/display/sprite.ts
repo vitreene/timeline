@@ -8,7 +8,7 @@ export class Sprite {
 		this.node.style.objectFit = 'contain';
 	}
 	update({ src, fit = 'contain' }: Img) {
-		// console.log(src);
+		console.log('SPRITE', src);
 
 		this.node.src = src;
 		this.node.style.objectFit = fit;
