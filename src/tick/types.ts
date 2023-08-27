@@ -148,6 +148,8 @@ export interface Img {
 	ratio?: number;
 	width?: number;
 	height?: number;
+	px?: string;
+	py?: string;
 }
 export type ImagesCollection = Map<string, Img>;
 

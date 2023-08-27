@@ -92,12 +92,20 @@ const store: PersoStore = {
 			style: {
 				'background-color': 'purple',
 			},
-			content: { src: '/mandrake.jpg', fit: 'cover' },
+			// TODO passer par les styles pour interpoler
+			content: { src: '/mandrake.jpg', fit: 'cover', px: 'left', py: '67%' },
 		},
 		actions: {
+			enter: {
+				move: { to: ROOT, order: 'first' },
+				transition: {
+					from: { scale: 0, opacity: 0 },
+					to: { scale: 1, opacity: 1 },
+					duration: 1000,
+				},
+			},
 			action01: {
 				className: 'action01-img1',
-				move: { to: ROOT, order: 'first' },
 			},
 			action02: {},
 		},
@@ -109,6 +117,7 @@ const store: PersoStore = {
 			className: 'text3 item5',
 			style: {
 				padding: 16,
+				'font-size': 24,
 			},
 		},
 		actions: {
@@ -136,7 +145,7 @@ const controller = new Controller(store, events);
 // FIXME la priorité sur le seek n'est aps la meme que pour le play
 // controller.start().play().wait(1900);
 // controller.start().seek(2800);
-// controller.start().seek(2000).play();
+// controller.start().seek(1500).play();
 controller.start().play();
 
 // setTimeout(() => {

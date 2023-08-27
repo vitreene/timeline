@@ -78,3 +78,12 @@ export type DevMessage = (check: boolean, message: string) => void;
 let warning: DevMessage = noop;
 let invariant: DevMessage = noop;
 export { warning, invariant };
+
+type Round = Record<string, number>;
+export function round(obj: Round): Round {
+	const r = {};
+	for (const e in obj) {
+		r[e] = typeof obj[e] === 'number' ? parseFloat((obj[e] as number).toFixed(2)) : obj[e];
+	}
+	return r;
+}

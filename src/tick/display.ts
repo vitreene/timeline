@@ -4,16 +4,15 @@ alimenter le renderer, mettre en dependance?
 */
 import { matrix } from '../common/matrix';
 
-import { ROOT } from './constants';
 import { createPersoBase } from './display/base';
-import { calculateZoom } from '../common/zoom';
 import { addSuffix, toKebabCase } from '../common/utils';
+import { CONTAINER, ROOT, stage } from './constants';
 
 import { PersosTypes } from './types';
+import { transformAliases, transformKeys } from './transform-types';
 
 import type { Action, ActionClassList, PersoId, PersoNode, StateAction, PersoStore, Style } from './types';
-
-import { Matrix2D, transformAliases, transformKeys } from './transform-types';
+import type { Matrix2D } from './transform-types';
 
 export class Display {
 	app: HTMLElement;
@@ -29,17 +28,31 @@ export class Display {
 	}
 
 	initResize() {
-		console.log('initResize');
-		window.addEventListener('resize', this.resize);
-		this.removeResize = () => window.removeEventListener('resize', this.resize);
-		this.resize();
+		const resizeObserver = new ResizeObserver((entries) => {
+			const w = entries[0].contentBoxSize[0].inlineSize;
+			const h = entries[0].contentBoxSize[0].blockSize;
+			const hScene = (w / stage.width) * stage.height;
+			const zoom = parseFloat((hScene > h ? h / stage.height : w / stage.width).toFixed(2));
+
+			if (zoom === this.zoom) return;
+
+			if (hScene >= h) {
+				this.app.style.height = `${h}px`;
+				this.app.style.width = `${stage.width * (h / stage.height)}px`;
+			} else {
+				this.app.style.height = `${stage.height * (w / stage.width)}px`;
+				this.app.style.width = `${w}px`;
+			}
+			this.zoom = zoom;
+			this.resize();
+		});
+
+		const container = document.getElementById(CONTAINER);
+		resizeObserver.observe(container);
+		this.removeResize = () => resizeObserver.unobserve(container);
 	}
 
-	resize = () => {
-		const { zoom } = calculateZoom();
-		if (zoom === this.zoom) return;
-		this.zoom = zoom;
-		console.log('resize', zoom);
+	resize = () =>
 		requestAnimationFrame(() =>
 			this.persos.forEach((perso: PersoNode) => {
 				this.render(perso, { style: perso.style });
@@ -47,7 +60,6 @@ export class Display {
 				// if (perso.child.resize) perso.child.resize(this.zoom);
 			})
 		);
-	};
 
 	initPersos(store: PersoStore) {
 		for (const id in store) {
@@ -71,7 +83,6 @@ export class Display {
 	b;
 
 	render = (perso: PersoNode, action: Action) => {
-		// console.log('renderer', action);
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':

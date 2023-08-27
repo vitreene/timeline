@@ -1,9 +1,12 @@
 // ZOOM////////////
+/* TODO  
+revoir la fonction avec un observer sur #container plutot
+*/
 const root = document.getElementById('app');
 const stage = {
-	width: 1000,
-	height: 750,
-	ratio: 4 / 3,
+	width: 1600,
+	height: 900,
+	ratio: 16 / 9,
 };
 export function calculateZoom() {
 	const el = root;

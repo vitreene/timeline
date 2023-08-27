@@ -1,4 +1,4 @@
-const APP = 'app';
+const APP = 'container';
 
 // ZOOM////////////
 const root = document.getElementById(APP);

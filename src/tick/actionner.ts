@@ -85,7 +85,7 @@ export class Actionner {
 			const currentAction = mixActions(actions[name] as Action, data);
 
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
-			console.log(name, id, currentAction);
+			// console.log(name, id, currentAction);
 
 			if (transition) {
 				const key = { id, type: transitionType.TRANSITION, name };
@@ -152,7 +152,6 @@ export class Actionner {
 							style: { ...action.style, position: undefined, width: undefined, height: undefined },
 						});
 					};
-
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
 					const tween = new Tween({
 						perso,
