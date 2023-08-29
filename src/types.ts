@@ -1,6 +1,6 @@
 import * as CSS from 'csstype';
-import { CbStatus } from './clock';
-import { TransformStyle } from './render/transform';
+import { CbStatus } from './legacy/clock';
+import { TransformStyle } from './legacy/render/transform';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 

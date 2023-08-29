@@ -1,4 +1,4 @@
-import { ImagesCollection, Img, PersoDef, PersoImgDef, PersoStore, PersosTypes } from 'src/tick/types';
+import { ImagesCollection, Img, PersoDef, PersoImgDef, PersoStore, PersosTypes } from 'src/sceneline/types';
 type Srcs = string[];
 
 const imgTypes = [PersosTypes.IMG, PersosTypes.SPRITE];
