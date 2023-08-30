@@ -1,11 +1,4 @@
-import {
-	ImagesCollection,
-	Img,
-	PersoDef,
-	PersoImgDef,
-	PersoStore,
-	PersosTypes,
-} from 'player/src/sceneline/types';
+import { ImagesCollection, Img, PersoDef, PersoImgDef, PersoStore, PersosTypes } from '~/sceneline/types';
 type Srcs = string[];
 
 const imgTypes = [PersosTypes.IMG, PersosTypes.SPRITE];
@@ -55,7 +48,7 @@ export async function loadImages(srcs: string[] | Img[], imagesCollection) {
 					ikono.src = src;
 				})
 		)
-	).catch((err) => console.log('on s‘est pas trompé ; ça a pas fonctionné', err));
+	).catch((err) => console.log('on s’est pas trompé ; ça a pas fonctionné', err));
 }
 
 export const DEFAULT_IMG = {

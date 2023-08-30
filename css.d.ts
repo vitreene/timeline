@@ -12,7 +12,7 @@ import * as CSS from 'csstype';
 } */
 
 declare module 'csstype' {
-	interface Properties {
+	interface CSSPropertiesNumber {
 		// Add a missing property
 		// WebkitRocketLauncher?: string;
 
@@ -32,7 +32,7 @@ declare module 'csstype' {
 		dY?: number;
 	}
 
-	interface PropertiesHyphen {
+	interface PropertiesHyphenNumber {
 		x?: number;
 		y?: number;
 		rotate?: CSS.Property.Rotate | number;

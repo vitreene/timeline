@@ -5,7 +5,8 @@
 	"author": "vitreene",
 	"license": "ISC",
 	"workspaces": [
-		"player"
+		"player",
+		"demos"
 	],
 	"scripts": {
 		"dev": "turbo run dev",
