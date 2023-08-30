@@ -1,6 +1,4 @@
 import * as CSS from 'csstype';
-import { CbStatus } from '../../legacy/clock';
-import { TransformStyle } from '../../legacy/render/transform';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -93,14 +91,7 @@ export interface PersoThr3dSceneItem extends Item, Thr3dSceneNode {
 	add: (perso: PersoNode) => void;
 }
 
-export type Content =
-	| string
-	| number
-	| PersoItem
-	| HTMLElement
-	| Set<HTMLElement>
-	| CollectionImages
-	| CbStatus;
+export type Content = string | number | PersoItem | HTMLElement | Set<HTMLElement> | CollectionImages;
 /* |Lang |  */
 
 export interface CollectionImages {
@@ -203,3 +194,65 @@ export enum THR3DTypes {
 export enum SoundType {
 	SOUND = 'sound',
 }
+
+type CSSTransformParam =
+	| 'perpective'
+	| 'translate'
+	| 'translateX'
+	| 'translateY'
+	| 'rotate'
+	| 'scale'
+	| 'scaleX'
+	| 'scaleY'
+	| 'skew'
+	| 'skewX'
+	| 'skewY'
+	| 'matrix'
+	| 'matrixX'
+	| 'matrixY'
+	| 'matrixZ'
+	| 'matrixW';
+
+type TransformUnit =
+	| ''
+	| 'px'
+	| '%'
+	| 'em'
+	| 'rem'
+	| 'vh'
+	| 'vw'
+	| 'vmin'
+	| 'vmax'
+	| 'deg'
+	| 'rad'
+	| 'turn'
+	| 's'
+	| 'ms'
+	| 'Hz'
+	| 'kHz'
+	| 'dpi'
+	| 'dpcm'
+	| 'dppx';
+
+type TransformItem = { transform: CSSTransformParam; unit: TransformUnit; zoomable: boolean };
+
+type TransformList = {
+	translate: TransformItem;
+	x: TransformItem;
+	y: TransformItem;
+	translateX: TransformItem;
+	translateY: TransformItem;
+	rotate: TransformItem;
+	scale: TransformItem;
+	scaleX: TransformItem;
+	scaleY: TransformItem;
+	skew: TransformItem;
+	skewX: TransformItem;
+	skewY: TransformItem;
+	r?: TransformItem;
+	s?: TransformItem;
+	dX: CSSTransformParam;
+	dY: CSSTransformParam;
+};
+
+export type TransformStyle = { [key in keyof TransformList]?: number };

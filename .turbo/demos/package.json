@@ -1,0 +1,19 @@
+{
+	"name": "demos",
+	"version": "0.1.0",
+	"description": "",
+	"author": "vitreene",
+	"license": "ISC",
+	"main": "index.js",
+	"scripts": {
+		"dev:demos": "vite",
+		"build": "vite build",
+		"lint": "tsc",
+		"preview": "vite preview",
+		"test": "vitest",
+		"test:run": "vitest run"
+	},
+	"dependencies": {
+		"@vitreene/player": "*"
+	}
+}

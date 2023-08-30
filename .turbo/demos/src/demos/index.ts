@@ -1,9 +1,6 @@
-import { ROOT } from '../sceneline/constants';
-import { Controller } from '../sceneline/controller';
+import { ROOT, Controller, PersosTypes as P } from '@vitreene/player';
 
-import { PersosTypes as P } from '../sceneline/types';
-
-import type { MapEvent, PersoStore } from '../sceneline/types';
+import type { MapEvent, PersoStore } from '@vitreene/player';
 
 ////////////
 // DEMO 5 //

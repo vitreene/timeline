@@ -1,22 +1,22 @@
-export type EasingFunction = (v: number) => number
+export type EasingFunction = (v: number) => number;
 
-export type EasingModifier = (easing: EasingFunction) => EasingFunction
+export type EasingModifier = (easing: EasingFunction) => EasingFunction;
 
-export type BezierDefinition = [number, number, number, number]
+export type BezierDefinition = [number, number, number, number];
 
 export type EasingDefinition =
-    | BezierDefinition
-    | "linear"
-    | "easeIn"
-    | "easeOut"
-    | "easeInOut"
-    | "circIn"
-    | "circOut"
-    | "circInOut"
-    | "backIn"
-    | "backOut"
-    | "backInOut"
-    | "anticipate"
+	| BezierDefinition
+	| 'linear'
+	| 'easeIn'
+	| 'easeOut'
+	| 'easeInOut'
+	| 'circIn'
+	| 'circOut'
+	| 'circInOut'
+	| 'backIn'
+	| 'backOut'
+	| 'backInOut'
+	| 'anticipate';
 
 /**
  * The easing function to use. Set as one of:
@@ -27,4 +27,4 @@ export type EasingDefinition =
  *
  * @public
  */
-export type Easing = EasingDefinition | EasingFunction
+export type Easing = EasingDefinition | EasingFunction;

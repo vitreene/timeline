@@ -5,6 +5,10 @@
 			"outputs": ["dist/**"]
 		},
 		"dev": {
+			"inputs": ["src/**", "public/**"]
+		},
+		"dev:demos": {
+			"dependsOn": ["^build"],
 			"inputs": ["src/**", "public/**"],
 			"cache": false,
 			"persistent": true

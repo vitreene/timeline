@@ -1,15 +1,15 @@
 {
-	"name": "eso-timeline",
+	"name": "vitreene-timeline",
 	"version": "0.1.0",
 	"description": "",
 	"author": "vitreene",
-	"main": "index.js",
 	"license": "ISC",
 	"workspaces": [
 		"player"
 	],
 	"scripts": {
 		"dev": "turbo run dev",
+		"dev:demos": "turbo run dev:demos",
 		"build": "turbo run build",
 		"lint": "tsc",
 		"preview": "vite preview",
