@@ -12,7 +12,7 @@ export function objectToString(obj: Style) {
 	return str;
 }
 
-export function addSuffix(key, value: string, zoom = 1) {
+export function addSuffix(key: string, value: unknown, zoom = 1) {
 	if (Number(value) && whiteListCssProps.has(key)) return Number(value) * zoom + 'px';
 	return value;
 }
@@ -24,6 +24,9 @@ export function stringToLowercase(str) {
 export function stringSnakeToCamel(str: string) {
 	return str.toLowerCase().replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 }
+
+export const toKebabCase = (str: string) =>
+	str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase());
 
 // affiner diff pour renoyer la différence, pas si l'object est différent
 // recursive diff between two objects
@@ -52,4 +55,35 @@ export function splitUnitValue(val: string | number | undefined) {
 		value: Number(match[1]),
 		unit: match[2],
 	};
+}
+
+// renvoie un tableau s'il n'en est pas un :
+export function toArray<T>(value: T | T[]): T[] {
+	if (!value) return [];
+	return Array.isArray(value) ? value : [value];
+}
+
+// raccourci pour hasOwnProperty
+export const hasOwn = (obj: Record<string, unknown>, key: string): boolean =>
+	Object.prototype.hasOwnProperty.call(obj, key);
+
+export function has(property: Style, key: string) {
+	return Object.prototype.hasOwnProperty.call(property, key) ? property[key] : null;
+}
+
+export const noop = <T>(any: T): T => any;
+
+export type DevMessage = (check: boolean, message: string) => void;
+
+let warning: DevMessage = noop;
+let invariant: DevMessage = noop;
+export { warning, invariant };
+
+type Round = Record<string, number>;
+export function round(obj: Round): Round {
+	const r = {};
+	for (const e in obj) {
+		r[e] = typeof obj[e] === 'number' ? parseFloat((obj[e] as number).toFixed(2)) : obj[e];
+	}
+	return r;
 }
