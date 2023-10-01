@@ -20,6 +20,7 @@
 	"devDependencies": {
 		"@types/three": "^0.155.0",
 		"happy-dom": "10.11.2",
+		"turbo": "^1.10.13",
 		"typescript": "^5.0.4",
 		"vite": "^4.4.9",
 		"vitest": "^0.34.3"
