@@ -2,9 +2,76 @@
 > @vitreene/player@0.2.0 dev
 > vite
 
-Port 3003 is in use, trying another one...
 
-  VITE v4.4.9  ready in 275 ms
+  VITE v4.4.9  ready in 129 ms
 
-  ➜  Local:   http://localhost:3004/
+  ➜  Local:   http://localhost:3003/
   ➜  Network: use --host to expose
+Error:   Failed to scan for dependencies from entries:
+  /Users/Rve/Projets/2JP/timeline/player/index.html
+
+  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mExpected ")" but found ";"[0m
+
+    src/demos/index.ts:17:66:
+[37m      17 │ const res3 = [...rgb.matchAll(/\d?\.?\d+/dg)].map( p=>Number(p[0])[32m;[37m
+         │                                                                   [32m^[37m
+         ╵                                                                   [32m)[0m
+
+
+    at failureErrorWithLog (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1649:15)
+    at /Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1058:25
+    at runOnEndCallbacks (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1484:45)
+    at buildResponseToResult (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1056:7)
+    at /Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1068:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1067:54)
+    at handleRequest (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:729:19)
+    at handleIncomingPacket (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:755:7)
+    at Socket.readFromStdout (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:679:7)
+Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/src/demos/index.ts:17:66: ERROR: Expected ")" but found ";"
+18:01:45 [vite] Internal server error: Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/src/demos/index.ts:17:66: ERROR: Expected ")" but found ";"
+  Plugin: vite:esbuild
+  File: /Users/Rve/Projets/2JP/timeline/player/src/demos/index.ts:17:66
+  
+  Expected ")" but found ";"
+  15 |  // console.log(res2);
+  16 |  
+  17 |  const res3 = [...rgb.matchAll(/\d?\.?\d+/dg)].map( p=>Number(p[0]);
+     |                                                                    ^
+  18 |  const pattern = rgb.split(/\d?\.?\d+/);
+  19 |  // const numbers = rgb.split(/\D+\.?/);
+  
+      at failureErrorWithLog (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1649:15)
+      at /Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:847:29
+      at responseCallbacks.<computed> (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:703:9)
+      at handleIncomingPacket (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:762:9)
+      at Socket.readFromStdout (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:679:7)
+      at Socket.emit (node:events:513:28)
+      at addChunk (node:internal/streams/readable:324:12)
+      at readableAddChunk (node:internal/streams/readable:297:9)
+      at Readable.push (node:internal/streams/readable:234:10)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+18:02:42 [vite] page reload src/demos/index.ts
+18:05:52 [vite] page reload src/demos/index.ts
+18:06:32 [vite] page reload src/demos/index.ts
+18:08:38 [vite] page reload src/demos/index.ts
+18:09:05 [vite] page reload src/demos/index.ts
+18:09:28 [vite] page reload src/demos/index.ts
+18:09:40 [vite] page reload src/demos/index.ts
+18:14:38 [vite] page reload src/demos/index.ts
+18:15:12 [vite] page reload src/demos/index.ts
+18:16:22 [vite] page reload src/demos/index.ts
+18:18:44 [vite] page reload src/demos/index.ts
+18:20:29 [vite] page reload src/demos/index.ts
+18:21:26 [vite] page reload src/demos/index.ts
+18:24:56 [vite] page reload src/demos/index.ts
+18:26:02 [vite] page reload src/demos/index.ts
+18:30:14 [vite] page reload src/demos/index.ts
+18:32:59 [vite] page reload src/demos/index.ts
+18:33:32 [vite] page reload src/demos/index.ts
+18:33:42 [vite] page reload src/demos/index.ts
+18:39:59 [vite] page reload src/demos/index.ts
+18:40:10 [vite] page reload lib/easing/anticipate.ts
+18:40:10 [vite] page reload lib/easing

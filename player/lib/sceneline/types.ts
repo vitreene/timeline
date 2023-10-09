@@ -10,10 +10,16 @@ export interface StyleEntry {
 	[x: string]:
 		| string
 		| number
-		| { value: number; unit?: string; ease?: string }
-		| { value: number[]; pattern: string; ease?: string };
+		| { value: number; unit?: string; ease?: string; original: string }
+		| LerpStringStyle;
 }
 
+export interface LerpStringStyle {
+	value: Array<number>;
+	pattern: Array<string>;
+	ease?: string;
+	original: string;
+}
 /* 
 ecrire les interfaces par type d'élement en entrée
 

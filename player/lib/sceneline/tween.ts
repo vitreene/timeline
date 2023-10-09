@@ -1,6 +1,7 @@
+import { extractNumbersFromString, mixNumbersInArray } from '~/tween/array-pattern';
 import { has } from '../common/utils';
-import * as ease from '../easing';
-import type { Transition, Style, PersoNode } from './types';
+import * as ease from '../tween/easing';
+import type { Transition, Style, PersoNode, StyleEntry, LerpStringStyle } from './types';
 
 export class Tween {
 	perso: PersoNode;
@@ -17,8 +18,9 @@ export class Tween {
 
 	constructor({ perso, transition }: { perso: PersoNode; transition: Transition }) {
 		this.perso = perso;
-		this.from = transition.from || getFrom(perso, transition);
-		this.to = transition.to;
+		const fromTo = prepareFromTo(perso, transition);
+		this.from = fromTo.from;
+		this.to = fromTo.to;
 		this.duration = transition.duration || 500;
 		this.timesRepeat = transition.repeat || 1;
 		this.repeat = 1;
@@ -66,20 +68,24 @@ export class Tween {
 			}
 		}
 
-		const update = {} as Style;
+		const update = {} as Style | StyleEntry;
+
 		for (const item in this.to) {
 			const t = this.ease(this.progress / this.duration);
 			if (this.easeValue[item]) {
 				const e = ease[this.easeValue[item]](t);
-				update[item] = lerp(this.from[item], this.to[item], e);
+				// update[item] = lerp(this.from[item], this.to[item], e);
+				update[item] = lerpItem(this.from[item], this.to[item], e);
 			} else {
-				const prop = lerp(this.from[item], this.to[item], t);
+				// const prop = lerp(this.from[item], this.to[item], t);
+				const prop = lerpItem(this.from[item], this.to[item], t);
 				update[item] = prop;
 			}
 		}
 		return { value: update, done: false };
 	};
 }
+
 function lerp(start: number, end: number, amt: number) {
 	return (1 - amt) * start + amt * end;
 }
@@ -91,4 +97,34 @@ function getFrom(perso: PersoNode, transition: Transition) {
 		from[s] = has(perso.style, s) ?? has(perso.initial, s) ?? to[s];
 	}
 	return from;
+}
+
+function prepareFromTo(perso: PersoNode, transition: Transition) {
+	//FIXME  attention ne vérifie pas un from incomplet !
+	const transitionFrom = transition.from || getFrom(perso, transition);
+	const from = expandStringValues(transitionFrom);
+	const to = expandStringValues(transition.to);
+	return { from, to };
+}
+
+function expandStringValues(entry: Style) {
+	const style = {};
+	for (const [prop, value] of Object.entries(entry)) {
+		if (typeof value === 'string') {
+			const { numbers, pattern } = extractNumbersFromString(value);
+			if (numbers.length) {
+				style[prop] = { value: numbers, pattern, original: value };
+			} else style[prop] = value;
+		} else style[prop] = value;
+	}
+	return style;
+}
+
+function lerpItem(start: number | LerpStringStyle, end: number | LerpStringStyle, amt: number) {
+	if (typeof start === 'number' && typeof end === 'number') return lerp(start, end, amt);
+	else if (typeof start === 'object' && typeof end === 'object') {
+		const numbers = end.value.map((number, index) => Math.round(lerp(start.value[index], number, amt)));
+		console.log(numbers);
+		return mixNumbersInArray(numbers, end.pattern);
+	}
 }

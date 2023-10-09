@@ -1,5 +1,8 @@
 import { ROOT, Controller, MapEvent, PersoStore, PersosTypes as P } from '~/main';
 
+// import { test } from '~/tween/array-pattern';
+// test();
+
 ////////////
 // DEMO 5 //
 ////////////
@@ -20,11 +23,23 @@ const store: PersoStore = {
 			className: 'container-grid',
 			style: {
 				position: 'relative',
-				backgroundColor: 'yellowgreen',
+				backgroundColor: 'lch(52.2% 72.2 50 / 1)',
 			},
 		},
 		actions: {
 			[ROOT]: true,
+			action01: {
+				transition: {
+					// from: {
+					// 	// backgroundColor: 'rgb(154 205 50)',
+					// 	backgroundColor: 'lch(52.2% 72.2 50 / 0.5)',
+					// },
+					to: {
+						backgroundColor: 'lch(56% 63.61 262.73 / 1)',
+					},
+					duration: 1500,
+				},
+			},
 		},
 	},
 	'text-counter': {
