@@ -1,17 +1,18 @@
 import { Tween } from './tween';
 import { Display } from './display';
 
-import type {
-	Style,
-	PersosAction,
-	ActionClassList,
-	PersoId,
-	Action,
-	PersoAction,
-	StateAction,
-	StrapType,
-	PersoNode,
-} from './types';
+import {
+	type Style,
+	type PersosAction,
+	type ActionClassList,
+	type PersoId,
+	type Action,
+	type PersoAction,
+	type StateAction,
+	type StrapType,
+	type PersoNode,
+	PersoType,
+} from '../../types';
 import { Strap } from '../strap/strap';
 import { Counter } from '../strap/counter';
 import { Layer } from '../display/layer';
@@ -82,6 +83,7 @@ export class Actionner {
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
 			const perso = this.display.persos.get(id);
+
 			const currentAction = mixActions(actions[name] as Action, data);
 
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;

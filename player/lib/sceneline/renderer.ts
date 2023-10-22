@@ -1,7 +1,7 @@
 // import { div as node } from '.';
 const node = document.createElement('div');
 
-import type { ActionClassList, StateAction } from './types';
+import type { ActionClassList, StateAction } from '../../types';
 
 function renderer(actions: StateAction) {
 	actions.forEach((action, id) => {

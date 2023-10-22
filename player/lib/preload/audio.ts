@@ -1,32 +1,27 @@
-import { My, SoundType, PersoNode, PersoStore, SoundNode, SoundStore, Store } from '../types';
-
-type SampleAudio = [string, MediaElementAudioSourceNode];
+import { My, PersoSoundDef, PersoMediaStore, PersoType, PersoDef } from '~/main';
 
 const audioContext = new AudioContext();
 
-export function getPersoSounds(persos: Store) {
-	const persoOthers: PersoStore = {};
-	const persoSounds: SoundStore = {};
-	for (const id in persos) {
-		persos[id].type === SoundType.SOUND
-			? (persoSounds[id] = persos[id] as SoundNode)
-			: (persoOthers[id] = persos[id] as PersoNode);
+export async function getPersoSounds(store: PersoMediaStore) {
+	const medias = {} as Record<string, PersoSoundDef>;
+	const persos = {} as Record<string, PersoDef>;
+	for (const id in store) {
+		if (store[id].type === PersoType.SOUND) {
+			medias[id] = store[id] as PersoSoundDef;
+			const src = medias[id].initial?.src;
+			const media: MediaElementAudioSourceNode = await loadAudio(src, audioContext);
+			medias[id].media = media;
+		} else {
+			persos[id] = store[id] as PersoDef;
+		}
 	}
-	return { persoSounds, persos: persoOthers };
+	return { persos, medias };
 }
 
-export async function registerAudio(persos: SoundStore) {
-	const audios = [];
-	for (const id in persos) {
-		const src = persos[id].initial?.src;
-		audios.push(loadAudio(id, src, audioContext));
-	}
-	const loadedAudios: SampleAudio[] = await Promise.all(audios);
-	for (const [id, media] of loadedAudios) persos[id].media = media;
-	return persos;
-}
-
-export async function loadAudio(id: string, filepath: string, audioContext: AudioContext): Promise<SampleAudio> {
+export async function loadAudio(
+	filepath: string,
+	audioContext: AudioContext
+): Promise<MediaElementAudioSourceNode> {
 	return new Promise((resolve, reject) => {
 		const source = new Audio();
 		const media: My = audioContext.createMediaElementSource(source);
@@ -37,7 +32,7 @@ export async function loadAudio(id: string, filepath: string, audioContext: Audi
 		};
 
 		source.oncanplay = () => {
-			resolve([id, media]);
+			resolve(media);
 		};
 		source.onerror = (err) => reject(err);
 		source.src = filepath;

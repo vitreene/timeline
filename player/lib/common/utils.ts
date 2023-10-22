@@ -1,4 +1,4 @@
-import { Style } from '../types';
+import { Style } from '../../../legacy/types';
 import { exceptions, whiteListCssProps } from './constants';
 
 export function keyToLowercase(obj: Style) {
@@ -22,7 +22,9 @@ export function stringToLowercase(str) {
 }
 //convert  string Snake To Camel
 export function stringSnakeToCamel(str: string) {
-	return str.toLowerCase().replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
+	return str
+		.toLowerCase()
+		.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 }
 
 export const toKebabCase = (str: string) =>

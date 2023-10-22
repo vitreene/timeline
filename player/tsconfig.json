@@ -18,6 +18,6 @@
 			"~/*": ["./lib/*"]
 		}
 	},
-	"include": ["./lib", "./src"],
+	"include": ["./lib", "./src", "types.ts"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

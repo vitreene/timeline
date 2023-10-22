@@ -8,10 +8,20 @@ import { createPersoBase } from '../display/base';
 import { addSuffix, toKebabCase } from '../common/utils';
 import { CONTAINER, ROOT, stage } from './constants';
 
-import { PersosTypes } from './types';
+import { PersoType } from '../../types';
 import { transformAliases, transformKeys } from './transform-types';
 
-import type { Action, ActionClassList, PersoId, PersoNode, StateAction, PersoStore, Style } from './types';
+import type {
+	Action,
+	ActionClassList,
+	PersoId,
+	PersoNode,
+	StateAction,
+	PersoMediaStore,
+	Style,
+	SoundNode,
+	PersoStore,
+} from '~/main';
 import type { Matrix2D } from './transform-types';
 
 export class Display {
@@ -20,7 +30,7 @@ export class Display {
 	zoom = 1;
 	removeResize: () => void;
 
-	constructor(appId: string, store: PersoStore) {
+	constructor(appId: string, store: PersoMediaStore) {
 		this.app = document.getElementById(appId);
 		this.initPersos(store);
 		this.root();
@@ -61,9 +71,12 @@ export class Display {
 			})
 		);
 
-	initPersos(store: PersoStore) {
+	initPersos(store: PersoMediaStore) {
 		for (const id in store) {
-			const perso = createPersoBase(id, store[id]) as PersoNode;
+			// TODO envoyer sound dans son constructeur
+			if (store[id].type === PersoType.SOUND) continue;
+
+			const perso = createPersoBase(id, (store as PersoStore)[id]) as PersoNode;
 			this.render(perso, perso.initial);
 			this.persos.set(id, perso);
 		}
@@ -77,7 +90,7 @@ export class Display {
 	renderer = (actions: StateAction) => {
 		actions.forEach((action, id) => {
 			const perso = this.persos.get(id);
-			this.render(perso, action);
+			perso && this.render(perso, action);
 		});
 	};
 	b;
@@ -86,7 +99,7 @@ export class Display {
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':
-					if (perso.type === PersosTypes.TEXT) {
+					if (perso.type === PersoType.TEXT) {
 						perso.child.update(action.content);
 					}
 					break;

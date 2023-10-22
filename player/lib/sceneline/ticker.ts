@@ -1,5 +1,5 @@
 import { Store } from './store';
-import { DeltaFn } from './types';
+import { DeltaFn } from '../../types';
 
 export class Ticker {
 	// timeStamp = 0;

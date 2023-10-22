@@ -1,8 +1,8 @@
 import * as CSS from 'csstype';
-import { Layer } from '../display/layer';
-import { Txt } from '../display/text';
-import { Sprite } from '../display/sprite';
-import { Matrix2D, TransformProperty } from './transform-types';
+import { Layer } from './lib/display/layer';
+import { Txt } from './lib/display/text';
+import { Sprite } from './lib/display/sprite';
+import { Matrix2D, TransformProperty } from './lib/sceneline/transform-types';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -20,22 +20,41 @@ export interface LerpStringStyle {
 	ease?: string;
 	original: string;
 }
+
 /* 
 ecrire les interfaces par type d'élement en entrée
-
 */
-export interface PersoBaseDef {
-	type: PersosTypes;
+
+export interface PersoLayerDef {
+	readonly type: PersoType.LAYER;
 	initial: Partial<Initial>;
 	actions?: Record<string, Action | boolean>;
 }
-export interface PersoImgDef {
-	type: PersosTypes.IMG | PersosTypes.SPRITE;
-	initial: Partial<Omit<Initial, 'content'>> & { content: Img };
-	actions?: Record<string, Action & { content?: Img }>;
+export interface PersoTextDef {
+	readonly type: PersoType.TEXT;
+	initial: Partial<Initial> & { content: string };
+	actions?: Record<string, Action | boolean>;
 }
 
-export type PersoDef = PersoBaseDef | PersoImgDef;
+export interface PersoImgDef {
+	readonly type: PersoType.IMG | PersoType.SPRITE;
+	initial: Partial<Initial> & { content: Img };
+	actions?: Record<string, Action & { content?: Img }>;
+	media?: any;
+}
+
+export interface PersoSoundDef {
+	readonly type: PersoType.SOUND;
+	initial: { src: string };
+	actions?: Record<string, SoundAction>;
+	media?: any;
+}
+
+interface SoundAction {
+	action: 'start' | 'end';
+}
+
+export type PersoDef = PersoTextDef | PersoLayerDef | PersoImgDef;
 
 export interface Action {
 	className?: string | ActionClassList;
@@ -88,8 +107,10 @@ export type PersoId = string;
 export type ActionId = string;
 
 // types en entrée
+export type PersoMediaStore = Record<PersoId, PersoDef | PersoSoundDef>;
 export type PersoStore = Record<PersoId, PersoDef>;
-export type PersoAction = Record<ActionId, Action | boolean>;
+
+export type PersoAction = Record<ActionId, Action | boolean | SoundAction>;
 
 // types en interne
 export type MapEvent = Map<number, any>;
@@ -107,7 +128,7 @@ export interface BaseNode {
 
 export interface Perso extends BaseNode {
 	id: string;
-	type: PersosTypes;
+	type: PersoType;
 	initial: Partial<Initial>;
 }
 
@@ -120,19 +141,30 @@ interface NodePerso extends Perso {
 }
 
 interface PersoText extends NodePerso {
-	type: PersosTypes.TEXT;
+	type: PersoType.TEXT;
 	child: Txt;
 }
 
 interface PersoLayer extends NodePerso {
-	type: PersosTypes.LAYER;
+	type: PersoType.LAYER;
 	child: Layer;
 }
 
 export interface PersoSprite extends NodePerso {
-	type: PersosTypes.SPRITE;
+	type: PersoType.SPRITE;
 	child: Sprite;
 	initial: Partial<Initial> & Img; // FIXME
+}
+
+export interface SoundNode extends PersoSoundDef {
+	media?: My;
+}
+
+export interface My extends MediaElementAudioSourceNode {
+	my?: {
+		connect: () => void;
+		disconnect: () => void;
+	};
 }
 
 export type PersoNode = PersoText | PersoLayer | PersoSprite;
@@ -145,10 +177,10 @@ export interface Initial {
 	classStyle: Style;
 	className?: string | ActionClassList;
 	move: string;
-	content: Content;
 }
 
 export interface Img {
+	img?: typeof Image;
 	src: string;
 	fit?: string;
 	ratio?: number;
@@ -159,7 +191,7 @@ export interface Img {
 }
 export type ImagesCollection = Map<string, Img>;
 
-export enum PersosTypes {
+export enum PersoType {
 	TEXT = 'text',
 	IMG = 'img',
 	LIST = 'list',
@@ -171,4 +203,5 @@ export enum PersosTypes {
 	SPRITE = 'sprite',
 	BUTTON = 'button',
 	POLYGON = 'polygon',
+	SOUND = 'sound',
 }

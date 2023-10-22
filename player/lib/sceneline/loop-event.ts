@@ -1,6 +1,6 @@
 import { Actionner } from './actionner';
 
-import type { MapEvent } from './types';
+import type { MapEvent } from '../../types';
 
 export class LoopEvent {
 	events: MapEvent = new Map();

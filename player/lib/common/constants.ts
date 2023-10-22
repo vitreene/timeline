@@ -1,4 +1,4 @@
-import { ChannelName } from '../types';
+import { ChannelName } from '../../../legacy/types';
 import { stringToLowercase } from './utils';
 
 export const { MAIN, STRAP, SOUND, THR3D } = ChannelName;

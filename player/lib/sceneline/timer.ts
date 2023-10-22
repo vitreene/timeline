@@ -1,5 +1,5 @@
 import { Store } from './store';
-import type { TimerCallback } from './types';
+import type { TimerCallback } from '../../types';
 
 /*
 Timer update chaque 1/100s (rafraichissement raf)
@@ -28,7 +28,8 @@ export class Timer {
 		const consumed = (elapsed - this.time) / TIME_LEAP;
 
 		for (let t = 0; t <= consumed; t++) {
-			this.time % TIMER_UPDATE === 0 && Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
+			this.time % TIMER_UPDATE === 0 &&
+				Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
 			this.time += TIME_LEAP;
 		}
 	};

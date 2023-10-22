@@ -1,35 +1,20 @@
-import { getPersoSounds, registerAudio } from './audio';
-import { getPersoThr3D, registerThr3D } from './thr3d';
+import { PersoMediaStore, SoundNode } from '~/main';
+import { getPersoSounds } from './audio';
+import { getPersoImages } from './ikono';
 
-import type { PersoStore, SoundStore, Store } from '../types';
-
-export interface StoreProps {
-	persos: PersoStore;
-}
 export interface OptionalMediasStoreProps {
-	audio: SoundStore;
+	audio: Record<string, SoundNode>;
 	thr3d: any;
 	ikono: any;
 	video: any;
 }
 
-export type MediasStoreProps = StoreProps & Partial<OptionalMediasStoreProps>;
+export async function preload(store: PersoMediaStore): Promise<PersoMediaStore> {
+	const st01 = await getPersoSounds(store);
+	console.log('LOAD SOUNDS');
 
-export async function preload(persos: Store) {
-	const medias: MediasStoreProps = { persos: undefined };
+	const st02 = await getPersoImages(st01.persos);
+	console.log('LOAD IMAGES');
 
-	const filter01 = getPersoSounds(persos);
-	const filter02 = getPersoThr3D(filter01.persos);
-	if (has(filter01.persoSounds)) medias.audio = await registerAudio(filter01.persoSounds);
-	if (has(filter02.persoThr3D)) medias.thr3d = await registerThr3D(filter02.persoThr3D);
-	medias.ikono = {};
-	medias.video = {};
-
-	medias.persos = filter02.persos;
-	console.log('preload', medias);
-	return Promise.resolve(medias);
-}
-
-function has(obj: object): boolean {
-	return Object.keys(obj).length > 0;
+	return { ...st02.persos, ...st01.medias, ...st02.medias };
 }

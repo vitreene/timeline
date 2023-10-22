@@ -1,4 +1,5 @@
-import { ROOT, Controller, MapEvent, PersoStore, PersosTypes as P } from '~/main';
+import { ROOT, Controller, MapEvent, PersoType as P, PersoMediaStore, PersoStore } from '~/main';
+import { preload } from '~/preload';
 
 // import { test } from '~/tween/array-pattern';
 // test();
@@ -7,15 +8,30 @@ import { ROOT, Controller, MapEvent, PersoStore, PersosTypes as P } from '~/main
 // DEMO 5 //
 ////////////
 
+/* NOTE
+les formats de données sont issues du json  ; transformer les objets en map dans controller, pas dans le format de données -> meilleure portabilité 
+*/
+
 // INIT
 const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
+	[1000, { name: 'start_sound_fr' }],
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
 ]);
 
-const store: PersoStore = {
+const sound01 = {
+	type: P.SOUND,
+	initial: { src: '/1_7b_e.mp3' },
+	actions: {
+		start_sound_fr: { action: 'start' },
+		end_sound_fr: { action: 'end' },
+	},
+} as const;
+
+const store: PersoMediaStore = {
+	sound01,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -30,13 +46,8 @@ const store: PersoStore = {
 			[ROOT]: true,
 			action01: {
 				transition: {
-					// from: {
-					// 	// backgroundColor: 'rgb(154 205 50)',
-					// 	backgroundColor: 'lch(52.2% 72.2 50 / 0.5)',
-					// },
-					to: {
-						backgroundColor: 'lch(56% 63.61 262.73 / 1)',
-					},
+					from: { backgroundColor: 'lch(52.2% 72.2 50 / 0.5)' },
+					to: { backgroundColor: 'lch(56% 63.61 262.73 / 1)' },
 					duration: 1500,
 				},
 			},
@@ -52,7 +63,7 @@ const store: PersoStore = {
 				padding: 8,
 				'font-size': 36,
 				// @ts-ignore-line
-				rotate: 0,
+				// rotate: 0,
 			},
 		},
 		actions: {
@@ -147,45 +158,49 @@ const store: PersoStore = {
 			},
 		},
 	},
-};
+} as const;
 
 // PROCESS
-const controller = new Controller(store, events);
+preload(store).then((store) => {
+	console.log('LOAD STORE', store);
 
-// PLAY
-// FIXME la priorité sur le seek n'est aps la meme que pour le play
-// controller.start().play().wait(1900);
-// controller.start().seek(2800);
-// controller.start().seek(1500).play();
-controller.start().play();
+	const controller = new Controller(store, events);
 
-// setTimeout(() => {
-// 	console.log('stout PLAY');
-// 	controller.seek(1500).play();
-// }, 1000);
+	// PLAY
+	// FIXME la priorité sur le seek n'est aps la meme que pour le play
+	// controller.start().play().wait(1900);
+	// controller.start().seek(2800);
+	// controller.start().seek(1500).play();
+	controller.start().play();
 
-// const pause01 = 1000;
-// setTimeout(() => {
-// 	console.log('-> PAUSE', pause01);
-// 	console.log('timeElapsed', controller.timer.elapsed);
-// 	console.log('time', controller.timer.time);
-// 	controller.pause();
-// }, pause01);
+	// setTimeout(() => {
+	// 	console.log('stout PLAY');
+	// 	controller.seek(1500).play();
+	// }, 1000);
 
-// const play01 = 2000;
-// setTimeout(() => {
-// 	console.log('-> PLAY', play01);
-// 	console.log('timeElapsed', controller.timer.elapsed);
-// 	console.log('time', controller.timer.time);
-// 	controller.play();
-// }, play01);
+	// const pause01 = 1000;
+	// setTimeout(() => {
+	// 	console.log('-> PAUSE', pause01);
+	// 	console.log('timeElapsed', controller.timer.elapsed);
+	// 	console.log('time', controller.timer.time);
+	// 	controller.pause();
+	// }, pause01);
 
-setTimeout(() => {
-	console.log('timeout');
+	// const play01 = 2000;
+	// setTimeout(() => {
+	// 	console.log('-> PLAY', play01);
+	// 	console.log('timeElapsed', controller.timer.elapsed);
+	// 	console.log('time', controller.timer.time);
+	// 	controller.play();
+	// }, play01);
 
-	controller.stop();
-	console.log(controller);
-}, 8000);
+	setTimeout(() => {
+		console.log('timeout');
+
+		controller.stop();
+		console.log(controller);
+	}, 8000);
+});
 
 /* TODOÒ
 - wait

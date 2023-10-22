@@ -1,7 +1,7 @@
 import { extractNumbersFromString, mixNumbersInArray } from '~/tween/array-pattern';
 import { has } from '../common/utils';
 import * as ease from '../tween/easing';
-import type { Transition, Style, PersoNode, StyleEntry, LerpStringStyle } from './types';
+import type { Transition, Style, PersoNode, StyleEntry, LerpStringStyle } from '../../types';
 
 export class Tween {
 	perso: PersoNode;
@@ -124,7 +124,6 @@ function lerpItem(start: number | LerpStringStyle, end: number | LerpStringStyle
 	if (typeof start === 'number' && typeof end === 'number') return lerp(start, end, amt);
 	else if (typeof start === 'object' && typeof end === 'object') {
 		const numbers = end.value.map((number, index) => Math.round(lerp(start.value[index], number, amt)));
-		console.log(numbers);
 		return mixNumbersInArray(numbers, end.pattern);
 	}
 }
