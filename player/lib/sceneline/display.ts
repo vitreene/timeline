@@ -21,6 +21,9 @@ import type {
 	Style,
 	SoundNode,
 	PersoStore,
+	ImgAction,
+	Img,
+	Content,
 } from '~/main';
 import type { Matrix2D } from './transform-types';
 
@@ -95,12 +98,15 @@ export class Display {
 	};
 	b;
 
-	render = (perso: PersoNode, action: Action) => {
+	render = <T extends PersoNode>(perso: T, action: Action | ImgAction) => {
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':
+					if (perso.type === PersoType.SPRITE || perso.type === PersoType.IMG) {
+						perso.update(action.content as Img);
+					}
 					if (perso.type === PersoType.TEXT) {
-						perso.child.update(action.content);
+						perso.child.update(action.content as Content);
 					}
 					break;
 				/* 				case 'move': {

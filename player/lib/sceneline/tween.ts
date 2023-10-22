@@ -74,10 +74,9 @@ export class Tween {
 			const t = this.ease(this.progress / this.duration);
 			if (this.easeValue[item]) {
 				const e = ease[this.easeValue[item]](t);
-				// update[item] = lerp(this.from[item], this.to[item], e);
+
 				update[item] = lerpItem(this.from[item], this.to[item], e);
 			} else {
-				// const prop = lerp(this.from[item], this.to[item], t);
 				const prop = lerpItem(this.from[item], this.to[item], t);
 				update[item] = prop;
 			}
@@ -94,7 +93,7 @@ function getFrom(perso: PersoNode, transition: Transition) {
 	if (!perso.style) return to;
 	const from = {};
 	for (const s in to) {
-		from[s] = has(perso.style, s) ?? has(perso.initial, s) ?? to[s];
+		from[s] = has(perso.style, s) ?? has(perso.initial.style, s) ?? to[s];
 	}
 	return from;
 }
@@ -123,7 +122,7 @@ function expandStringValues(entry: Style) {
 function lerpItem(start: number | LerpStringStyle, end: number | LerpStringStyle, amt: number) {
 	if (typeof start === 'number' && typeof end === 'number') return lerp(start, end, amt);
 	else if (typeof start === 'object' && typeof end === 'object') {
-		const numbers = end.value.map((number, index) => Math.round(lerp(start.value[index], number, amt)));
+		const numbers = end.value.map((number, index) => lerp(start.value[index], number, amt));
 		return mixNumbersInArray(numbers, end.pattern);
 	}
 }

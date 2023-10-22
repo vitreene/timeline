@@ -1,0 +1,91 @@
+
+> @vitreene/player@0.2.0 dev
+> vite
+
+
+  VITE v4.4.11  ready in 143 ms
+
+  ➜  Local:   http://localhost:3003/
+  ➜  Network: use --host to expose
+20:30:40 [vite] page reload types.ts
+20:30:40 [vite] page reload lib/sceneline/tween.ts
+20:30:40 [vite] page reload src/demos/index.ts
+21:55:41 [vite] page reload types.ts
+21:55:41 [vite] page reload lib/display/base.ts
+21:55:41 [vite] page reload lib/preload/audio.ts
+21:55:41 [vite] page reload lib/preload/index.ts
+21:55:41 [vite] page reload lib/sceneline/actionner.ts
+21:55:41 [vite] page reload lib/sceneline/display.ts
+21:55:41 [vite] page reload lib/sceneline/controller.ts
+21:55:41 [vite] page reload src/demos/index.ts
+21:55:41 [vite] page reload src/demos/index.ts
+21:56:57 [vite] page reload lib/main.ts
+11:31:23 [vite] page reload lib/sceneline/display.ts
+11:31:23 [vite] page reload src/demos/index.ts
+11:31:23 [vite] page reload lib/preload/index.ts
+11:31:23 [vite] page reload lib/preload/audio.ts
+12:12:28 [vite] page reload lib/preload/index.ts
+12:12:59 [vite] page reload lib/preload/ikono.ts
+12:15:33 [vite] page reload lib/display/base.ts
+12:17:06 [vite] page reload src/demos/index.ts
+12:17:06 [vite] page reload lib/display/base.ts
+15:56:42 [vite] page reload lib/preload/audio.ts
+15:56:42 [vite] page reload src/demos/index.ts
+15:56:42 [vite] page reload lib/preload/ikono.ts
+15:56:42 [vite] page reload lib/preload/index.ts
+16:09:57 [vite] page reload src/demos/index.ts
+16:09:57 [vite] page reload lib/preload/audio.ts
+16:09:57 [vite] page reload lib/preload/index.ts
+16:11:17 [vite] page reload lib/preload/audio.ts
+16:13:08 [vite] page reload lib/preload/audio.ts
+17:05:54 [vite] page reload lib/preload/index.ts
+17:05:54 [vite] page reload lib/preload/ikono.ts
+17:05:54 [vite] page reload src/demos/index.ts
+17:05:54 [vite] page reload lib/preload/audio.ts
+17:09:54 [vite] page reload types.ts
+17:09:54 [vite] page reload lib/preload/ikono.ts
+17:20:39 [vite] page reload types.ts
+17:20:39 [vite] page reload lib/preload/ikono.ts
+17:21:31 [vite] page reload lib/sceneline/display.ts
+17:21:38 [vite] page reload lib/sceneline/display.ts
+17:22:40 [vite] page reload lib/sceneline/display.ts
+17:23:00 [vite] page reload lib/sceneline/display.ts
+17:43:20 [vite] page reload types.ts
+17:43:20 [vite] page reload lib/sceneline/display.ts
+17:43:20 [vite] page reload lib/preload/audio.ts
+17:43:20 [vite] page reload lib/preload/ikono.ts
+17:43:20 [vite] page reload lib/preload/index.ts
+17:47:09 [vite] page reload lib/display/sprite.ts
+17:47:09 [vite] page reload lib/display/base.ts
+17:47:26 [vite] page reload lib/display/sprite.ts
+17:53:32 [vite] page reload lib/display/sprite.ts
+17:53:32 [vite] page reload lib/preload/ikono.ts
+17:53:55 [vite] page reload lib/display/sprite.ts
+17:57:48 [vite] page reload lib/display/sprite.ts
+17:58:06 [vite] page reload lib/display/sprite.ts
+17:58:55 [vite] page reload lib/display/sprite.ts
+17:59:26 [vite] page reload lib/display/sprite.ts
+17:59:57 [vite] page reload lib/display/sprite.ts
+18:01:54 [vite] page reload lib/preload/ikono.ts
+18:02:38 [vite] page reload lib/display/sprite.ts
+18:03:11 [vite] page reload lib/display/sprite.ts
+18:03:51 [vite] page reload lib/display/sprite.ts
+18:04:07 [vite] page reload lib/display/sprite.ts
+18:05:14 [vite] page reload lib/display/sprite.ts
+18:06:35 [vite] page reload lib/preload/ikono.ts
+18:07:00 [vite] page reload lib/preload/ikono.ts
+18:17:05 [vite] page reload lib/preload/ikono.ts
+18:17:05 [vite] page reload lib/display/sprite.ts
+18:17:30 [vite] page reload lib/display/sprite.ts
+18:17:46 [vite] page reload lib/display/sprite.ts
+18:18:27 [vite] page reload lib/display/sprite.ts
+18:20:11 [vite] page reload lib/display/sprite.ts
+18:20:37 [vite] page reload lib/display/sprite.ts
+18:22:57 [vite] page reload lib/display/sprite.ts
+18:26:14 [vite] page reload lib/preload/index.ts
+18:26:14 [vite] page reload src/demos/index.ts
+18:27:20 [vite] page reload lib/preload/ikono.ts
+18:29:58 [vite] page reload lib/preload/ikono.ts
+18:31:58 [vite] page reload lib/preload/ikono.ts
+18:32:48 [vite] page reload lib/preload/ikono.ts
+18:50:

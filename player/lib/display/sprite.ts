@@ -1,36 +1,25 @@
-import { Img, PersoImgDef } from '~/main';
+import { Img, Initial, PersoImgDef } from '~/main';
 
 export class Sprite {
 	node = null;
+	media: Img;
+	attr: null;
+
 	constructor(perso: PersoImgDef) {
-		this.init(perso);
+		this.media = perso.media;
+		this.update(perso.initial.content);
 	}
 
-	init(perso: PersoImgDef) {
-		console.log(perso);
-		const src = perso.initial?.content.src;
-		const media = perso.media?.[src];
-		console.log(src, media);
-
-		if (media && media.img instanceof HTMLImageElement) {
-			this.node = media.img;
-			this.update(perso.initial.content);
+	update({ src, ...content }: Partial<Initial> & Img) {
+		const media = this.media[src];
+		if (media.img instanceof HTMLImageElement) {
+			if (!this.node) this.node = media.img;
+			else {
+				this.node.src = media.img.src;
+			}
 		} else {
 			this.node = document.createElement('img');
-			this.node.src = src;
-			this.node.onload = () => this.update(perso.initial.content);
+			this.node.src = media.src;
 		}
-	}
-
-	initImg() {
-		this.node.style.width = '100%';
-		this.node.style.height = '100%';
-		this.node.style.objectFit = 'contain';
-	}
-
-	update({ src, fit = 'contain', px = 'center', py = 'center' }: Img) {
-		this.node.src = src;
-		this.node.style.objectFit = fit;
-		this.node.style.objectPosition = `${px} ${py}`;
 	}
 }

@@ -87,7 +87,6 @@ export class Actionner {
 			const currentAction = mixActions(actions[name] as Action, data);
 
 			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
-			// console.log(name, id, currentAction);
 
 			if (transition) {
 				const key = { id, type: transitionType.TRANSITION, name };

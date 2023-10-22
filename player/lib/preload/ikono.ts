@@ -54,14 +54,17 @@ export async function loadImages(srcs: string[] | Img[]) {
 	return await Promise.all(
 		srcs.map(
 			(source: string | Img) =>
-				new Promise((resolve) => {
+				new Promise((resolve, reject) => {
 					const src = typeof source === 'string' ? source : source.src;
 					const ikono = <HTMLImageElement>new Image();
 					ikono.onload = () => {
 						console.log('IMG LOADED', src);
 						resolve({ ikono, src });
 					};
-					ikono.onerror = (err) => resolve({ ikono: DEFAULT_IMG, src: DEFAULT_IMG.src });
+					ikono.onerror = (err) => {
+						// reject(err);
+						resolve({ ikono: DEFAULT_IMG, src });
+					};
 					ikono.src = src;
 				})
 		)

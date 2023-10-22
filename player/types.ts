@@ -39,7 +39,7 @@ export interface PersoTextDef {
 export interface PersoImgDef {
 	readonly type: PersoType.IMG | PersoType.SPRITE;
 	initial: Partial<Initial> & { content: Img };
-	actions?: Record<string, Action & { content?: Img }>;
+	actions?: Record<string, ImgAction>;
 	media?: any;
 }
 
@@ -54,6 +54,9 @@ interface SoundAction {
 	action: 'start' | 'end';
 }
 
+export interface ImgAction extends Omit<Action, 'content'> {
+	content?: Img;
+}
 export type PersoDef = PersoTextDef | PersoLayerDef | PersoImgDef;
 
 export interface Action {
@@ -110,7 +113,7 @@ export type ActionId = string;
 export type PersoMediaStore = Record<PersoId, PersoDef | PersoSoundDef>;
 export type PersoStore = Record<PersoId, PersoDef>;
 
-export type PersoAction = Record<ActionId, Action | boolean | SoundAction>;
+export type PersoAction = Record<ActionId, Action | boolean | SoundAction | ImgAction>;
 
 // types en interne
 export type MapEvent = Map<number, any>;
@@ -150,10 +153,18 @@ interface PersoLayer extends NodePerso {
 	child: Layer;
 }
 
+export interface PersoImg extends NodePerso {
+	type: PersoType.IMG;
+	child: Sprite;
+	initial: Partial<Initial> & Img;
+	update: (update: Partial<Initial> & Img) => void;
+}
+
 export interface PersoSprite extends NodePerso {
 	type: PersoType.SPRITE;
 	child: Sprite;
-	initial: Partial<Initial> & Img; // FIXME
+	initial: Partial<Initial> & Img;
+	update: (update: Partial<Initial> & Img) => void;
 }
 
 export interface SoundNode extends PersoSoundDef {
@@ -167,7 +178,7 @@ export interface My extends MediaElementAudioSourceNode {
 	};
 }
 
-export type PersoNode = PersoText | PersoLayer | PersoSprite;
+export type PersoNode = PersoText | PersoLayer | PersoSprite | PersoImg;
 
 export interface Initial {
 	tag: string;
@@ -184,8 +195,8 @@ export interface Img {
 	src: string;
 	fit?: string;
 	ratio?: number;
-	width?: number;
-	height?: number;
+	width?: number | string;
+	height?: number | string;
 	px?: string;
 	py?: string;
 }

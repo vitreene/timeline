@@ -112,10 +112,11 @@ const store: PersoMediaStore = {
 		initial: {
 			className: 'item1',
 			style: {
-				'background-color': 'purple',
+				'background-color': 'oklch(0.42 0.19 328.37 / 1)',
+				'object-position': '0% 67%',
+				'object-fit': 'cover',
 			},
-			// TODO passer par les styles pour interpoler
-			content: { src: '/mandrake.jpg', fit: 'cover', px: 'left', py: '67%' },
+			content: { src: '/mandrake.jpg' },
 		},
 		actions: {
 			enter: {
@@ -129,7 +130,21 @@ const store: PersoMediaStore = {
 			action01: {
 				className: 'action01-img1',
 			},
-			action02: {},
+			action02: {
+				transition: {
+					to: {
+						'object-position': '50% 50%',
+
+						'background-color': 'oklch(0.42 0.19 328.37 / 0)',
+					},
+					duration: 1000,
+				},
+
+				style: {
+					'object-fit': 'contain',
+				},
+				content: { src: '/old-television.webp' },
+			},
 		},
 	},
 	text3: {

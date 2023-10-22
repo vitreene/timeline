@@ -1,13 +1,14 @@
 import { Txt } from './text';
 import { PersoType } from '../../types';
 
-import type { PersoDef, PersoId, PersoImgDef, PersoNode } from '../../types';
+import type { PersoDef, PersoId, PersoImgDef, PersoNode, PersoSprite } from '../../types';
 import { Layer } from './layer';
 import { Sprite } from './sprite';
 
 export function createPersoBase(id: PersoId, perso: PersoDef) {
-	const node = document.createElement(perso.initial?.tag || 'div');
-	node.id = id;
+	const tag = perso.initial?.tag || 'div';
+	let node = document.createElement(tag);
+
 	const persoNode = perso as PersoNode;
 	switch (perso.type) {
 		case PersoType.TEXT:
@@ -19,9 +20,9 @@ export function createPersoBase(id: PersoId, perso: PersoDef) {
 		case PersoType.IMG:
 		case PersoType.SPRITE:
 			const sprite = new Sprite(perso);
-			// sprite.update((perso as PersoImgDef).initial.content);
-			node.appendChild(sprite.node);
-			persoNode.child = sprite;
+			node = sprite.node;
+			sprite.update(perso.initial.content);
+			(persoNode as PersoSprite).update = sprite.update;
 			break;
 		case PersoType.LAYER:
 			//  un layer n'est pas initialisé avec un contenu
@@ -33,6 +34,7 @@ export function createPersoBase(id: PersoId, perso: PersoDef) {
 	}
 	persoNode.id = id;
 	persoNode.matrix = null;
+	node.id = id;
 	persoNode.node = node;
 	return persoNode;
 }
