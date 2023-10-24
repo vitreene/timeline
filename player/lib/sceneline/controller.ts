@@ -13,10 +13,14 @@ export class Controller {
 	ticker = new Ticker();
 	loopEvent: LoopEvent = null;
 	display: Display;
+	sounds = new Map<string, any>();
 
 	constructor(store: PersoMediaStore, events: MapEvent) {
 		this.display = new Display(APP, store);
-		const actionner = new Actionner(this.display);
+
+		this.sounds.set('sound01', (x) => console.log('SOUND', x));
+		const actionner = new Actionner(this.display, this.sounds);
+
 		this.loopEvent = new LoopEvent(actionner);
 		this.loopEvent.resetPersos = this.display.reset;
 

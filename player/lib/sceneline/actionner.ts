@@ -54,9 +54,11 @@ export class Actionner {
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, Tween | Strap>();
+	sounds: Map<string, any>;
 
-	constructor(display: Display) {
+	constructor(display: Display, sounds: Map<string, any>) {
 		this.display = display;
+		this.sounds = sounds;
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -82,6 +84,10 @@ export class Actionner {
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
+			if (this.sounds.has(id)) {
+				const sound = this.sounds.get(id);
+				sound(actions[name]);
+			}
 			const perso = this.display.persos.get(id);
 
 			const currentAction = mixActions(actions[name] as Action, data);
