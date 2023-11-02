@@ -1,8 +1,8 @@
-import { My, PersoSoundDef, PersoMediaStore, PersoType, PersoDef } from '~/main';
+import { My, PersoSoundDef, Store, PersoType, PersoDef } from '~/main';
 
 const audioContext = new AudioContext();
 
-export async function getPersoSounds(store: PersoMediaStore) {
+export async function getPersoSounds(store: Store) {
 	const medias = {} as Record<string, PersoSoundDef>;
 	const persos = {} as Record<string, PersoDef>;
 	for (const id in store) {

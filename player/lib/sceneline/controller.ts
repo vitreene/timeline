@@ -16,9 +16,9 @@ export class Controller {
 	sounds = new Map<string, any>();
 
 	constructor(store: PersoMediaStore, events: MapEvent) {
-		this.display = new Display(APP, store);
+		this.display = new Display(APP, store.persos);
 
-		this.sounds.set('sound01', (x) => console.log('SOUND', x));
+		this.sounds.set('sound01', (x) => console.log('SOUND--->', x));
 		const actionner = new Actionner(this.display, this.sounds);
 
 		this.loopEvent = new LoopEvent(actionner);
@@ -38,9 +38,12 @@ export class Controller {
 	};
 
 	registerActions = (store: PersoMediaStore) => {
-		for (const id in store) {
-			const perso = store[id];
-			this.loopEvent.actionner.add(id, perso.actions);
+		for (const type in store) {
+			const elements = store[type];
+			for (const id in elements) {
+				const perso = elements[id];
+				this.loopEvent.actionner.add(id, perso.actions);
+			}
 		}
 	};
 

@@ -33,7 +33,7 @@ export class Display {
 	zoom = 1;
 	removeResize: () => void;
 
-	constructor(appId: string, store: PersoMediaStore) {
+	constructor(appId: string, store: PersoStore) {
 		this.app = document.getElementById(appId);
 		this.initPersos(store);
 		this.root();
@@ -74,12 +74,9 @@ export class Display {
 			})
 		);
 
-	initPersos(store: PersoMediaStore) {
+	initPersos(store: PersoStore) {
 		for (const id in store) {
-			// TODO envoyer sound dans son constructeur
-			if (store[id].type === PersoType.SOUND) continue;
-
-			const perso = createPersoBase(id, (store as PersoStore)[id]) as PersoNode;
+			const perso = createPersoBase(id, store[id]);
 			this.render(perso, perso.initial);
 			this.persos.set(id, perso);
 		}

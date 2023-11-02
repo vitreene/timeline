@@ -1,4 +1,4 @@
-import { PersoMediaStore, SoundNode } from '~/main';
+import { PersoMediaStore, SoundNode, Store } from '~/main';
 import { getPersoSounds } from './audio';
 import { getPersoImages } from './ikono';
 
@@ -9,12 +9,12 @@ export interface OptionalMediasStoreProps {
 	video: any;
 }
 
-export async function preload(store: PersoMediaStore): Promise<PersoMediaStore> {
+export async function preload(store: Store): Promise<PersoMediaStore> {
 	const st01 = await getPersoSounds(store);
 	console.log('LOAD SOUNDS');
 
 	const st02 = await getPersoImages(st01.persos);
 	console.log('LOAD IMAGES');
 
-	return { ...st02.persos, ...st01.medias, ...st02.medias };
+	return { persos: { ...st02.persos, ...st02.medias }, sounds: st01.medias };
 }

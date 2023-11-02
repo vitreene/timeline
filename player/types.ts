@@ -110,7 +110,13 @@ export type PersoId = string;
 export type ActionId = string;
 
 // types en entrée
-export type PersoMediaStore = Record<PersoId, PersoDef | PersoSoundDef>;
+export type Store = Record<string, PersoDef | PersoSoundDef>;
+
+export interface PersoMediaStore {
+	persos: Record<string, PersoDef>;
+	sounds?: Record<string, PersoSoundDef>;
+}
+
 export type PersoStore = Record<PersoId, PersoDef>;
 
 export type PersoAction = Record<ActionId, Action | boolean | SoundAction | ImgAction>;
@@ -122,7 +128,7 @@ export type StateAction = Map<PersoId, Action>;
 export type PersosAction = Map<PersoId, PersoAction>;
 export type Render = (update: MapAction) => void;
 
-export type Store = Record<PersoId, Perso>;
+// export type Store = Record<PersoId, Perso>;
 
 export interface BaseNode {
 	actions: PersoAction;

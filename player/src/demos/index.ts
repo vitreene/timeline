@@ -30,7 +30,7 @@ const sound01 = {
 	},
 } as const;
 
-const store: PersoMediaStore = {
+const store = {
 	sound01,
 	[ROOT]: {
 		type: P.LAYER,
