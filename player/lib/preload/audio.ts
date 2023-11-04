@@ -25,15 +25,12 @@ export async function loadAudio(
 	return new Promise((resolve, reject) => {
 		const source = new Audio();
 		const media: My = audioContext.createMediaElementSource(source);
-		// media.connect(audioContext.destination);
 		media.my = {
 			connect: () => media.connect(audioContext.destination),
 			disconnect: () => media.disconnect(),
 		};
 
-		source.oncanplay = () => {
-			resolve(media);
-		};
+		source.oncanplay = () => resolve(media);
 		source.onerror = (err) => reject(err);
 		source.src = filepath;
 	});

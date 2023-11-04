@@ -25,6 +25,7 @@ export class Controller {
 		this.loopEvent = new LoopEvent(actionner);
 		this.loopEvent.resetPersos = this.display.reset;
 
+		this.ticker.handlers.store(this.sounds.sync);
 		this.ticker.handlers.store(this.timer.update);
 		this.ticker.handlers.store(actionner.updateTransitions);
 		this.ticker.framers.store(actionner.flush);

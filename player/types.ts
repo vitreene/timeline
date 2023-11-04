@@ -3,6 +3,7 @@ import { Layer } from './lib/display/layer';
 import { Txt } from './lib/display/text';
 import { Sprite } from './lib/display/sprite';
 import { Matrix2D, TransformProperty } from './lib/sceneline/transform-types';
+import { START, STOP } from '~/common/constants';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -47,11 +48,11 @@ export interface PersoSoundDef {
 	readonly type: PersoType.SOUND;
 	initial: { src: string };
 	actions?: Record<string, SoundAction>;
-	media?: any;
+	media?: My;
 }
 
 export interface SoundAction {
-	[action: string]: 'start' | 'end';
+	[action: string]: typeof START | typeof STOP;
 }
 
 export interface ImgAction extends Omit<Action, 'content'> {

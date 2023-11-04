@@ -1,3 +1,4 @@
+import { START, STOP } from '~/common/constants';
 import { ROOT, Controller, MapEvent, PersoType as P, PersoMediaStore, PersoStore } from '~/main';
 import { preload } from '~/preload';
 
@@ -19,14 +20,15 @@ const events: MapEvent = new Map([
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
+	[6500, { name: 'end_sound_fr' }],
 ]);
 
 const sound01 = {
 	type: P.SOUND,
 	initial: { src: '/1_7b_e.mp3' },
 	actions: {
-		start_sound_fr: { action: 'start' },
-		end_sound_fr: { action: 'end' },
+		start_sound_fr: { action: START },
+		end_sound_fr: { action: STOP },
 	},
 } as const;
 

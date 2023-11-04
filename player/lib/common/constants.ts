@@ -4,8 +4,6 @@ import { stringToLowercase } from './utils';
 export const { MAIN, STRAP, SOUND, THR3D } = ChannelName;
 
 export const ROOT = 'root';
-export const LAYER01 = 'layer01';
-export const LAYER02 = 'layer02';
 
 export const INITIAL = '_initial_';
 
@@ -19,16 +17,12 @@ export const BACKWARD = 'backward';
 
 export const TICK = 'tick';
 export const PLAY = 'play';
+export const START = 'start';
+export const STOP = 'stop';
+export const END = 'end';
 export const PAUSE = 'pause';
 export const SEEK = 'seek';
 export const SEEKING = 'seeking';
-
-export const DEFAULT_CHANNEL_NAME = ChannelName.DEFAULT;
-export const channelsName = Array.from(new Set(Object.values(ChannelName)));
-
-export const TRACK_PLAY = 'trackPlay';
-export const TRACK_PAUSE = 'trackPause';
-export const TRACK_ENGLISH = 'trackEnglish';
 
 export const DEFAULT_STYLES = {
 	x: 0,
