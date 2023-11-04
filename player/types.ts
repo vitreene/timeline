@@ -50,8 +50,8 @@ export interface PersoSoundDef {
 	media?: any;
 }
 
-interface SoundAction {
-	action: 'start' | 'end';
+export interface SoundAction {
+	[action: string]: 'start' | 'end';
 }
 
 export interface ImgAction extends Omit<Action, 'content'> {

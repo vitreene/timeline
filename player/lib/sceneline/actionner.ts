@@ -1,21 +1,22 @@
 import { Tween } from './tween';
 import { Display } from './display';
 
-import {
-	type Style,
-	type PersosAction,
-	type ActionClassList,
-	type PersoId,
-	type Action,
-	type PersoAction,
-	type StateAction,
-	type StrapType,
-	type PersoNode,
-	PersoType,
+import type {
+	Style,
+	PersosAction,
+	ActionClassList,
+	PersoId,
+	Action,
+	PersoAction,
+	StateAction,
+	StrapType,
+	PersoNode,
+	SoundAction,
 } from '../../types';
 import { Strap } from '../strap/strap';
 import { Counter } from '../strap/counter';
 import { Layer } from '../display/layer';
+import { Sound } from './sound';
 
 /*
 class
@@ -54,9 +55,9 @@ export class Actionner {
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, Tween | Strap>();
-	sounds: Map<string, any>;
+	sounds: Sound;
 
-	constructor(display: Display, sounds: Map<string, any>) {
+	constructor(display: Display, sounds: Sound) {
 		this.display = display;
 		this.sounds = sounds;
 	}
@@ -84,9 +85,8 @@ export class Actionner {
 
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
-			if (this.sounds.has(id)) {
-				const sound = this.sounds.get(id);
-				sound(actions[name]);
+			if (this.sounds.store.has(id)) {
+				this.sounds.update(id, actions[name] as SoundAction);
 			}
 			const perso = this.display.persos.get(id);
 

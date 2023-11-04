@@ -7,18 +7,19 @@ import { LoopEvent } from './loop-event';
 import { APP } from './constants';
 
 import type { PersoStore, DeltaFn, MapEvent, TimerCallback, PersoMediaStore } from '~/main';
+import { Sound } from './sound';
 
 export class Controller {
 	timer = new Timer();
 	ticker = new Ticker();
 	loopEvent: LoopEvent = null;
 	display: Display;
-	sounds = new Map<string, any>();
+	sounds = new Sound();
 
 	constructor(store: PersoMediaStore, events: MapEvent) {
 		this.display = new Display(APP, store.persos);
 
-		this.sounds.set('sound01', (x) => console.log('SOUND--->', x));
+		this.initSounds(store.sounds);
 		const actionner = new Actionner(this.display, this.sounds);
 
 		this.loopEvent = new LoopEvent(actionner);
@@ -30,6 +31,10 @@ export class Controller {
 
 		this.registerEvents(events);
 		this.registerActions(store);
+	}
+
+	initSounds(sounds) {
+		Object.keys(sounds).forEach((id) => this.sounds.store.set(id, sounds[id]));
 	}
 
 	registerEvents = (events: MapEvent) => {

@@ -1,9 +1,13 @@
-import { PersoSoundDef } from '~/main';
+import { PersoAction, PersoSoundDef, SoundAction } from '~/main';
 
 export class Sound {
 	store = new Map<string, PersoSoundDef>();
 
-	update;
+	update(id: string, action: SoundAction) {
+		console.log('SOUND', id, action);
+	}
+
+	sync(delta: number) {}
 }
 
 /* 
@@ -19,4 +23,5 @@ update prend les events entrants :
 
 tick pour suivre les décalages de tempo
 
+:{action:"start"|"stop"})
 */
