@@ -28,6 +28,8 @@ export class LoopEvent {
 		const { select } = selectUpTo(this.events, seek);
 		select.forEach((event, time) => {
 			const delta = seek - time;
+			console.log('SEEK EVENT', time, this.events.get(time));
+
 			this.actionner.update({ ...event, delta, time, seek: true });
 		});
 	};

@@ -50,10 +50,13 @@ export class Tween {
 		this.progress += delta;
 		if (this.progress >= this.duration) {
 			this.repeat++;
+			const update = this.updateStyle();
+
 			if (this.repeat > this.timesRepeat) {
 				this.progress = this.duration;
 				console.log('DONE', this.to, this.duration);
-				return { value: this.to, done: true };
+
+				return { value: update, done: true };
 			} else {
 				this.progress = 0;
 
@@ -62,27 +65,47 @@ export class Tween {
 					const to = this.from;
 					this.from = from;
 					this.to = to;
-					return { value: from, done: false };
+
+					return { value: update, done: false };
 				}
-				return { value: this.to, done: false };
+
+				return { value: update, done: false };
 			}
 		}
 
+		const update = this.updateStyle();
+		// const update = {} as Style | StyleEntry;
+
+		// for (const item in this.to) {
+		// 	const t = this.ease(this.progress / this.duration);
+		// 	if (this.easeValue[item]) {
+		// 		const e = ease[this.easeValue[item]](t);
+
+		// 		update[item] = lerpItem(this.from[item], this.to[item], e);
+		// 	} else {
+		// 		const prop = lerpItem(this.from[item], this.to[item], t);
+		// 		update[item] = prop;
+		// 	}
+		// }
+		return { value: update, done: false };
+	};
+
+	updateStyle(from = this.from, to = this.to) {
 		const update = {} as Style | StyleEntry;
 
-		for (const item in this.to) {
+		for (const item in to) {
 			const t = this.ease(this.progress / this.duration);
 			if (this.easeValue[item]) {
 				const e = ease[this.easeValue[item]](t);
 
-				update[item] = lerpItem(this.from[item], this.to[item], e);
+				update[item] = lerpItem(from[item], to[item], e);
 			} else {
-				const prop = lerpItem(this.from[item], this.to[item], t);
+				const prop = lerpItem(from[item], to[item], t);
 				update[item] = prop;
 			}
 		}
-		return { value: update, done: false };
-	};
+		return update;
+	}
 }
 
 function lerp(start: number, end: number, amt: number) {

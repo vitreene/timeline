@@ -250,6 +250,7 @@ export class Actionner {
 	flush = () => {
 		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
 		// eviter le syndrome !important
+		console.log(...this.state);
 
 		if (this.state.size) {
 			this.display.renderer(this.state);

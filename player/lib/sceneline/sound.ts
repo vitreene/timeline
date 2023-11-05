@@ -34,6 +34,8 @@ export class Sound {
 	}
 
 	sync(delta: number) {
+		// console.log('sync', delta);
+
 		this.status.forEach(({ action, elapsed }, id) => {
 			const audio = this.store.get(id).media;
 			if (action === PLAY && audio.mediaElement.paused) {

@@ -33,7 +33,7 @@ const sound01 = {
 } as const;
 
 const store = {
-	sound01,
+	// sound01,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -187,8 +187,8 @@ preload(store).then((store) => {
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play
 	// controller.start().play().wait(1900);
 	// controller.start().seek(2800);
-	// controller.start().seek(1500).play();
-	controller.start().play();
+	controller.start().seek(2800).play();
+	// controller.start().play();
 
 	// setTimeout(() => {
 	// 	console.log('stout PLAY');
