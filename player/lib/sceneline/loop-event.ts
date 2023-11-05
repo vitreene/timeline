@@ -24,6 +24,7 @@ export class LoopEvent {
 
 	seek = (seek: number) => {
 		this.resetPersos();
+		// TODO this reset sounds
 
 		const { select } = selectUpTo(this.events, seek);
 		select.forEach((event, time) => {

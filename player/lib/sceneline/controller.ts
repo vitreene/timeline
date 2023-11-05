@@ -72,16 +72,20 @@ export class Controller {
 	};
 	pause = () => {
 		console.log('PAUSE');
-
 		this.ticker.pause();
+		this.sounds.pause();
+
 		return this;
 	};
 	stop = () => {
 		this.ticker.stop();
+		this.sounds.stop();
 		return this;
 	};
 	start = () => {
 		this.ticker.start();
+		this.sounds.start();
+
 		return this;
 	};
 	seek = (time = 0) => {
@@ -94,6 +98,7 @@ export class Controller {
 		return this;
 	};
 
+	// FIXME marche pas
 	wait = (wait = 0) => {
 		console.log('WAIT', wait);
 

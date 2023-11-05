@@ -18,13 +18,6 @@ import { Counter } from '../strap/counter';
 import { Layer } from '../display/layer';
 import { Sound } from './sound';
 
-/*
-class
-register actions
-register components ?
-compose effects ?
-*/
-
 const transitionType = {
 	TRANSITION: 'transition',
 	STRAP: 'strap',
@@ -86,7 +79,7 @@ export class Actionner {
 		this.actions.forEach((actions, id) => {
 			if (!actions[name]) return;
 			if (this.sounds.store.has(id)) {
-				this.sounds.update(id, actions[name] as SoundAction);
+				this.sounds.update(id, actions[name] as SoundAction, delta);
 			}
 			const perso = this.display.persos.get(id);
 
@@ -250,8 +243,6 @@ export class Actionner {
 	flush = () => {
 		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
 		// eviter le syndrome !important
-		console.log(...this.state);
-
 		if (this.state.size) {
 			this.display.renderer(this.state);
 			this.state.clear();

@@ -1,0 +1,88 @@
+
+> @vitreene/player@0.2.0 dev
+> vite
+
+
+  VITE v4.5.0  ready in 158 ms
+
+  ➜  Local:   http://localhost:3003/
+  ➜  Network: use --host to expose
+16:08:27 [vite] page reload lib/sceneline/sound.ts
+16:08:44 [vite] page reload lib/sceneline/sound.ts
+16:17:24 [vite] page reload types.ts
+16:17:24 [vite] page reload lib/sceneline/sound.ts
+16:17:24 [vite] page reload lib/preload/audio.ts
+16:23:27 [vite] page reload lib/preload/audio.ts
+16:23:27 [vite] page reload lib/sceneline/sound.ts
+16:25:47 [vite] page reload lib/sceneline/sound.ts
+16:34:59 [vite] page reload types.ts
+16:34:59 [vite] page reload lib/sceneline/sound.ts
+16:34:59 [vite] page reload lib/common/constants.ts
+16:34:59 [vite] page reload src/demos/index.ts
+16:35:36 [vite] page reload lib/sceneline/sound.ts
+16:36:10 [vite] page reload lib/preload/audio.ts
+16:40:25 [vite] page reload lib/sceneline/sound.ts
+17:39:30 [vite] page reload lib/sceneline/sound.ts
+17:39:30 [vite] page reload lib/sceneline/controller.ts
+17:58:02 [vite] page reload lib/sceneline/sound.ts
+17:58:46 [vite] page reload lib/sceneline/sound.ts
+17:59:17 [vite] page reload lib/sceneline/sound.ts
+18:00:40 [vite] page reload lib/sceneline/sound.ts
+18:00:51 [vite] page reload lib/sceneline/sound.ts
+18:02:09 [vite] page reload lib/sceneline/sound.ts
+18:02:33 [vite] page reload lib/sceneline/sound.ts
+18:03:00 [vite] page reload lib/sceneline/sound.ts
+18:04:18 [vite] page reload lib/sceneline/sound.ts
+18:04:48 [vite] page reload src/demos/index.ts
+18:05:28 [vite] page reload src/demos/index.ts
+18:07:06 [vite] page reload lib/sceneline/sound.ts
+18:09:00 [vite] page reload lib/sceneline/sound.ts
+18:09:18 [vite] page reload lib/sceneline/sound.ts
+18:09:27 [vite] page reload lib/sceneline/sound.ts
+18:09:36 [vite] page reload lib/sceneline/sound.ts
+18:10:56 [vite] page reload lib/sceneline/sound.ts
+10:01:55 [vite] page reload src/demos/index.ts
+10:03:08 [vite] page reload src/demos/index.ts
+10:04:37 [vite] page reload lib/sceneline/sound.ts
+10:06:10 [vite] page reload src/demos/index.ts
+10:06:10 [vite] page reload lib/sceneline/sound.ts
+10:06:23 [vite] page reload src/demos/index.ts
+10:06:31 [vite] page reload src/demos/index.ts
+10:06:48 [vite] page reload src/demos/index.ts
+10:09:53 [vite] page reload lib/sceneline/loop-event.ts
+10:18:53 [vite] page reload lib/sceneline/actionner.ts
+10:19:17 [vite] page reload lib/sceneline/actionner.ts
+10:28:16 [vite] page reload src/demos/index.ts
+10:28:16 [vite] page reload lib/sceneline/tween.ts
+10:30:11 [vite] page reload lib/sceneline/tween.ts
+10:33:45 [vite] page reload lib/sceneline/tween.ts
+10:33:59 [vite] page reload src/demos/index.ts
+10:34:22 [vite] page reload src/demos/index.ts
+10:34:25 [vite] page reload src/demos/index.ts
+10:34:34 [vite] page reload src/demos/index.ts
+10:34:55 [vite] page reload src/demos/index.ts
+10:35:47 [vite] page reload src/demos/index.ts
+10:37:57 [vite] page reload src/demos/index.ts
+10:42:15 [vite] page reload lib/sceneline/tween.ts
+10:42:35 [vite] page reload src/demos/index.ts
+10:42:42 [vite] page reload src/demos/index.ts
+10:42:49 [vite] page reload src/demos/index.ts
+10:42:59 [vite] page reload src/demos/index.ts
+10:43:16 [vite] page reload lib/sceneline/actionner.ts
+13:31:16 [vite] page reload lib/sceneline/actionner.ts
+13:31:16 [vite] page reload lib/sceneline/sound.ts
+13:34:53 [vite] page reload lib/sceneline/loop-event.ts
+13:34:53 [vite] page reload lib/sceneline/actionner.ts
+13:35:03 [vite] page reload lib/sceneline/sound.ts
+13:35:32 [vite] page reload lib/sceneline/actionner.ts
+13:36:49 [vite] page reload lib/sceneline/actionner.ts
+13:37:39 [vite] page reload src/demos/index.ts
+13:37:39 [vite] page reload lib/sceneline/actionner.ts
+13:38:33 [vite] page reload lib/sceneline/sound.ts
+13:40:15 [vite] page reload lib/sceneline/sound.ts
+13:40:15 [vite] page reload lib/sceneline/actionner.ts
+13:40:35 [vite] page reload lib/sceneline/sound.ts
+13:40:37 [vite] page reload lib/sceneline/sound.ts
+13:41:13 [vite] page reload lib/sceneline/sound.ts
+13:41:22 [vite] page reload lib/sceneline/sound.ts
+13:42:28 [vite] page reload src/demos/ind

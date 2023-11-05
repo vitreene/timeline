@@ -20,7 +20,7 @@ const events: MapEvent = new Map([
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
-	[6500, { name: 'end_sound_fr' }],
+	// [6500, { name: 'end_sound_fr' }],
 ]);
 
 const sound01 = {
@@ -33,7 +33,7 @@ const sound01 = {
 } as const;
 
 const store = {
-	// sound01,
+	sound01,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -186,9 +186,9 @@ preload(store).then((store) => {
 	// PLAY
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play
 	// controller.start().play().wait(1900);
-	// controller.start().seek(2800);
-	controller.start().seek(2800).play();
-	// controller.start().play();
+	// controller.start().seek(2200);
+	// controller.start().seek(2200).play();
+	controller.start().play();
 
 	// setTimeout(() => {
 	// 	console.log('stout PLAY');
