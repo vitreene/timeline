@@ -43,9 +43,9 @@ export class Counter extends Strap {
 		const counter = this.start + elapsed * this.sign;
 
 		if (this.progress >= this.duration) {
+			// console.log('STRAP DONE', delta, this.progress, this.duration, this.counter);
 			this.progress = this.duration;
-			this.counter = counter;
-			// console.log('DONE', this.progress, this.counter);
+			this.counter = this.end;
 			return { value: { content: this.counter }, done: true };
 		} else if (counter !== this.counter) {
 			this.counter = counter;

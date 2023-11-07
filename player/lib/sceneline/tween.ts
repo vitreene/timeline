@@ -54,7 +54,7 @@ export class Tween {
 			const update = this.updateStyle;
 
 			if (this.repeat > this.timesRepeat) {
-				console.log('DONE', this.to, this.duration);
+				// console.log('DONE', this.to, this.duration);
 
 				return { value: update, done: true };
 			} else {

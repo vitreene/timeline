@@ -1,10 +1,9 @@
 import { START, STOP } from '~/common/constants';
 import { ROOT, Controller, MapEvent, PersoType as P, PersoMediaStore, PersoStore } from '~/main';
 import { preload } from '~/preload';
+import { createTelco } from './telco';
 
-// import { test } from '~/tween/array-pattern';
-// test();
-
+const END_SEQUENCE = 7000;
 ////////////
 // DEMO 5 //
 ////////////
@@ -20,7 +19,7 @@ const events: MapEvent = new Map([
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
-	// [6500, { name: 'end_sound_fr' }],
+	[6500, { name: 'end_music_fr' }],
 ]);
 
 const sound01 = {
@@ -32,8 +31,18 @@ const sound01 = {
 	},
 } as const;
 
+const music01 = {
+	type: P.SOUND,
+	initial: { src: '/music02.m4a', volume: 0.5 },
+	actions: {
+		enter: { action: START },
+		end_music_fr: { action: STOP },
+	},
+} as const;
+
 const store = {
 	sound01,
+	music01,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -64,6 +73,7 @@ const store = {
 				backgroundColor: 'orangered',
 				padding: 8,
 				'font-size': 36,
+				'text-align': 'center',
 				// @ts-ignore-line
 				// rotate: 0,
 			},
@@ -136,7 +146,6 @@ const store = {
 				transition: {
 					to: {
 						'object-position': '50% 50%',
-
 						'background-color': 'oklch(0.42 0.19 328.37 / 0)',
 					},
 					duration: 1000,
@@ -182,13 +191,15 @@ preload(store).then((store) => {
 	console.log('LOAD STORE', store);
 
 	const controller = new Controller(store, events);
-
+	const duration = END_SEQUENCE;
+	controller.start().play();
+	createTelco(controller, duration);
 	// PLAY
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play
 	// controller.start().play().wait(1900);
 	// controller.start().seek(2200);
 	// controller.start().seek(2200).play();
-	controller.start().play();
+	// controller.start().play();
 
 	// setTimeout(() => {
 	// 	console.log('stout PLAY');
@@ -214,9 +225,9 @@ preload(store).then((store) => {
 	setTimeout(() => {
 		console.log('timeout');
 
-		controller.stop();
+		// controller.stop();
 		console.log(controller);
-	}, 8000);
+	}, END_SEQUENCE);
 });
 
 /* TODOÒ

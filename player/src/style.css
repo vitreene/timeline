@@ -48,6 +48,11 @@ body {
 #telco {
 	display: flex;
 	margin-top: 1rem;
+	width: 100%;
+}
+
+#telco button {
+	width: 80px;
 }
 #telco input {
 	flex: 1;
