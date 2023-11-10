@@ -51,8 +51,12 @@ export interface PersoSoundDef {
 	media?: My;
 }
 
-export interface SoundAction {
-	[action: string]: typeof START | typeof STOP;
+export type SoundAction = Partial<SoundActionProps>;
+export interface SoundActionProps {
+	action: typeof START | typeof STOP;
+	volume: number;
+	playbackRate: number;
+	transition: Transition;
 }
 
 export interface ImgAction extends Omit<Action, 'content'> {
@@ -82,8 +86,8 @@ export interface moveAction {
 export type Content = string;
 
 export interface Transition {
-	from?: Style;
-	to: Style;
+	from?: Record<string, any>;
+	to: Record<string, any>;
 	duration?: number;
 	repeat?: number;
 	yoyo?: boolean;

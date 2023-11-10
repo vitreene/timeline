@@ -1,5 +1,8 @@
+import { Tween } from './tween';
 import { START, STOP, PLAY, PAUSE, SEEK } from '~/common/constants';
-import { PersoAction, PersoSoundDef, SoundAction } from '~/main';
+
+import type { PersoSoundDef, SoundAction, Transition } from '~/main';
+
 const TIME_THRESHOLD = 10;
 const MS = 1000;
 interface AudioStatus {
@@ -9,13 +12,15 @@ interface AudioStatus {
 export class Sound {
 	store = new Map<string, PersoSoundDef>();
 	status = new Map<string, AudioStatus>();
+	transitions = new Map<string, Tween>();
+
 	constructor() {
 		this.sync = this.sync.bind(this);
 	}
-	update(id: string, { action }: SoundAction, delta = 0) {
-		console.log('SOUND', id, action);
+	update(id: string, sa: SoundAction, delta = 0) {
+		console.log('SOUND', id, sa);
 		const audio = this.store.get(id).media;
-		switch (action) {
+		switch (sa.action) {
 			case START:
 				if (audio.mediaElement.paused) {
 					audio.my.connect();
@@ -26,12 +31,14 @@ export class Sound {
 				audio.mediaElement.pause();
 				audio.my.disconnect();
 				this.status.delete(id);
-
 				break;
 
 			default:
 				break;
 		}
+		sa.transition && this.initTransition(id, sa.transition);
+		sa.volume && (audio.mediaElement.volume = sa.volume);
+		sa.playbackRate && (audio.mediaElement.playbackRate = sa.playbackRate);
 	}
 
 	start() {
@@ -77,7 +84,31 @@ export class Sound {
 				this.status.set(id, { action, elapsed });
 			}
 		});
+		this.updateTransitions(delta);
 	}
+
+	initTransition(id: string, transition: Transition) {
+		const audio = this.store.get(id).media;
+		const from = {};
+		for (const key in transition.to) {
+			from[key] = (transition && transition.from?.[key]) || audio.mediaElement[key];
+		}
+		this.transitions.set(id, new Tween({ ...transition, from }));
+	}
+
+	updateTransitions = (delta: number) => {
+		this.transitions.forEach((transition, id) => {
+			const update = transition.next(delta);
+			const audio = this.store.get(id).media;
+			for (const key in update.value) {
+				audio.mediaElement[key] = update.value[key];
+			}
+			if (update.done) {
+				this.transitions.delete(id);
+				transition.onComplete && transition.onComplete();
+			}
+		});
+	};
 }
 
 /* 
@@ -94,4 +125,6 @@ update prend les events entrants :
 tick pour suivre les décalages de tempo
 
 :{action:"start"|"stop"})
+
+pour un effet de fade, tween doit etre adapté pour accepter une transition sans avaoir besoin d'un Perso, ni que from et to soient de type Style
 */

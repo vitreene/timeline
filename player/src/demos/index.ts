@@ -33,15 +33,29 @@ const sound01 = {
 
 const music01 = {
 	type: P.SOUND,
-	initial: { src: '/music02.m4a', volume: 0.5 },
+	initial: { src: '/music02.m4a' },
 	actions: {
-		enter: { action: START },
+		enter: {
+			action: START,
+			transition: {
+				// from: { volume: 1 },
+				to: { volume: 0.2 },
+				duration: 1000,
+			},
+		},
+		action02: {
+			transition: {
+				// from: { volume: 1 },
+				to: { volume: 1 },
+				duration: 1000,
+			},
+		},
 		end_music_fr: { action: STOP },
 	},
 } as const;
 
 const store = {
-	sound01,
+	// sound01,
 	music01,
 	[ROOT]: {
 		type: P.LAYER,

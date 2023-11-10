@@ -143,7 +143,10 @@ export class Display {
 			}
 		}
 	};
-
+	/* FIXME 
+seek : initial est joué sur une frame différente de l'update, cela crée un "sursaut" au rendu. Il faut que les deux soient joués en meme temps.
+- un signal "invalidate" va demamder à remplacer le contenu actuel par le nouveau.
+*/
 	reset = () => {
 		this.persos.forEach((perso, id) => {
 			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));

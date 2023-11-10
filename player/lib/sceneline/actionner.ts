@@ -1,4 +1,4 @@
-import { Tween } from './tween';
+import { TweenStyle } from './tween';
 import { Display } from './display';
 
 import type {
@@ -12,6 +12,7 @@ import type {
 	StrapType,
 	PersoNode,
 	SoundAction,
+	Transition,
 } from '../../types';
 import { Strap } from '../strap/strap';
 import { Counter } from '../strap/counter';
@@ -47,7 +48,7 @@ export class Actionner {
 	seekMode = false;
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
-	transitions = new Map<TransitionId, Tween | Strap>();
+	transitions = new Map<TransitionId, TweenStyle | Strap>();
 	sounds: Sound;
 
 	constructor(display: Display, sounds: Sound) {
@@ -80,6 +81,7 @@ export class Actionner {
 			if (!actions[name]) return;
 			if (this.sounds.store.has(id)) {
 				this.sounds.update(id, actions[name] as SoundAction, delta);
+				return;
 			}
 			const perso = this.display.persos.get(id);
 
@@ -89,7 +91,7 @@ export class Actionner {
 
 			if (transition) {
 				const key = { id, type: transitionType.TRANSITION, name };
-				const tween = new Tween({ perso, transition });
+				const tween = new TweenStyle({ perso, transition });
 				if (seek) this.updateTween(key, tween, delta);
 				this.transitions.set(key, tween);
 			}
@@ -153,7 +155,7 @@ export class Actionner {
 						});
 					};
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
-					const tween = new Tween({
+					const tween = new TweenStyle({
 						perso,
 						transition: { from, to, duration: 500, onComplete, ease: ['easeOut', { x: 'backOut' }] },
 					});
@@ -199,7 +201,7 @@ export class Actionner {
 	updateTransitions = (delta: number) => {
 		// for (const key of this.transitions.keys()) console.log(key);
 		this.transitions.forEach((transition, key) => {
-			if (transition instanceof Tween) {
+			if (transition instanceof TweenStyle) {
 				this.updateTween(key, transition, delta);
 			}
 			if (transition instanceof Strap) {
@@ -218,7 +220,7 @@ export class Actionner {
 		}
 	};
 
-	updateTween = (key: TransitionId, transition: Tween, delta: number) => {
+	updateTween = (key: TransitionId, transition: TweenStyle, delta: number) => {
 		const update = transition.next(delta);
 		this.mixStyle(key.id, update.value);
 		if (update.done) {
