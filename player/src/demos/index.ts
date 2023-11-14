@@ -19,6 +19,7 @@ const events: MapEvent = new Map([
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
+	[3200, { name: 'action04' }],
 	[6500, { name: 'end_music_fr' }],
 ]);
 
@@ -54,9 +55,35 @@ const music01 = {
 	},
 } as const;
 
+const video01 = {
+	type: P.VIDEO,
+	initial: { src: '/decollage.mp4', style: { opacity: 0, x: 0, scale: 1 } },
+	actions: {
+		action01: {
+			// broadcast:{
+			action: START,
+			volume: 0.5,
+			// },
+			move: ROOT,
+			transition: {
+				to: { opacity: 1, x: 500, scale: 1.5 },
+				duration: 1500,
+			},
+		},
+		action04: {
+			action: STOP,
+			transition: {
+				to: { opacity: 0, x: 0, scale: 0.5 },
+				duration: 500,
+			},
+		},
+	},
+} as const;
+
 const store = {
-	// sound01,
+	sound01,
 	music01,
+	// video01,
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -153,9 +180,9 @@ const store = {
 					duration: 1000,
 				},
 			},
-			action01: {
-				className: 'action01-img1',
-			},
+			// action01: {
+			// 	className: 'action01-img1',
+			// },
 			action02: {
 				transition: {
 					to: {
@@ -206,7 +233,8 @@ preload(store).then((store) => {
 
 	const controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
-	controller.start().play();
+	// controller.start().play();
+	controller.start();
 	createTelco(controller, duration);
 	// PLAY
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play

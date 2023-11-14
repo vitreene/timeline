@@ -8,6 +8,7 @@ import { APP } from './constants';
 
 import type { PersoStore, DeltaFn, MapEvent, TimerCallback, PersoMediaStore } from '~/main';
 import { Sound } from './sound';
+import { INITIAL } from '~/common/constants';
 
 export class Controller {
 	timer = new Timer();
@@ -15,15 +16,14 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 	display: Display;
 	sounds = new Sound();
+	// sounds = new Sound(this.ticker);
 
 	constructor(store: PersoMediaStore, events: MapEvent) {
 		this.display = new Display(APP, store.persos);
 
 		this.initSounds(store.sounds);
 		const actionner = new Actionner(this.display, this.sounds);
-
 		this.loopEvent = new LoopEvent(actionner);
-		this.loopEvent.resetPersos = this.display.reset;
 
 		this.ticker.handlers.store(this.sounds.sync);
 		this.ticker.handlers.store(this.timer.update);
@@ -48,7 +48,7 @@ export class Controller {
 			const elements = store[type];
 			for (const id in elements) {
 				const perso = elements[id];
-				this.loopEvent.actionner.add(id, perso.actions);
+				this.loopEvent.actionner.add(id, { [INITIAL]: perso.initial, ...perso.actions });
 			}
 		}
 	};

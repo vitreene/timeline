@@ -2,6 +2,7 @@ import { Tween } from './tween';
 import { START, STOP, PLAY, PAUSE, SEEK } from '~/common/constants';
 
 import type { PersoSoundDef, SoundAction, Transition } from '~/main';
+// import { Ticker } from './ticker';
 
 const TIME_THRESHOLD = 10;
 const MS = 1000;
@@ -13,12 +14,14 @@ export class Sound {
 	store = new Map<string, PersoSoundDef>();
 	status = new Map<string, AudioStatus>();
 	transitions = new Map<string, Tween>();
+	// ticker = Ticker;
+	// constructor(ticker) {
+	// this.ticker = ticker;
 
 	constructor() {
 		this.sync = this.sync.bind(this);
 	}
 	update(id: string, sa: SoundAction, delta = 0) {
-		console.log('SOUND', id, sa);
 		const audio = this.store.get(id).media;
 		switch (sa.action) {
 			case START:

@@ -13,11 +13,13 @@ import type {
 	PersoNode,
 	SoundAction,
 	Transition,
+	PersoLayer,
 } from '../../types';
 import { Strap } from '../strap/strap';
 import { Counter } from '../strap/counter';
 import { Layer } from '../display/layer';
 import { Sound } from './sound';
+import { deepClone } from '~/common/utils';
 
 const transitionType = {
 	TRANSITION: 'transition',
@@ -78,6 +80,8 @@ export class Actionner {
 		this.setSeekMode(seek);
 
 		this.actions.forEach((actions, id) => {
+			const prevState = deepClone(this.state.get(id));
+
 			if (!actions[name]) return;
 			if (this.sounds.store.has(id)) {
 				this.sounds.update(id, actions[name] as SoundAction, delta);
@@ -117,15 +121,30 @@ export class Actionner {
 
 				// si traité ici, ne fonctionne plus dans initial
 				// une version simplifiée pourrait exister pour initial
-
+				// integrer initial aux actions. une action "initial" appliquée au reset ?
 				/* 
 				move : true -> crée une transition de la position actuelle à la nouvelle, par exemple si le déplacement est justifié par un changement de classes
 				*/
 				if (typeof move === 'boolean') {
+					console.log('A.', perso.node.className);
+
+					this.display.render(perso, prevState);
 					const oldRect = perso.node.getBoundingClientRect();
+
+					console.log('B.', perso.node.className);
+
+					/* 
+		en cas de seek, il faut mettre à jour le perso avec l'état jusque ici, puis le mettre à jour avec l'etat courant.
+		au seek, il est dans l'état initial.
+		*/
 					// mettre à jour le perso
+					// il faut garantir que le state est complet
 					this.display.render(perso, this.state.get(id));
 					const newRect = perso.node.getBoundingClientRect();
+
+					console.log('C.', perso.node.className);
+
+					console.log(id, prevState, this.state.get(id));
 
 					const from = {
 						x: (oldRect.x - newRect.x) / this.display.zoom,
@@ -146,6 +165,17 @@ export class Actionner {
 						width: newRect.width / this.display.zoom,
 						height: newRect.height / this.display.zoom,
 					};
+
+					console.log(
+						id,
+						Math.round(oldRect.width),
+						'--W-->',
+						Math.round(newRect.width),
+						Math.round(oldRect.height),
+						'--H-->',
+						Math.round(newRect.height)
+					);
+
 					const onComplete = () => {
 						console.log('onComplete');
 						const action = this.state.get(id);
@@ -157,13 +187,13 @@ export class Actionner {
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
 					const tween = new TweenStyle({
 						perso,
-						transition: { from, to, duration: 500, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+						transition: { from, to, duration: 2000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
 					});
 					if (seek) this.updateTween(key, tween, delta);
 					this.transitions.set(key, tween);
 				} else {
 					const parentId = typeof move === 'string' ? move : move.to;
-					const layer = this.display.persos.get(parentId)?.child;
+					const layer = (this.display.persos.get(parentId) as PersoLayer)?.child;
 
 					if (layer instanceof Layer) {
 						parentId && (perso.parent = parentId);
@@ -250,12 +280,16 @@ export class Actionner {
 			this.state.clear();
 		}
 	};
+	reset() {
+		this.state.clear();
+		this.transitions.clear();
+	}
 }
 
 function mergeClassList(action: Action, className: ActionClassList | string) {
 	// NOTE traiter ce cas en dehors du runtime
 	if (typeof className === 'string') {
-		className = { add: [className] };
+		className = { add: className.split(/\s+/).filter(Boolean) };
 	}
 	const persoNewClassName = action?.className || {};
 	for (const action in className) {

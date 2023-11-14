@@ -4,6 +4,7 @@ import { Txt } from './lib/display/text';
 import { Sprite } from './lib/display/sprite';
 import { Matrix2D, TransformProperty } from './lib/sceneline/transform-types';
 import { START, STOP } from '~/common/constants';
+import { Video } from '~/display/video';
 
 export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
 
@@ -47,12 +48,18 @@ export interface PersoImgDef {
 export interface PersoSoundDef {
 	readonly type: PersoType.SOUND;
 	initial: { src: string };
-	actions?: Record<string, SoundAction>;
+	actions?: Record<string, Partial<SoundAction>>;
 	media?: My;
 }
 
-export type SoundAction = Partial<SoundActionProps>;
-export interface SoundActionProps {
+export interface PersoVideoDef {
+	readonly type: PersoType.VIDEO;
+	initial: Partial<Initial> & { src: string };
+	actions?: Record<string, Partial<VidAction>>;
+	media?: any;
+}
+
+export interface SoundAction {
 	action: typeof START | typeof STOP;
 	volume: number;
 	playbackRate: number;
@@ -62,7 +69,7 @@ export interface SoundActionProps {
 export interface ImgAction extends Omit<Action, 'content'> {
 	content?: Img;
 }
-export type PersoDef = PersoTextDef | PersoLayerDef | PersoImgDef;
+export type PersoDef = PersoTextDef | PersoLayerDef | PersoImgDef | PersoVideoDef;
 
 export interface Action {
 	className?: string | ActionClassList;
@@ -115,7 +122,7 @@ export type PersoId = string;
 export type ActionId = string;
 
 // types en entrée
-export type Store = Record<string, PersoDef | PersoSoundDef>;
+export type Store = Record<string, PersoDef | PersoSoundDef | PersoVideoDef>;
 
 export interface PersoMediaStore {
 	persos: Record<string, PersoDef>;
@@ -154,28 +161,34 @@ interface NodePerso extends Perso {
 	matrix: Matrix2D | [];
 }
 
-interface PersoText extends NodePerso {
+export interface PersoText extends NodePerso {
 	type: PersoType.TEXT;
 	child: Txt;
 }
 
-interface PersoLayer extends NodePerso {
+export interface PersoLayer extends NodePerso {
 	type: PersoType.LAYER;
 	child: Layer;
 }
 
 export interface PersoImg extends NodePerso {
 	type: PersoType.IMG;
-	child: Sprite;
+	// child: Sprite;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
 }
 
 export interface PersoSprite extends NodePerso {
 	type: PersoType.SPRITE;
-	child: Sprite;
+	// child: Sprite;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
+}
+
+export interface PersoVideo extends NodePerso {
+	type: PersoType.VIDEO;
+	initial: Partial<Initial> & Vid;
+	update: (update: Partial<VidAction>) => void;
 }
 
 export interface SoundNode extends PersoSoundDef {
@@ -189,7 +202,7 @@ export interface My extends MediaElementAudioSourceNode {
 	};
 }
 
-export type PersoNode = PersoText | PersoLayer | PersoSprite | PersoImg;
+export type PersoNode = PersoText | PersoLayer | PersoSprite | PersoImg | PersoVideo;
 
 export interface Initial {
 	tag: string;
@@ -201,8 +214,20 @@ export interface Initial {
 	move: string;
 }
 
+export interface Vid {
+	src: string;
+}
+
+export interface VidAction {
+	action: typeof START | typeof STOP;
+	volume: number;
+	playbackRate: number;
+	transition: Transition;
+}
+
+// A revoir passer les props en style sauf src et img
 export interface Img {
-	img?: typeof Image;
+	img?: HTMLImageElement;
 	src: string;
 	fit?: string;
 	ratio?: number;

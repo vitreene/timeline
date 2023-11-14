@@ -25,7 +25,7 @@ export async function getPersoImages(store: Record<string, PersoDef>) {
 	await Promise.all(
 		Object.entries(imgSrc).map(([id, srcs]) => {
 			return loadImages(srcs).then((ikonos: { ikono: HTMLImageElement; src: string }[]) => {
-				const media = {};
+				const media = {} as Record<string, Img>;
 				ikonos.forEach(({ ikono, src }) => {
 					media[src] = {
 						img: ikono,

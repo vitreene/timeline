@@ -2,7 +2,7 @@ import { Img, Initial, PersoImgDef } from '~/main';
 
 export class Sprite {
 	node = document.createElement('img');
-	media: Img;
+	media: Record<string, Img>;
 	attr: null;
 
 	constructor(perso: PersoImgDef) {
@@ -11,12 +11,13 @@ export class Sprite {
 	}
 
 	update({ src, ...content }: Partial<Initial> & Img) {
-		const media = this.media[src];
-
-		if (media.img instanceof HTMLImageElement) {
-			this.node.src = media.img.src;
-		} else {
-			this.node.src = media.src;
+		if (src) {
+			const media = this.media[src];
+			if (media.img instanceof HTMLImageElement) {
+				this.node.src = media.img.src;
+			} else {
+				this.node.src = media.src;
+			}
 		}
 	}
 }

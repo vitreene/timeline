@@ -28,6 +28,12 @@ export class Layer {
 	remove(item: HTMLElement | SVGElement) {
 		this.content.delete(item);
 	}
+	reset() {
+		while (this.node.firstChild) {
+			this.node.removeChild(this.node.firstChild);
+		}
+		this.content.clear();
+	}
 	order() {}
 
 	update(content: LayerContent) {

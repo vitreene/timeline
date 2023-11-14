@@ -1,6 +1,7 @@
 import { Actionner } from './actionner';
 
 import type { MapEvent } from '../../types';
+import { INITIAL } from '~/common/constants';
 
 export class LoopEvent {
 	events: MapEvent = new Map();
@@ -8,6 +9,7 @@ export class LoopEvent {
 	resetPersos; //this.display.reset
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
+		this.resetPersos = this.actionner.display.reset;
 	}
 
 	add(events: MapEvent) {
@@ -24,10 +26,10 @@ export class LoopEvent {
 
 	seek = (seek: number) => {
 		this.resetPersos();
-		// TODO this reset sounds
-
-		const { select } = selectUpTo(this.events, seek);
-		select.forEach((event, time) => {
+		this.actionner.reset();
+		this.actionner.update({ name: INITIAL, delta: 0, seek: true });
+		const { range } = selectUpTo(this.events, seek);
+		range.forEach((event, time) => {
 			const delta = seek - time;
 			console.log('SEEK EVENT', time, this.events.get(time));
 
@@ -36,14 +38,14 @@ export class LoopEvent {
 	};
 }
 
-function selectUpTo(map: MapEvent, upTo: number): { select: MapEvent; last: number } {
-	const select: MapEvent = new Map();
+function selectUpTo(map: MapEvent, upTo: number): { range: MapEvent; last: number } {
+	const range: MapEvent = new Map();
 	let last = 0;
 	map.forEach((v, k) => {
 		if (k <= upTo) {
-			select.set(k, v);
+			range.set(k, v);
 			last = Math.max(k, last);
 		}
 	});
-	return { select, last };
+	return { range, last };
 }

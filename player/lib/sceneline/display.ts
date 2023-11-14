@@ -7,8 +7,6 @@ import { matrix } from '../common/matrix';
 import { createPersoBase } from '../display/base';
 import { addSuffix, toKebabCase } from '../common/utils';
 import { CONTAINER, ROOT, stage } from './constants';
-
-import { PersoType } from '../../types';
 import { transformAliases, transformKeys } from './transform-types';
 
 import type {
@@ -17,15 +15,15 @@ import type {
 	PersoId,
 	PersoNode,
 	StateAction,
-	PersoMediaStore,
 	Style,
-	SoundNode,
 	PersoStore,
 	ImgAction,
 	Img,
 	Content,
 } from '~/main';
+import { PersoType as P } from '~/main';
 import type { Matrix2D } from './transform-types';
+import { Layer } from '~/display/layer';
 
 export class Display {
 	app: HTMLElement;
@@ -93,20 +91,25 @@ export class Display {
 			perso && this.render(perso, action);
 		});
 	};
-	b;
+
+	/* 
+	TODO Il faudrait filtrer les actions pour que seules celles utiles passent	
+	ou bien, definir un case pour les media √
+	*/
 
 	render = <T extends PersoNode>(perso: T, action: Action | ImgAction) => {
 		for (const attr in action) {
 			switch (attr) {
 				case 'content':
-					if (perso.type === PersoType.SPRITE || perso.type === PersoType.IMG) {
+					if (perso.type === P.SPRITE || perso.type === P.IMG) {
 						perso.update(action.content as Img);
 					}
-					if (perso.type === PersoType.TEXT) {
+					if (perso.type === P.TEXT) {
 						perso.child.update(action.content as Content);
 					}
 					break;
-				/* 				case 'move': {
+				/* 				
+				case 'move': {
 					const move = action.move;
 					const parentId = typeof move === 'string' ? move : move.to;
 					const layer = this.persos.get(parentId)?.child;
@@ -135,14 +138,24 @@ export class Display {
 				case 'className':
 					updateClassList(perso.node, action.className);
 					break;
-				case 'action':
-					action[attr]();
+				case 'func':
+					typeof action[attr] === 'function' && action[attr]();
 					break;
 				default:
+					// fait passer toutes les autres props ; souhaitable ?
+					// filtrer les seules aui devraient atteindre le composant ?
+					// perso.type === 'video' && console.log(action, attr);
+
+					// 'update' in perso && perso.update(action[attr]);
+					// 'child' in perso && 'update' in perso.child && perso.child.update(action[attr]);
 					break;
 			}
 		}
+		if (perso.type === P.VIDEO) {
+			perso.update(action);
+		}
 	};
+
 	/* FIXME 
 seek : initial est joué sur une frame différente de l'update, cela crée un "sursaut" au rendu. Il faut que les deux soient joués en meme temps.
 - un signal "invalidate" va demamder à remplacer le contenu actuel par le nouveau.
@@ -151,7 +164,12 @@ seek : initial est joué sur une frame différente de l'update, cela crée un "s
 		this.persos.forEach((perso, id) => {
 			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));
 			perso.node.id = id;
-			this.render(perso, perso.initial);
+			if ('child' in perso && perso.child instanceof Layer) {
+				console.log('RESET', id);
+				perso.child.reset();
+			}
+
+			// this.render(perso, perso.initial);
 		});
 		this.root();
 	};
