@@ -126,54 +126,36 @@ export class Actionner {
 				move : true -> crée une transition de la position actuelle à la nouvelle, par exemple si le déplacement est justifié par un changement de classes
 				*/
 				if (typeof move === 'boolean') {
-					console.log('A.', perso.node.className);
-
-					this.display.render(perso, prevState);
 					const oldRect = perso.node.getBoundingClientRect();
 
-					console.log('B.', perso.node.className);
-
-					/* 
-		en cas de seek, il faut mettre à jour le perso avec l'état jusque ici, puis le mettre à jour avec l'etat courant.
-		au seek, il est dans l'état initial.
-		*/
-					// mettre à jour le perso
-					// il faut garantir que le state est complet
 					this.display.render(perso, this.state.get(id));
 					const newRect = perso.node.getBoundingClientRect();
 
-					console.log('C.', perso.node.className);
-
-					console.log(id, prevState, this.state.get(id));
-
-					const from = {
-						x: (oldRect.x - newRect.x) / this.display.zoom,
-						y: (oldRect.y - newRect.y) / this.display.zoom,
-						width: oldRect.width / this.display.zoom,
-						height: oldRect.height / this.display.zoom,
-					};
+					const from = applyZoom(
+						{
+							x: oldRect.x - newRect.x,
+							y: oldRect.y - newRect.y,
+							width: oldRect.width,
+							height: oldRect.height,
+						},
+						1 / this.display.zoom
+					);
 
 					const style = {
 						...from,
 						position: 'absolute' as const,
 					};
+
 					this.display.render(perso, { style });
 
-					const to = {
-						x: 0,
-						y: 0,
-						width: newRect.width / this.display.zoom,
-						height: newRect.height / this.display.zoom,
-					};
-
-					console.log(
-						id,
-						Math.round(oldRect.width),
-						'--W-->',
-						Math.round(newRect.width),
-						Math.round(oldRect.height),
-						'--H-->',
-						Math.round(newRect.height)
+					const to = applyZoom(
+						{
+							x: 0,
+							y: 0,
+							width: newRect.width,
+							height: newRect.height,
+						},
+						1 / this.display.zoom
 					);
 
 					const onComplete = () => {
@@ -181,25 +163,38 @@ export class Actionner {
 						const action = this.state.get(id);
 						this.state.set(id, {
 							...action,
-							style: { ...action.style, position: undefined, width: undefined, height: undefined },
+							style: {
+								position: undefined,
+								...action.style,
+								// x: undefined,
+								// y: undefined,
+								// width: undefined,
+								// height: undefined,
+							},
 						});
 					};
+
 					const key = { id, type: transitionType.TRANSITION, name: 'move' };
 					const tween = new TweenStyle({
 						perso,
 						transition: { from, to, duration: 2000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
 					});
+
 					if (seek) this.updateTween(key, tween, delta);
 					this.transitions.set(key, tween);
+
+					//
 				} else {
 					const parentId = typeof move === 'string' ? move : move.to;
-					const layer = (this.display.persos.get(parentId) as PersoLayer)?.child;
+					const parent = this.display.persos.get(parentId);
+					const layer = (parent as PersoLayer)?.child;
 
 					if (layer instanceof Layer) {
 						parentId && (perso.parent = parentId);
 						const order = typeof move === 'object' ? move.order : undefined;
 						layer.add(perso.node, order);
 						layer.update(layer.content);
+						seek && this.display.render(perso, this.state.get(id));
 					}
 				}
 			}
@@ -217,6 +212,7 @@ export class Actionner {
 			this.seekMode = false;
 		}
 	};
+
 	/* TODO
 	- register strap
 	- dispatch strap
@@ -338,4 +334,12 @@ function mixActions(actionA: Action, actionB: Action): Action {
 		className: mergeClassList(actionA, actionB?.className).className,
 	};
 	return action;
+}
+
+type KeyT<T extends Record<string, any>> = Record<keyof T, any>;
+
+function applyZoom<KeyT>(obj: KeyT, zoom: number): KeyT {
+	const zobj = {} as Record<keyof KeyT, any>;
+	for (const p in obj) typeof obj[p] === 'number' ? (zobj[p] = (obj[p] as number) * zoom) : (zobj[p] = obj[p]);
+	return zobj;
 }

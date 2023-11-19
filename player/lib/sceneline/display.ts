@@ -81,8 +81,9 @@ export class Display {
 	}
 
 	root = () => {
-		const root = this.persos.get(ROOT).node;
-		this.app.appendChild(root);
+		const rootPerso = this.persos.get(ROOT);
+		this.render(rootPerso, rootPerso.initial);
+		this.app.appendChild(rootPerso.node);
 	};
 
 	renderer = (actions: StateAction) => {
@@ -186,6 +187,8 @@ export function updateClassList(node: HTMLElement | SVGElement, actions: string 
 }
 
 function transformStyle(perso: PersoNode, transform, zoom) {
+	// perso.id === 'text3' && console.log('transform', transform);
+
 	let matrice: Matrix2D[] = [];
 	Object.entries({ ...perso.transform, ...transform }).forEach(([key, t]) => {
 		const prop = transformAliases[key] || key;

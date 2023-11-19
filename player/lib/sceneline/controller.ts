@@ -6,7 +6,7 @@ import { LoopEvent } from './loop-event';
 
 import { APP } from './constants';
 
-import type { PersoStore, DeltaFn, MapEvent, TimerCallback, PersoMediaStore } from '~/main';
+import type { DeltaFn, MapEvent, TimerCallback, PersoMediaStore } from '~/main';
 import { Sound } from './sound';
 import { INITIAL } from '~/common/constants';
 
