@@ -176,6 +176,7 @@ seek : initial est joué sur une frame différente de l'update, cela crée un "s
 	};
 }
 
+// FIXME simplifier cette étape pour effectuer le traitement dans actionner et simplement remplacer le résultat ici.
 export function updateClassList(node: HTMLElement | SVGElement, actions: string | ActionClassList) {
 	if (typeof actions === 'string') node.classList.add(...actions.split(' '));
 	else {
