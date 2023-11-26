@@ -21,7 +21,7 @@ export const transformAliases = {
 
 type CSSTransformParam = (typeof transformParam)[number];
 type CSSTransformMatrixParam = (typeof transformMatrixParam)[number];
-type CSSTransformSpecialParam = (typeof transformSpecialParam)[number];
+export type CSSTransformSpecialParam = (typeof transformSpecialParam)[number];
 
 export const transformKeys = [...transformParam, ...transformMatrixParam, ...transformSpecialParam];
 

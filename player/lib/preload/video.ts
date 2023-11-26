@@ -20,6 +20,8 @@ export async function loadVideo(filepath: string): Promise<HTMLVideoElement> {
 	return new Promise((resolve, reject) => {
 		const video = document.createElement('video');
 		if (video.canPlayType('video/mp4') || video.canPlayType('video/webm')) video.setAttribute('src', filepath);
-		video.oncanplaythrough = () => resolve(video);
+		video.oncanplaythrough = () => {
+			resolve(video);
+		};
 	});
 }

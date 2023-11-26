@@ -1,12 +1,22 @@
 import * as CSS from 'csstype';
 import { Layer } from './lib/display/layer';
 import { Txt } from './lib/display/text';
-import { Sprite } from './lib/display/sprite';
 import { Matrix2D, TransformProperty } from './lib/sceneline/transform-types';
-import { START, STOP } from '~/common/constants';
-import { Video } from '~/display/video';
+import { START, PAUSE, STOP } from '~/common/constants';
 
-export interface Style extends CSS.Properties<string | number>, CSS.PropertiesHyphen<string | number> {}
+interface CSSTransformSpecialParam<T> {
+	x: number;
+	y: T;
+	dx: T;
+	dy: T;
+	movex: T;
+	movey: T;
+}
+
+export interface Style
+	extends CSS.Properties<string | number>,
+		CSS.PropertiesHyphen<string | number>,
+		Partial<CSSTransformSpecialParam<number>> {}
 
 export interface StyleEntry {
 	[x: string]:
@@ -55,7 +65,7 @@ export interface PersoSoundDef {
 export interface PersoVideoDef {
 	readonly type: PersoType.VIDEO;
 	initial: Partial<Initial> & { src: string };
-	actions?: Record<string, Partial<VidAction>>;
+	actions?: Record<string, Partial<Action>>;
 	media?: any;
 }
 
@@ -65,6 +75,16 @@ export interface SoundAction {
 	playbackRate: number;
 	transition: Transition;
 }
+
+export type Broadcast =
+	| BroadcastAction
+	| {
+			type?: BroadcastAction;
+			transition?: Transition;
+			volume?: number;
+			playbackRate?: number;
+	  };
+type BroadcastAction = typeof START | typeof PAUSE | typeof STOP;
 
 export interface ImgAction extends Omit<Action, 'content'> {
 	content?: Img;
@@ -78,6 +98,7 @@ export interface Action {
 	transition?: Transition;
 	move?: true | string | moveAction;
 	strap?: StrapType;
+	broadcast?: Broadcast;
 }
 
 export interface StrapType {

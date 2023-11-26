@@ -16,7 +16,6 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 	display: Display;
 	sounds = new Sound();
-	// sounds = new Sound(this.ticker);
 
 	constructor(store: PersoMediaStore, events: MapEvent) {
 		this.display = new Display(APP, store.persos);
@@ -83,6 +82,8 @@ export class Controller {
 		return this;
 	};
 	start = () => {
+		// this.loopEvent.actionner.income({ time: null, name: INITIAL, delta: 0, seek: true });
+
 		this.ticker.start();
 		this.sounds.start();
 

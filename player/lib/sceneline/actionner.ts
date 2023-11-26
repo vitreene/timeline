@@ -26,6 +26,14 @@ const transitionType = {
 	STRAP: 'strap',
 };
 
+interface Income {
+	time: number;
+	delta: number;
+	name: string;
+	seek: boolean;
+	data?: any;
+}
+
 interface TransitionId {
 	id: string;
 	type: string;
@@ -56,6 +64,7 @@ export class Actionner {
 	constructor(display: Display, sounds: Sound) {
 		this.display = display;
 		this.sounds = sounds;
+		for (const action in this.action) this.action[action] = this.action[action].bind(this);
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -64,140 +73,53 @@ export class Actionner {
 		this.actions.set(id, newActions);
 	};
 
-	update = ({
-		// time,
-		delta,
-		name,
-		data,
-		seek = false,
-	}: {
-		// time: number;
-		delta: number;
-		name: string;
-		seek: boolean;
-		data?: any;
-	}) => {
-		this.setSeekMode(seek);
+	action = {
+		transition(id: PersoId, transition: Action['transition'] = null, up: Income) {
+			const perso = this.display.persos.get(id);
+			const key = { id, type: transitionType.TRANSITION };
+			const tween = new TweenStyle({ perso, transition });
+			if (up.seek) this.updateTween(key, tween, up.delta);
+			this.transitions.set(key, tween);
+		},
+
+		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {
+			const perso = this.display.persos.get(id);
+			const key = { id, type: transitionType.STRAP };
+			this.straps({ perso, key, strap, delta: up.delta, seek: up.seek });
+		},
+
+		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
+			console.log(id, broadcast, up);
+			const perso = this.display.persos.get(id);
+			perso.update(broadcast);
+		},
+		move: this.move,
+		style: this.mixStyle,
+		className: this.mixClassList,
+	};
+
+	update = (up: Income) => {
+		this.setSeekMode(up.seek);
+		const { delta, name } = up;
 
 		this.actions.forEach((actions, id) => {
-			const prevState = deepClone(this.state.get(id));
-
 			if (!actions[name]) return;
+			const currentAction = mixActions(actions[name] as Action, up.data);
+
 			if (this.sounds.store.has(id)) {
-				this.sounds.update(id, actions[name] as SoundAction, delta);
+				this.sounds.update(id, currentAction as SoundAction, delta);
 				return;
 			}
-			const perso = this.display.persos.get(id);
 
-			const currentAction = mixActions(actions[name] as Action, data);
-
-			const { transition = null, strap = null, style = null, className = '', ...action } = currentAction;
-
-			if (transition) {
-				const key = { id, type: transitionType.TRANSITION, name };
-				const tween = new TweenStyle({ perso, transition });
-				if (seek) this.updateTween(key, tween, delta);
-				this.transitions.set(key, tween);
-			}
-
-			if (strap) {
-				const key = { id, type: transitionType.STRAP, name };
-				this.straps({ key, strap, delta, seek, perso });
-			}
-
-			if (style) {
-				this.mixStyle(id, style);
-			}
-
-			if (className) {
-				this.mixClassList(id, className);
+			const others = {};
+			for (const typeAction in currentAction) {
+				this.action[typeAction]
+					? this.action[typeAction](id, currentAction[typeAction], up, this)
+					: (others[typeAction] = currentAction[typeAction]);
 			}
 
 			const attrs = this.state.get(id);
-			this.state.set(id, { ...attrs, ...action });
-
-			if (action.move) {
-				const move = action.move;
-
-				// si traité ici, ne fonctionne plus dans initial
-				// une version simplifiée pourrait exister pour initial
-				// integrer initial aux actions. une action "initial" appliquée au reset ?
-				/* 
-				move : true -> crée une transition de la position actuelle à la nouvelle, par exemple si le déplacement est justifié par un changement de classes
-				*/
-				if (typeof move === 'boolean') {
-					const oldRect = perso.node.getBoundingClientRect();
-
-					this.display.render(perso, this.state.get(id));
-					const newRect = perso.node.getBoundingClientRect();
-
-					const from = applyZoom(
-						{
-							x: oldRect.x - newRect.x,
-							y: oldRect.y - newRect.y,
-							width: oldRect.width,
-							height: oldRect.height,
-						},
-						1 / this.display.zoom
-					);
-
-					const style = {
-						...from,
-						position: 'absolute' as const,
-					};
-
-					this.display.render(perso, { style });
-
-					const to = applyZoom(
-						{
-							x: 0,
-							y: 0,
-							width: newRect.width,
-							height: newRect.height,
-						},
-						1 / this.display.zoom
-					);
-
-					const onComplete = () => {
-						console.log('onComplete');
-						const action = this.state.get(id);
-						this.state.set(id, {
-							...action,
-							style: {
-								position: undefined,
-								...action.style,
-								// x: undefined,
-								// y: undefined,
-								// width: undefined,
-								// height: undefined,
-							},
-						});
-					};
-
-					const key = { id, type: transitionType.TRANSITION, name: 'move' };
-					const tween = new TweenStyle({
-						perso,
-						transition: { from, to, duration: 2000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
-					});
-
-					if (seek) this.updateTween(key, tween, delta);
-					this.transitions.set(key, tween);
-
-					//
-				} else {
-					const parentId = typeof move === 'string' ? move : move.to;
-					const parent = this.display.persos.get(parentId);
-					const layer = (parent as PersoLayer)?.child;
-
-					if (layer instanceof Layer) {
-						parentId && (perso.parent = parentId);
-						const order = typeof move === 'object' ? move.order : undefined;
-						layer.add(perso.node, order);
-						layer.update(layer.content);
-						seek && this.display.render(perso, this.state.get(id));
-					}
-				}
-			}
+			this.state.set(id, { ...attrs, ...others });
 		});
 	};
 
@@ -213,17 +135,6 @@ export class Actionner {
 		}
 	};
 
-	/* TODO
-	- register strap
-	- dispatch strap
-	- vérifier si le strap existe 
-	*/
-	straps = ({ key, strap: { type, initial }, delta, seek, perso }: StrapsProps) => {
-		const strap = new Counter(initial);
-		if (seek) this.updateStrap(key, strap, delta);
-		this.transitions.set(key, strap);
-	};
-
 	updateTransitions = (delta: number) => {
 		// for (const key of this.transitions.keys()) console.log(key);
 		this.transitions.forEach((transition, key) => {
@@ -236,12 +147,22 @@ export class Actionner {
 		});
 	};
 
+	/* TODO
+	- register strap
+	- dispatch strap
+	- vérifier si le strap existe 
+	*/
+	straps = ({ key, strap: { type, initial }, delta, seek, perso }: StrapsProps) => {
+		const strap = new Counter(initial);
+		if (seek) this.updateStrap(key, strap, delta);
+		this.transitions.set(key, strap);
+	};
+
 	updateStrap = (key: TransitionId, transition: Strap, delta: number) => {
 		const update = transition.next(delta);
 		const action = this.state.get(key.id);
 		update.value && this.state.set(key.id, { ...action, ...update.value });
 		if (update.done) {
-			// transition.onComplete && transition.onComplete();
 			this.transitions.delete(key);
 		}
 	};
@@ -262,10 +183,82 @@ export class Actionner {
 		this.state.set(id, { ...action, style });
 	}
 
-	mixClassList(id: PersoId, className: ActionClassList | string) {
+	mixClassList(id: PersoId, className: ActionClassList | string = '') {
 		const persoState = this.state.get(id) || {};
 		const action = mergeClassList(persoState, className);
 		this.state.set(id, action);
+	}
+
+	move(id: PersoId, move: Action['move'], up: Income) {
+		const perso = this.display.persos.get(id);
+		const keepStyleProps = {
+			width: perso.style.width,
+			height: perso.style.height,
+		};
+
+		const transform = {
+			x: perso.style?.x * this.display.zoom || 0,
+			y: perso.style?.y * this.display.zoom || 0,
+		};
+
+		if (typeof move === 'boolean') {
+			const oldRect = perso.node.getBoundingClientRect();
+			this.display.render(perso, this.state.get(id));
+
+			const newRect = perso.node.getBoundingClientRect();
+			const from = applyZoom(
+				{
+					x: oldRect.x - newRect.x + transform.x,
+					y: oldRect.y - newRect.y + transform.y,
+					width: oldRect.width,
+					height: oldRect.height,
+				},
+				1 / this.display.zoom
+			);
+
+			this.display.render(perso, { style: from });
+
+			const to = applyZoom(
+				{
+					x: 0,
+					y: 0,
+					width: newRect.width,
+					height: newRect.height,
+				},
+				1 / this.display.zoom
+			);
+
+			const onComplete = () => {
+				const action = this.state.get(id);
+				this.state.set(id, {
+					...action,
+					style: { ...keepStyleProps, ...action.style },
+				});
+			};
+
+			const key = { id, type: transitionType.TRANSITION, name: 'move' };
+			const tween = new TweenStyle({
+				perso,
+				transition: { from, to, duration: 2000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+			});
+
+			if (up.seek) this.updateTween(key, tween, up.delta);
+			this.transitions.set(key, tween);
+
+			//
+		} else {
+			const parentId = typeof move === 'string' ? move : move.to;
+			const parent = this.display.persos.get(parentId);
+			const layer = (parent as PersoLayer)?.child;
+
+			if (layer instanceof Layer) {
+				parentId && (perso.parent = parentId);
+				const order = typeof move === 'object' ? move.order : undefined;
+				layer.add(perso.node, order);
+				layer.update(layer.content);
+				up.seek && this.display.render(perso, this.state.get(id));
+			}
+		}
 	}
 
 	flush = () => {
@@ -301,27 +294,6 @@ function mergeClassList(action: Action, className: ActionClassList | string) {
 
 function mergeStyle(styleA: Style, styleB: Style) {
 	return { ...styleA, ...styleB };
-}
-
-/* 
-FIXME dans play(), StyleA n'est pas disponible comme après seek()
--> aller chercher le dernier état de style dans le perso dans ce cas
-*/
-function ___mergeStyle(styleA: Style, styleB: Style): Style {
-	if (!styleA) return styleB;
-	if (!styleB) return styleA;
-	const newStyle = styleA;
-
-	for (const s in styleB) {
-		console.log(s, styleA[s], styleB[s]);
-		if (s in styleA && typeof styleA[s] === 'number' && typeof styleB[s] === 'number') {
-			newStyle[s] = (styleA[s] + styleB[s]) / 2;
-		} else newStyle[s] = styleB[s];
-	}
-
-	return newStyle;
-
-	// return { ...action, style: { ...action?.style, ...style } };
 }
 
 function mixActions(actionA: Action, actionB: Action): Action {

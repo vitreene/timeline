@@ -7,6 +7,7 @@ export class LoopEvent {
 	events: MapEvent = new Map();
 	actionner: Actionner = null;
 	resetPersos; //this.display.reset
+
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
 		this.resetPersos = this.actionner.display.reset;
@@ -27,12 +28,11 @@ export class LoopEvent {
 	seek = (seek: number) => {
 		this.resetPersos();
 		this.actionner.reset();
-		this.actionner.update({ name: INITIAL, delta: 0, seek: true });
+		this.actionner.update({ time: null, name: INITIAL, delta: 0, seek: true });
 		const { range } = selectUpTo(this.events, seek);
 		range.forEach((event, time) => {
 			const delta = seek - time;
 			console.log('SEEK EVENT', time, this.events.get(time));
-
 			this.actionner.update({ ...event, delta, time, seek: true });
 		});
 	};

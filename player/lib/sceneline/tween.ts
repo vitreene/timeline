@@ -106,10 +106,10 @@ export class TweenStyle extends Tween {
 
 function getFrom(perso: PersoNode, transition: Transition) {
 	const to = transition.to;
-	if (!perso.style) return to;
+	if (!perso.style && !perso.transform) return to;
 	const from = {};
 	for (const s in to) {
-		from[s] = has(perso.style, s) ?? has(perso.initial.style, s) ?? to[s];
+		from[s] = has(perso.style, s) ?? has(perso.initial.style, s) ?? has(perso.transform, s) ?? to[s];
 	}
 	return from;
 }

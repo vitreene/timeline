@@ -1,5 +1,13 @@
 import { START, STOP } from '~/common/constants';
-import { ROOT, Controller, MapEvent, PersoType as P, PersoMediaStore, PersoStore } from '~/main';
+import {
+	ROOT,
+	Controller,
+	MapEvent,
+	PersoType as P,
+	PersoMediaStore,
+	PersoStore,
+	PersoVideoDef,
+} from '~/main';
 import { preload } from '~/preload';
 import { createTelco } from './telco';
 
@@ -20,6 +28,7 @@ const events: MapEvent = new Map([
 	[1500, { name: 'action02' }],
 	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
 	[3200, { name: 'action04' }],
+	[4000, { name: 'action05' }],
 	[6500, { name: 'end_music_fr' }],
 ]);
 
@@ -55,26 +64,35 @@ const music01 = {
 	},
 } as const;
 
-const video01 = {
+const video01: PersoVideoDef = {
 	type: P.VIDEO,
-	initial: { src: '/decollage.mp4', style: { opacity: 0, x: 0, scale: 1 } },
+	initial: { src: '/decollage.mp4', style: { opacity: 0.25, x: 0, scale: 1 } },
 	actions: {
-		action01: {
-			// broadcast:{
-			action: START,
-			volume: 0.5,
-			// },
+		action03: {
 			move: ROOT,
+			broadcast: {
+				type: START,
+				transition: {
+					from: { volume: 0.2 },
+					to: { volume: 1 },
+					duration: 1000,
+				},
+			},
+			style: {
+				x: -13,
+				y: -100,
+				scale: 0.42,
+			},
 			transition: {
-				to: { opacity: 1, x: 500, scale: 1.5 },
+				to: { opacity: 1 },
 				duration: 1500,
 			},
 		},
-		action04: {
-			action: STOP,
+		action05: {
+			broadcast: STOP,
 			transition: {
-				to: { opacity: 0, x: 0, scale: 0.5 },
-				duration: 500,
+				to: { x: 0, y: -50, opacity: 0, scale: 0.1 },
+				duration: 1500,
 			},
 		},
 	},
@@ -139,11 +157,13 @@ const counter = {
 const text3 = {
 	type: P.TEXT,
 	initial: {
+		// move: { to: ROOT, order: 'last' },
 		content: 'automatique',
 		className: 'text3 item5',
 		style: {
 			padding: 16,
 			'font-size': 24,
+			x: 300,
 		},
 	},
 	actions: {
@@ -165,7 +185,7 @@ const text3 = {
 const store = {
 	// sound01,
 	music01,
-	// video01,
+
 	[ROOT]: {
 		type: P.LAYER,
 		initial: {
@@ -187,6 +207,7 @@ const store = {
 			},
 		},
 	},
+	video01,
 	img1: {
 		type: P.IMG,
 		initial: {
@@ -210,7 +231,7 @@ const store = {
 			// action01: {
 			// 	className: 'action01-img1',
 			// },
-			action02: {
+			action03: {
 				transition: {
 					to: {
 						'object-position': '50% 50%',
@@ -267,10 +288,14 @@ preload(store).then((store) => {
 	// 	controller.play();
 	// }, play01);
 
+	// setTimeout(() => {
+	// 	controller.stop();
+	// }, 1200);
+
 	setTimeout(() => {
 		console.log('timeout');
 
-		// controller.stop();
+		controller.stop();
 		console.log(controller);
 	}, END_SEQUENCE);
 });
@@ -288,5 +313,6 @@ tests events, actions
 */
 
 /* FIXME
-priorité des actions n'est pas la meme en play et en seek
+- avec transform : matrix, le x/y est dépendant de l'échelle !! 
+ - etablir et garantir l'ordre des éléments dans layer
  */

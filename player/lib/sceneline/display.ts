@@ -44,6 +44,7 @@ export class Display {
 			const h = entries[0].contentBoxSize[0].blockSize;
 			const hScene = (w / stage.width) * stage.height;
 			const zoom = parseFloat((hScene > h ? h / stage.height : w / stage.width).toFixed(2));
+			console.log({ zoom });
 
 			if (zoom === this.zoom) return;
 
@@ -133,7 +134,11 @@ export class Display {
 							else style[s] = action.style[s];
 						}
 						const transform = transformStyle(perso, transformProps, this.zoom);
-						updateStyle(perso.node, { transform, ...style }, this.zoom);
+
+						// perso.id === 'video01' && console.log('video01***>', action.style, { transform, style });
+
+						updateStyle(perso.node, { ...(transform && { transform }), ...style }, this.zoom);
+						// perso.id === 'video01' && console.log(perso.node);
 					}
 					break;
 				case 'className':
@@ -152,25 +157,18 @@ export class Display {
 					break;
 			}
 		}
-		if (perso.type === P.VIDEO) {
-			perso.update(action);
-		}
 	};
 
-	/* FIXME 
-seek : initial est joué sur une frame différente de l'update, cela crée un "sursaut" au rendu. Il faut que les deux soient joués en meme temps.
-- un signal "invalidate" va demamder à remplacer le contenu actuel par le nouveau.
-*/
 	reset = () => {
 		this.persos.forEach((perso, id) => {
 			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));
 			perso.node.id = id;
+			perso.style = {};
+			perso.transform = null;
 			if ('child' in perso && perso.child instanceof Layer) {
 				console.log('RESET', id);
 				perso.child.reset();
 			}
-
-			// this.render(perso, perso.initial);
 		});
 		this.root();
 	};
@@ -187,7 +185,7 @@ export function updateClassList(node: HTMLElement | SVGElement, actions: string 
 }
 
 function transformStyle(perso: PersoNode, transform, zoom) {
-	// perso.id === 'text3' && console.log('transform', transform);
+	// perso.id === 'video01' && console.log('transform', transform);
 
 	let matrice: Matrix2D[] = [];
 	Object.entries({ ...perso.transform, ...transform }).forEach(([key, t]) => {
@@ -199,7 +197,7 @@ function transformStyle(perso: PersoNode, transform, zoom) {
 	});
 	if (matrice.length) {
 		const combine = matrix.combine(...matrice);
-		perso.transform = { ...perso.transform, transform };
+		perso.transform = { ...perso.transform, ...transform };
 		return `matrix(${matrix.getStyleMatrix2d(combine)})`;
 	}
 }
@@ -212,6 +210,7 @@ function updateStyle(node: HTMLElement | SVGElement, style: Style, zoom: number)
 			const value = addSuffix(key, val, zoom);
 			const prop = toKebabCase(key);
 			node.style[prop] = value;
+			// node.id === 'video01' && console.log(value, node.getAttribute('style'));
 		}
 	});
 }
