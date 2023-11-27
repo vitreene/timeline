@@ -69,7 +69,7 @@ const video01: PersoVideoDef = {
 	initial: { src: '/decollage.mp4', style: { opacity: 0.25, x: 0, scale: 1 } },
 	actions: {
 		action03: {
-			move: ROOT,
+			move: { to: ROOT, order: 10 },
 			broadcast: {
 				type: START,
 				transition: {
@@ -91,7 +91,7 @@ const video01: PersoVideoDef = {
 		action05: {
 			broadcast: STOP,
 			transition: {
-				to: { x: 0, y: -50, opacity: 0, scale: 0.1 },
+				to: { x: 0, y: 100, opacity: 0, scale: 0.1 },
 				duration: 1500,
 			},
 		},
@@ -221,7 +221,7 @@ const store = {
 		},
 		actions: {
 			enter: {
-				move: { to: ROOT, order: 'first' },
+				move: { to: ROOT, order: 11 },
 				transition: {
 					from: { scale: 0, opacity: 0 },
 					to: { scale: 1, opacity: 1 },
@@ -292,12 +292,12 @@ preload(store).then((store) => {
 	// 	controller.stop();
 	// }, 1200);
 
-	setTimeout(() => {
-		console.log('timeout');
+	// setTimeout(() => {
+	// 	console.log('timeout');
 
-		controller.stop();
-		console.log(controller);
-	}, END_SEQUENCE);
+	// 	controller.stop();
+	// 	console.log(controller);
+	// }, END_SEQUENCE);
 });
 
 /* TODOÒ

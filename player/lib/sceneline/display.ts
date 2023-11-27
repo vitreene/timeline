@@ -44,7 +44,6 @@ export class Display {
 			const h = entries[0].contentBoxSize[0].blockSize;
 			const hScene = (w / stage.width) * stage.height;
 			const zoom = parseFloat((hScene > h ? h / stage.height : w / stage.width).toFixed(2));
-			console.log({ zoom });
 
 			if (zoom === this.zoom) return;
 
@@ -184,20 +183,23 @@ export function updateClassList(node: HTMLElement | SVGElement, actions: string 
 	}
 }
 
-function transformStyle(perso: PersoNode, transform, zoom) {
+function transformStyle(perso: PersoNode, toTransform, zoom) {
 	// perso.id === 'video01' && console.log('transform', transform);
 
 	let matrice: Matrix2D[] = [];
-	Object.entries({ ...perso.transform, ...transform }).forEach(([key, t]) => {
+	const transform = { ...perso.transform, ...toTransform };
+	Object.entries(transform).forEach(([key, t]) => {
 		const prop = transformAliases[key] || key;
 		if (typeof t === 'number') {
 			const z = zoomable[key] ? zoom : 1;
-			matrice.push(matrix[prop](t * z));
+			// les déplacements ne doivent pas être influencés par le transform.scale
+			const s = ['x', 'y', 'dx', 'dy'].includes(key) && transform.scale ? 1 / transform.scale : 1;
+			matrice.push(matrix[prop](t * z * s));
 		}
 	});
 	if (matrice.length) {
 		const combine = matrix.combine(...matrice);
-		perso.transform = { ...perso.transform, ...transform };
+		perso.transform = { ...perso.transform, ...toTransform };
 		return `matrix(${matrix.getStyleMatrix2d(combine)})`;
 	}
 }

@@ -8,23 +8,31 @@ export class Layer {
 		this.node = node;
 	}
 
-	add(item: HTMLElement | SVGElement, order: number | string = undefined) {
+	add(element: HTMLElement | SVGElement, order: number | string = undefined) {
 		switch (typeof order) {
 			case 'undefined':
-				this.content.add(item);
+				this.content.add(element);
 				break;
 			case 'string':
-				if (order === 'last') this.content.add(item);
-				if (order === 'first') this.content = new Set([item, ...this.content]);
+				if (order === 'last') this.content.add(element);
+				if (order === 'first') this.content = new Set([element, ...this.content]);
 				break;
 
 			case 'number':
-				this.content = new Set(Array.from(this.content).splice(order, 0, item));
+				const newContent = Array.from(this.content).toSpliced(order, 0, element);
+				this.content = new Set(newContent);
 				break;
 		}
 
+		// while (this.node.firstChild) {
+		// 	this.node.removeChild(this.node.firstChild);
+		// }
+
+		// this.update(this.content);
+
 		return this.content;
 	}
+
 	remove(item: HTMLElement | SVGElement) {
 		this.content.delete(item);
 	}

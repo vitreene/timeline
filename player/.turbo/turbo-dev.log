@@ -164,4 +164,81 @@
 19:47:27 [vite] page reload lib/sceneline/tween.ts
 19:48:21 [vite] page reload src/demos/index.ts
 19:48:49 [vite] page reload src/demos/index.ts
-19:49:11 [vite] page reload src/demos
+19:49:11 [vite] page reload src/demos/index.ts
+19:50:07 [vite] page reload lib/sceneline/tween.ts
+Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/lib/sceneline/tween.ts:114:25: ERROR: Unexpected "debugger"
+Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/lib/sceneline/tween.ts:114:25: ERROR: Unexpected "debugger"
+19:50:07 [vite] Internal server error: Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/lib/sceneline/tween.ts:114:25: ERROR: Unexpected "debugger"
+  Plugin: vite:esbuild
+  File: /Users/Rve/Projets/2JP/timeline/player/lib/sceneline/tween.ts:114:25
+  
+  Unexpected "debugger"
+  112|  		from[s] = has(perso.style, s) ?? has(perso.initial.style, s) ?? has(perso.transform, s) ?? to[s];
+  113|  	}
+  114|  	perso.id==="video01" && debugger
+     |                           ^
+  115|  	return from;
+  116|  }
+  
+      at failureErrorWithLog (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:1649:15)
+      at /Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:847:29
+      at responseCallbacks.<computed> (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:703:9)
+      at handleIncomingPacket (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:762:9)
+      at Socket.readFromStdout (/Users/Rve/Projets/2JP/timeline/node_modules/esbuild/lib/main.js:679:7)
+      at Socket.emit (node:events:513:28)
+      at addChunk (node:internal/streams/readable:324:12)
+      at readableAddChunk (node:internal/streams/readable:297:9)
+      at Readable.push (node:internal/streams/readable:234:10)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+19:50:37 [vite] page reload lib/sceneline/tween.ts
+19:51:10 [vite] page reload lib/sceneline/tween.ts
+19:53:07 [vite] page reload lib/sceneline/display.ts
+19:53:58 [vite] page reload src/demos/index.ts
+19:54:10 [vite] page reload src/demos/index.ts
+19:54:18 [vite] page reload src/demos/index.ts
+19:54:43 [vite] page reload src/demos/index.ts
+19:54:51 [vite] page reload src/demos/index.ts
+19:56:09 [vite] page reload src/demos/index.ts
+19:56:38 [vite] page reload src/demos/index.ts
+19:57:12 [vite] page reload src/demos/index.ts
+19:58:03 [vite] page reload src/demos/index.ts
+19:59:25 [vite] page reload src/demos/index.ts
+20:00:04 [vite] page reload lib/sceneline/tween.ts
+20:06:16 [vite] page reload lib/sceneline/display.ts
+20:06:54 [vite] page reload lib/sceneline/display.ts
+20:07:33 [vite] page reload src/demos/index.ts
+20:07:42 [vite] page reload src/demos/index.ts
+20:07:59 [vite] page reload src/demos/index.ts
+20:08:11 [vite] page reload src/demos/index.ts
+20:09:12 [vite] page reload lib/sceneline/display.ts
+21:06:40 [vite] page reload src/demos/index.ts
+21:10:39 [vite] page reload lib/display/layer.ts
+21:13:00 [vite] page reload lib/display/layer.ts
+21:13:14 [vite] page reload lib/display/layer.ts
+21:15:03 [vite] page reload lib/display/layer.ts
+21:17:16 [vite] page reload lib/display/layer.ts
+21:18:48 [vite] page reload lib/display/layer.ts
+21:31:14 [vite] page reload lib/display/layer.ts
+21:32:01 [vite] page reload lib/display/layer.ts
+21:32:01 [vite] page reload lib/sceneline/display.ts
+21:32:01 [vite] page reload lib/sceneline/actionner.ts
+21:32:20 [vite] page reload lib/display/layer.ts
+21:34:35 [vite] page reload lib/display/layer.ts
+21:34:53 [vite] page reload lib/display/layer.ts
+21:35:42 [vite] page reload lib/display/layer.ts
+21:36:03 [vite] page reload lib/display/layer.ts
+21:36:43 [vite] page reload lib/display/layer.ts
+21:36:58 [vite] page reload lib/display/layer.ts
+21:37:46 [vite] page reload src/demos/index.ts
+21:37:59 [vite] page reload src/demos/index.ts
+21:38:18 [vite] page reload src/demos/index.ts
+13:22:01 [vite] page reload src/demos/index.ts
+Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/src/demos/index.ts:319:0: ERROR: Unexpected end of file
+Transform failed with 1 error:
+/Users/Rve/Projets/2JP/timeline/player/src/demos/index.ts:319:0: ERROR: Unexpected end of file
+13:22:01 [vite] Internal server error: Transform failed with 1 error:
+/Users/Rve/Projets/2JP/t

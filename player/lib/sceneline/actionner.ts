@@ -89,7 +89,6 @@ export class Actionner {
 		},
 
 		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
-			console.log(id, broadcast, up);
 			const perso = this.display.persos.get(id);
 			perso.update(broadcast);
 		},
