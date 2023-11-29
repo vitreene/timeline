@@ -6,9 +6,11 @@ import { LoopEvent } from './loop-event';
 
 import { APP } from './constants';
 
-import type { DeltaFn, MapEvent, TimerCallback, PersoMediaStore } from '~/main';
+import type { DeltaFn, MapEvent, TimerCallback, Store } from '~/main';
+import { PersoType as P } from '~/main';
 import { Sound } from './sound';
 import { INITIAL } from '~/common/constants';
+import { Media } from './medias';
 
 export class Controller {
 	timer = new Timer();
@@ -16,12 +18,14 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 	display: Display;
 	sounds = new Sound();
+	medias = new Media();
 
-	constructor(store: PersoMediaStore, events: MapEvent) {
-		this.display = new Display(APP, store.persos);
+	constructor(store: Store, events: MapEvent) {
+		this.display = new Display(APP, store);
 
-		this.initSounds(store.sounds);
-		const actionner = new Actionner(this.display, this.sounds);
+		this.initMedias(store);
+
+		const actionner = new Actionner(this.display, this.sounds, this.medias);
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.sounds.sync);
@@ -33,8 +37,24 @@ export class Controller {
 		this.registerActions(store);
 	}
 
-	initSounds(sounds) {
-		Object.keys(sounds).forEach((id) => this.sounds.store.set(id, sounds[id]));
+	initMedias(store: Store) {
+		for (const id in store) {
+			const perso = store[id];
+			console.log(id, perso.type === P.VIDEO);
+
+			if (
+				perso.type === P.VIDEO
+				//|| perso.type === P.SOUND
+				//|| perso.type === P.AUDIO
+			) {
+				// TODO clarifier quand passer dans medias : ici c'est pas utile, définition va evlouer pour devenir Perso
+				//@ts-ignore
+				this.medias.store.set(id, perso);
+			}
+			if (perso.type === P.SOUND) {
+				this.sounds.store.set(id, perso);
+			}
+		}
 	}
 
 	registerEvents = (events: MapEvent) => {
@@ -42,13 +62,11 @@ export class Controller {
 		this.timer.handlers.store(this.loopEvent.update);
 	};
 
-	registerActions = (store: PersoMediaStore) => {
-		for (const type in store) {
-			const elements = store[type];
-			for (const id in elements) {
-				const perso = elements[id];
-				this.loopEvent.actionner.add(id, { [INITIAL]: perso.initial, ...perso.actions });
-			}
+	registerActions = (store: Store) => {
+		for (const id in store) {
+			const perso = store[id];
+			if (perso.type === P.SOUND) continue;
+			this.loopEvent.actionner.add(id, { [INITIAL]: perso.initial, ...perso.actions });
 		}
 	};
 
@@ -82,8 +100,6 @@ export class Controller {
 		return this;
 	};
 	start = () => {
-		// this.loopEvent.actionner.income({ time: null, name: INITIAL, delta: 0, seek: true });
-
 		this.ticker.start();
 		this.sounds.start();
 
@@ -100,6 +116,7 @@ export class Controller {
 	};
 
 	// FIXME marche pas
+	// pourrait etre delayed action wait(time, event) ?
 	wait = (wait = 0) => {
 		console.log('WAIT', wait);
 

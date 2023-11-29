@@ -19,7 +19,7 @@ import { Strap } from '../strap/strap';
 import { Counter } from '../strap/counter';
 import { Layer } from '../display/layer';
 import { Sound } from './sound';
-import { deepClone } from '~/common/utils';
+import { Media } from './medias';
 
 const transitionType = {
 	TRANSITION: 'transition',
@@ -60,10 +60,12 @@ export class Actionner {
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, TweenStyle | Strap>();
 	sounds: Sound;
+	medias: Media;
 
-	constructor(display: Display, sounds: Sound) {
+	constructor(display: Display, sounds: Sound, medias: Media) {
 		this.display = display;
 		this.sounds = sounds;
+		this.medias = medias;
 		for (const action in this.action) this.action[action] = this.action[action].bind(this);
 	}
 
@@ -91,6 +93,7 @@ export class Actionner {
 		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
 			const perso = this.display.persos.get(id);
 			perso.update(broadcast);
+			this.medias.update(id, broadcast, up.delta);
 		},
 		move: this.move,
 		style: this.mixStyle,

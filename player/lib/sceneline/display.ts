@@ -20,6 +20,8 @@ import type {
 	ImgAction,
 	Img,
 	Content,
+	Store,
+	PersoDef,
 } from '~/main';
 import { PersoType as P } from '~/main';
 import type { Matrix2D } from './transform-types';
@@ -31,7 +33,7 @@ export class Display {
 	zoom = 1;
 	removeResize: () => void;
 
-	constructor(appId: string, store: PersoStore) {
+	constructor(appId: string, store: Store) {
 		this.app = document.getElementById(appId);
 		this.initPersos(store);
 		this.root();
@@ -72,9 +74,10 @@ export class Display {
 			})
 		);
 
-	initPersos(store: PersoStore) {
+	initPersos(store: Store) {
 		for (const id in store) {
-			const perso = createPersoBase(id, store[id]);
+			if (store[id].type === P.SOUND) continue;
+			const perso = createPersoBase(id, store[id] as PersoDef);
 			this.render(perso, perso.initial);
 			this.persos.set(id, perso);
 		}

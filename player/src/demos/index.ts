@@ -1,13 +1,5 @@
 import { START, STOP } from '~/common/constants';
-import {
-	ROOT,
-	Controller,
-	MapEvent,
-	PersoType as P,
-	PersoMediaStore,
-	PersoStore,
-	PersoVideoDef,
-} from '~/main';
+import { ROOT, Controller, MapEvent, PersoType as P, PersoVideoDef } from '~/main';
 import { preload } from '~/preload';
 import { createTelco } from './telco';
 
@@ -68,7 +60,7 @@ const video01: PersoVideoDef = {
 	type: P.VIDEO,
 	initial: { src: '/decollage.mp4', style: { opacity: 0.25, x: 0, scale: 1 } },
 	actions: {
-		action03: {
+		action02: {
 			move: { to: ROOT, order: 10 },
 			broadcast: {
 				type: START,
@@ -80,8 +72,9 @@ const video01: PersoVideoDef = {
 			},
 			style: {
 				x: -13,
-				y: -100,
-				scale: 0.42,
+				y: -110,
+				scale: 0.5,
+				order: 10,
 			},
 			transition: {
 				to: { opacity: 1 },
@@ -90,10 +83,10 @@ const video01: PersoVideoDef = {
 		},
 		action05: {
 			broadcast: STOP,
-			transition: {
-				to: { x: 0, y: 100, opacity: 0, scale: 0.1 },
-				duration: 1500,
-			},
+			// transition: {
+			// 	to: { x: 0, y: 100, opacity: 0, scale: 0.1 },
+			// 	duration: 1500,
+			// },
 		},
 	},
 } as const;
@@ -164,6 +157,7 @@ const text3 = {
 			padding: 16,
 			'font-size': 24,
 			x: 300,
+			order: 20,
 		},
 	},
 	actions: {
@@ -227,11 +221,12 @@ const store = {
 					to: { scale: 1, opacity: 1 },
 					duration: 1000,
 				},
+				style: { order: 11 },
 			},
 			// action01: {
 			// 	className: 'action01-img1',
 			// },
-			action03: {
+			action02: {
 				transition: {
 					to: {
 						'object-position': '50% 50%',

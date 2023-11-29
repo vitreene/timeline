@@ -69,6 +69,8 @@ export interface PersoVideoDef {
 	media?: any;
 }
 
+export type PersoMediaDef = PersoVideoDef | PersoSoundDef;
+
 export interface SoundAction {
 	action: typeof START | typeof STOP;
 	volume: number;
@@ -143,12 +145,7 @@ export type PersoId = string;
 export type ActionId = string;
 
 // types en entrée
-export type Store = Record<string, PersoDef | PersoSoundDef | PersoVideoDef>;
-
-export interface PersoMediaStore {
-	persos: Record<string, PersoDef>;
-	sounds?: Record<string, PersoSoundDef>;
-}
+export type Store = Record<PersoId, PersoDef | PersoSoundDef | PersoVideoDef>;
 
 export type PersoStore = Record<PersoId, PersoDef>;
 
@@ -194,14 +191,12 @@ export interface PersoLayer extends NodePerso {
 
 export interface PersoImg extends NodePerso {
 	type: PersoType.IMG;
-	// child: Sprite;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
 }
 
 export interface PersoSprite extends NodePerso {
 	type: PersoType.SPRITE;
-	// child: Sprite;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
 }
@@ -209,7 +204,8 @@ export interface PersoSprite extends NodePerso {
 export interface PersoVideo extends NodePerso {
 	type: PersoType.VIDEO;
 	initial: Partial<Initial> & Vid;
-	update: (update: Partial<VidAction>) => void;
+	media: HTMLVideoElement | HTMLAudioElement;
+	update: (update: Partial<Broadcast>) => void;
 }
 
 export interface SoundNode extends PersoSoundDef {
@@ -239,12 +235,14 @@ export interface Vid {
 	src: string;
 }
 
-export interface VidAction {
-	action: typeof START | typeof STOP;
-	volume: number;
-	playbackRate: number;
-	transition: Transition;
-}
+// voir Broadcast
+
+// export interface VidAction {
+// 	action: typeof START | typeof STOP;
+// 	volume: number;
+// 	playbackRate: number;
+// 	transition: Transition;
+// }
 
 // A revoir passer les props en style sauf src et img
 export interface Img {
@@ -272,4 +270,5 @@ export enum PersoType {
 	BUTTON = 'button',
 	POLYGON = 'polygon',
 	SOUND = 'sound',
+	AUDIO = 'audio',
 }

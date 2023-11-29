@@ -1,38 +1,17 @@
-import { PAUSE, START, STOP } from '~/common/constants';
 import { Action, PersoVideoDef } from '~/main';
 
-// Dans cette version, pas possible de modifier la source video
-// complexité inutle en l'état; il n'y a pas besoin de classe pour ceci ?
+// Il n'ya pas besoin de spécificité de video, tout est géré ailleurs
+// TODO gestion des tracks
+
 export class Video {
 	node = null;
-	duration: null;
+
 	constructor(perso: PersoVideoDef) {
 		this.node = perso.media;
-		this.duration = perso.media.duration;
 	}
 
+	// eventuellement pour changer la source ?
 	update(update: Action['broadcast']) {
-		if (typeof update == 'string') update = { type: update };
-		for (const key in update) {
-			switch (key) {
-				case 'type':
-					switch (update.type) {
-						case START:
-							this.node.play();
-							break;
-						case PAUSE:
-						case STOP:
-							this.node.pause();
-							break;
-					}
-
-					break;
-				case 'volume':
-					this.node.volume = update.volume;
-					break;
-				default:
-					break;
-			}
-		}
+		return null;
 	}
 }
