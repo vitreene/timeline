@@ -23,6 +23,7 @@ export class Sound {
 	}
 	update(id: string, sa: SoundAction, delta = 0) {
 		const audio = this.store.get(id).media;
+
 		switch (sa.action) {
 			case START:
 				if (audio.mediaElement.paused) {

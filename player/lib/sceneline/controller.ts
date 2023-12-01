@@ -17,7 +17,7 @@ export class Controller {
 	ticker = new Ticker();
 	loopEvent: LoopEvent = null;
 	display: Display;
-	sounds = new Sound();
+	// sounds = new Sound();
 	medias = new Media();
 
 	constructor(store: Store, events: MapEvent) {
@@ -25,10 +25,10 @@ export class Controller {
 
 		this.initMedias(store);
 
-		const actionner = new Actionner(this.display, this.sounds, this.medias);
+		const actionner = new Actionner(this.display, /* this.sounds, */ this.medias);
 		this.loopEvent = new LoopEvent(actionner);
 
-		this.ticker.handlers.store(this.sounds.sync);
+		// this.ticker.handlers.store(this.sounds.sync);
 		this.ticker.handlers.store(this.medias.sync);
 
 		this.ticker.handlers.store(this.timer.update);
@@ -42,20 +42,18 @@ export class Controller {
 	initMedias(store: Store) {
 		for (const id in store) {
 			const perso = store[id];
-			console.log(id, perso.type === P.VIDEO);
-
 			if (
-				perso.type === P.VIDEO
-				//|| perso.type === P.SOUND
+				perso.type === P.VIDEO ||
+				perso.type === P.SOUND
 				//|| perso.type === P.AUDIO
 			) {
 				// TODO clarifier quand passer dans medias : ici c'est pas utile, définition va evlouer pour devenir Perso
 				//@ts-ignore
 				this.medias.store.set(id, perso);
 			}
-			if (perso.type === P.SOUND) {
-				this.sounds.store.set(id, perso);
-			}
+			// if (perso.type === P.SOUND) {
+			// 	this.sounds.store.set(id, perso);
+			// }
 		}
 	}
 
@@ -67,8 +65,8 @@ export class Controller {
 	registerActions = (store: Store) => {
 		for (const id in store) {
 			const perso = store[id];
-			if (perso.type === P.SOUND) continue;
-			this.loopEvent.actionner.add(id, { [INITIAL]: perso.initial, ...perso.actions });
+			const actions = perso.type === P.SOUND ? perso.actions : { [INITIAL]: perso.initial, ...perso.actions };
+			this.loopEvent.actionner.add(id, actions);
 		}
 	};
 
@@ -92,20 +90,20 @@ export class Controller {
 	pause = () => {
 		console.log('PAUSE');
 		this.ticker.pause();
-		this.sounds.pause();
+		// this.sounds.pause();
 		this.medias.pause();
 		this.log();
 		return this;
 	};
 	stop = () => {
 		this.ticker.stop();
-		this.sounds.stop();
+		// this.sounds.stop();
 		this.medias.stop();
 		return this;
 	};
 	start = () => {
 		this.ticker.start();
-		this.sounds.start();
+		// this.sounds.start();
 		this.medias.start();
 
 		return this;
@@ -114,9 +112,9 @@ export class Controller {
 		console.log('SEEK');
 
 		this.pause();
-		this.medias.seek(time);
 		this.timer.seek(time);
 		this.loopEvent.seek(time);
+		this.medias.seek(time);
 
 		return this;
 	};

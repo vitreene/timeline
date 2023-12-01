@@ -50,12 +50,12 @@ export class Actionner {
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, TweenStyle | Strap>();
-	sounds: Sound;
+	// sounds: Sound;
 	medias: Media;
 
-	constructor(display: Display, sounds: Sound, medias: Media) {
+	constructor(display: Display, /*  sounds: Sound, */ medias: Media) {
 		this.display = display;
-		this.sounds = sounds;
+		// this.sounds = sounds;
 		this.medias = medias;
 		for (const action in this.action) this.action[action] = this.action[action].bind(this);
 	}
@@ -82,8 +82,8 @@ export class Actionner {
 		},
 
 		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
-			const perso = this.display.persos.get(id);
-			perso.update(broadcast);
+			// const perso = this.display.persos.get(id);
+			// perso.update(broadcast);
 			this.medias.update(id, broadcast, up);
 		},
 		move: this.move,
@@ -99,10 +99,10 @@ export class Actionner {
 			if (!actions[name]) return;
 			const currentAction = mixActions(actions[name] as Action, up.data);
 
-			if (this.sounds.store.has(id)) {
-				this.sounds.update(id, currentAction as SoundAction, delta);
-				return;
-			}
+			// if (this.sounds.store.has(id)) {
+			// 	this.sounds.update(id, currentAction as SoundAction, delta);
+			// 	return;
+			// }
 
 			const others = {};
 			for (const typeAction in currentAction) {

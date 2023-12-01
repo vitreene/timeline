@@ -23,26 +23,26 @@ export class Media {
 
 	update(id: string, broadcast: Partial<Broadcast>, update: Income) {
 		const { delta, seek } = update;
-		console.log('update broadcast', update);
+		// console.log('update broadcast', update);
 
 		if (typeof broadcast === 'string') broadcast = { type: broadcast };
 
-		if (seek) {
-			this.seek(delta);
-		} else {
-			switch (broadcast.type) {
-				case START:
-					this.action.start(id, update);
-					break;
-				case STOP:
-					this.action.stop(id, delta);
-					this.status.delete(id);
-					break;
+		// if (seek) {
+		// 	this.seek(delta);
+		// } else {
+		switch (broadcast.type) {
+			case START:
+				this.action.start(id, update);
+				break;
+			case STOP:
+				this.action.stop(id);
+				this.status.delete(id);
+				break;
 
-				default:
-					break;
-			}
+			default:
+				break;
 		}
+		// }
 
 		broadcast.volume && this.action.volume(id, broadcast.volume);
 		broadcast.transition && this.initTransition(id, broadcast.transition);
@@ -61,7 +61,8 @@ export class Media {
 					}
 				}
 				case P.VIDEO:
-					(perso as PersoVideo).media.play();
+					(perso as PersoVideo).media.pause();
+					this.status.set(id, { ...action, action: PLAY });
 					break;
 
 				default:
@@ -74,19 +75,11 @@ export class Media {
 		console.log(`broadcast - ${PAUSE}`);
 		this.status.forEach((action, id) => {
 			const perso = this.store.get(id);
-			switch (perso.type) {
-				case P.SOUND: {
-					perso.media.mediaElement.pause();
-					this.status.set(id, { ...action, action: PAUSE });
-				}
-				case P.VIDEO:
-					(perso as PersoVideo).media.pause();
+			const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
 
-					break;
+			media.pause();
 
-				default:
-					break;
-			}
+			// this.status.set(id, { ...action, action: PAUSE });
 		});
 	};
 	stop = () => {
@@ -119,7 +112,8 @@ export class Media {
 	}
 
 	action = {
-		start: (id: string, { delta = 0, time = 0 }) => {
+		start: (id: string, update) => {
+			const { delta = 0, time = 0 } = update;
 			console.log(`broadcast - ${START}`, id);
 			const perso = this.store.get(id);
 			switch (perso.type) {
@@ -131,11 +125,14 @@ export class Media {
 				}
 				case P.VIDEO:
 					{
-						if ((perso as PersoVideo).media.paused) {
-							(perso as PersoVideo).media.currentTime = delta;
-							(perso as PersoVideo).media
-								.play()
-								.then(() => this.status.set(id, { action: PLAY, elapsed: delta, initial: time }));
+						const media = (perso as PersoVideo).media;
+						if (media.paused) {
+							media.currentTime = delta / MS;
+							if (update.seek) this.status.set(id, { action: PLAY, elapsed: delta, initial: time });
+							else
+								media.play().then(() => {
+									this.status.set(id, { action: PLAY, elapsed: delta, initial: time });
+								});
 						}
 					}
 					break;
@@ -145,7 +142,7 @@ export class Media {
 			}
 		},
 
-		stop: (id: string, delta = 0) => {
+		stop: (id: string) => {
 			console.log(`broadcast - ${STOP}`, id);
 			const perso = this.store.get(id);
 			switch (perso.type) {

@@ -58,7 +58,7 @@ export interface PersoImgDef {
 export interface PersoSoundDef {
 	readonly type: PersoType.SOUND;
 	initial: { src: string };
-	actions?: Record<string, Partial<SoundAction>>;
+	actions?: Record<string, Partial<Action>>;
 	media?: My;
 }
 

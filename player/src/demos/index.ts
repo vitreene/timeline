@@ -1,5 +1,5 @@
 import { START, STOP } from '~/common/constants';
-import { ROOT, Controller, MapEvent, PersoType as P, PersoVideoDef } from '~/main';
+import { ROOT, Controller, MapEvent, PersoType as P, PersoVideoDef, PersoSoundDef } from '~/main';
 import { preload } from '~/preload';
 import { createTelco } from './telco';
 
@@ -24,35 +24,49 @@ const events: MapEvent = new Map([
 	[6500, { name: 'end_music_fr' }],
 ]);
 
-const sound01 = {
+const sound01: PersoSoundDef = {
 	type: P.SOUND,
 	initial: { src: '/1_7b_e.mp3' },
 	actions: {
-		start_sound_fr: { action: START },
-		end_sound_fr: { action: STOP },
+		start_sound_fr: {
+			broadcast: {
+				type: START,
+			},
+		},
+		end_sound_fr: {
+			broadcast: {
+				type: STOP,
+			},
+		},
 	},
 } as const;
 
-const music01 = {
+const music01: PersoSoundDef = {
 	type: P.SOUND,
 	initial: { src: '/music02.m4a' },
 	actions: {
 		enter: {
-			action: START,
-			transition: {
-				// from: { volume: 1 },
-				to: { volume: 0.2 },
-				duration: 1000,
+			broadcast: {
+				type: START,
+				transition: {
+					to: { volume: 0.2 },
+					duration: 1000,
+				},
 			},
 		},
 		action02: {
-			transition: {
-				// from: { volume: 1 },
-				to: { volume: 1 },
-				duration: 1000,
+			broadcast: {
+				transition: {
+					to: { volume: 1 },
+					duration: 1000,
+				},
 			},
 		},
-		end_music_fr: { action: STOP },
+		end_music_fr: {
+			broadcast: {
+				type: STOP,
+			},
+		},
 	},
 } as const;
 
@@ -253,13 +267,14 @@ preload(store).then((store) => {
 
 	const controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
-	controller.start().play();
+	// controller.start().play();
 	// controller.start();
+
 	createTelco(controller, duration);
 	// PLAY
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play
 	// controller.start().play().wait(1900);
-	// controller.start().seek(2200);
+	controller.start().seek(2500);
 	// controller.start().seek(2200).play();
 	// controller.start().play();
 
