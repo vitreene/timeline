@@ -29,6 +29,8 @@ export class Controller {
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.sounds.sync);
+		this.ticker.handlers.store(this.medias.sync);
+
 		this.ticker.handlers.store(this.timer.update);
 		this.ticker.handlers.store(actionner.updateTransitions);
 		this.ticker.framers.store(actionner.flush);
@@ -91,17 +93,20 @@ export class Controller {
 		console.log('PAUSE');
 		this.ticker.pause();
 		this.sounds.pause();
-
+		this.medias.pause();
+		this.log();
 		return this;
 	};
 	stop = () => {
 		this.ticker.stop();
 		this.sounds.stop();
+		this.medias.stop();
 		return this;
 	};
 	start = () => {
 		this.ticker.start();
 		this.sounds.start();
+		this.medias.start();
 
 		return this;
 	};
@@ -109,6 +114,7 @@ export class Controller {
 		console.log('SEEK');
 
 		this.pause();
+		this.medias.seek(time);
 		this.timer.seek(time);
 		this.loopEvent.seek(time);
 

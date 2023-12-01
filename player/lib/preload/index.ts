@@ -1,7 +1,7 @@
-import { SoundNode, Store } from '~/main';
 import { getPersoSounds } from './audio';
 import { getPersoImages } from './ikono';
 import { getPersoVideos } from './video';
+import type { SoundNode, Store } from '~/main';
 
 export interface OptionalMediasStoreProps {
 	audio: Record<string, SoundNode>;

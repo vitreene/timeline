@@ -71,9 +71,10 @@ const video01: PersoVideoDef = {
 				},
 			},
 			style: {
-				x: -13,
-				y: -110,
-				scale: 0.5,
+				'grid-area': '15 / 35 / 70/ 110',
+				width: '100%',
+				height: '100%',
+				'object-fit': 'cover',
 				order: 10,
 			},
 			transition: {
@@ -82,7 +83,7 @@ const video01: PersoVideoDef = {
 			},
 		},
 		action05: {
-			broadcast: STOP,
+			// broadcast: STOP,
 			// transition: {
 			// 	to: { x: 0, y: 100, opacity: 0, scale: 0.1 },
 			// 	duration: 1500,

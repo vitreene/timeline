@@ -1,6 +1,11 @@
-import { TweenStyle } from './tween';
+import { Sound } from './sound';
+import { Media } from './medias';
 import { Display } from './display';
+import { TweenStyle } from './tween';
 
+import { Strap } from '../strap/strap';
+import { Layer } from '../display/layer';
+import { Counter } from '../strap/counter';
 import type {
 	Style,
 	PersosAction,
@@ -12,27 +17,9 @@ import type {
 	StrapType,
 	PersoNode,
 	SoundAction,
-	Transition,
 	PersoLayer,
-} from '../../types';
-import { Strap } from '../strap/strap';
-import { Counter } from '../strap/counter';
-import { Layer } from '../display/layer';
-import { Sound } from './sound';
-import { Media } from './medias';
-
-const transitionType = {
-	TRANSITION: 'transition',
-	STRAP: 'strap',
-};
-
-interface Income {
-	time: number;
-	delta: number;
-	name: string;
-	seek: boolean;
-	data?: any;
-}
+	Income,
+} from '~/main';
 
 interface TransitionId {
 	id: string;
@@ -52,6 +39,10 @@ interface StrapsProps {
 traiter les les actions comme des modules 
 ex: className.bind(this)
 */
+const transitionType = {
+	TRANSITION: 'transition',
+	STRAP: 'strap',
+};
 
 export class Actionner {
 	display: Display;
@@ -93,7 +84,7 @@ export class Actionner {
 		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
 			const perso = this.display.persos.get(id);
 			perso.update(broadcast);
-			this.medias.update(id, broadcast, up.delta);
+			this.medias.update(id, broadcast, up);
 		},
 		move: this.move,
 		style: this.mixStyle,

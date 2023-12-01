@@ -135,6 +135,14 @@ export type DeltaFn = (delta: number) => void;
 
 export type AddToTick = (fn: DeltaFn) => () => void;
 
+export interface Income {
+	time: number;
+	delta: number;
+	name: string;
+	seek: boolean;
+	data?: any;
+}
+
 export interface TimeOptions {
 	delta: number;
 	options: { time?: number };
@@ -208,6 +216,13 @@ export interface PersoVideo extends NodePerso {
 	update: (update: Partial<Broadcast>) => void;
 }
 
+export interface PersoSound extends NodePerso {
+	type: PersoType.SOUND;
+	initial: Partial<Initial> & Vid;
+	media: My;
+	update: (update: Partial<Broadcast>) => void;
+}
+
 export interface SoundNode extends PersoSoundDef {
 	media?: My;
 }
@@ -219,7 +234,7 @@ export interface My extends MediaElementAudioSourceNode {
 	};
 }
 
-export type PersoNode = PersoText | PersoLayer | PersoSprite | PersoImg | PersoVideo;
+export type PersoNode = PersoText | PersoLayer | PersoSprite | PersoImg | PersoSound | PersoVideo;
 
 export interface Initial {
 	tag: string;
