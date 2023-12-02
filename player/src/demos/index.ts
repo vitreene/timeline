@@ -267,14 +267,14 @@ preload(store).then((store) => {
 
 	const controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
-	// controller.start().play();
+	controller.start().play();
 	// controller.start();
 
 	createTelco(controller, duration);
 	// PLAY
 	// FIXME la priorité sur le seek n'est aps la meme que pour le play
 	// controller.start().play().wait(1900);
-	controller.start().seek(2500);
+	// controller.start().seek(2500);
 	// controller.start().seek(2200).play();
 	// controller.start().play();
 

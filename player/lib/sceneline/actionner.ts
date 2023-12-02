@@ -1,11 +1,10 @@
-import { Sound } from './sound';
 import { Media } from './medias';
 import { Display } from './display';
 import { TweenStyle } from './tween';
 
-import { Strap } from '../strap/strap';
+import { Strap, straps } from '../strap';
 import { Layer } from '../display/layer';
-import { Counter } from '../strap/counter';
+
 import type {
 	Style,
 	PersosAction,
@@ -16,7 +15,6 @@ import type {
 	StateAction,
 	StrapType,
 	PersoNode,
-	SoundAction,
 	PersoLayer,
 	Income,
 } from '~/main';
@@ -50,12 +48,12 @@ export class Actionner {
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, TweenStyle | Strap>();
-	// sounds: Sound;
+
 	medias: Media;
 
-	constructor(display: Display, /*  sounds: Sound, */ medias: Media) {
+	constructor(display: Display, medias: Media) {
 		this.display = display;
-		// this.sounds = sounds;
+
 		this.medias = medias;
 		for (const action in this.action) this.action[action] = this.action[action].bind(this);
 	}
@@ -82,8 +80,6 @@ export class Actionner {
 		},
 
 		broadcast(id: PersoId, broadcast: Action['broadcast'] = null, up: Income) {
-			// const perso = this.display.persos.get(id);
-			// perso.update(broadcast);
 			this.medias.update(id, broadcast, up);
 		},
 		move: this.move,
@@ -93,26 +89,18 @@ export class Actionner {
 
 	update = (up: Income) => {
 		this.setSeekMode(up.seek);
-		const { delta, name } = up;
-
 		this.actions.forEach((actions, id) => {
-			if (!actions[name]) return;
-			const currentAction = mixActions(actions[name] as Action, up.data);
+			if (!actions[up.name]) return;
+			const currentAction = mixActions(actions[up.name] as Action, up.data);
 
-			// if (this.sounds.store.has(id)) {
-			// 	this.sounds.update(id, currentAction as SoundAction, delta);
-			// 	return;
-			// }
-
-			const others = {};
+			const attrs = {};
 			for (const typeAction in currentAction) {
 				this.action[typeAction]
 					? this.action[typeAction](id, currentAction[typeAction], up, this)
-					: (others[typeAction] = currentAction[typeAction]);
+					: (attrs[typeAction] = currentAction[typeAction]);
 			}
 
-			const attrs = this.state.get(id);
-			this.state.set(id, { ...attrs, ...others });
+			this.state.set(id, { ...this.state.get(id), ...attrs });
 		});
 	};
 
@@ -146,7 +134,8 @@ export class Actionner {
 	- vérifier si le strap existe 
 	*/
 	straps = ({ key, strap: { type, initial }, delta, seek, perso }: StrapsProps) => {
-		const strap = new Counter(initial);
+		const strap = straps(type, initial);
+		// const strap = new Counter(initial);
 		if (seek) this.updateStrap(key, strap, delta);
 		this.transitions.set(key, strap);
 	};

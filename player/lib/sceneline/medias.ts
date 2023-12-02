@@ -12,6 +12,10 @@ interface MediaStatus {
 	elapsed: number;
 	initial: number;
 }
+
+// TODO add audio == video
+// ajouter TRACKS comme enfants de video
+
 export class Media {
 	store = new Map<string, PersoSound | PersoVideo>();
 	status = new Map<string, MediaStatus>();
@@ -21,15 +25,18 @@ export class Media {
 		this.sync = this.sync.bind(this);
 	}
 
+	private getMedia(id: string) {
+		const perso = this.store.get(id);
+		const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
+		return media;
+	}
+
 	update(id: string, broadcast: Partial<Broadcast>, update: Income) {
 		const { delta, seek } = update;
 		// console.log('update broadcast', update);
 
 		if (typeof broadcast === 'string') broadcast = { type: broadcast };
 
-		// if (seek) {
-		// 	this.seek(delta);
-		// } else {
 		switch (broadcast.type) {
 			case START:
 				this.action.start(id, update);
@@ -42,7 +49,6 @@ export class Media {
 			default:
 				break;
 		}
-		// }
 
 		broadcast.volume && this.action.volume(id, broadcast.volume);
 		broadcast.transition && this.initTransition(id, broadcast.transition);
@@ -73,13 +79,10 @@ export class Media {
 
 	pause = () => {
 		console.log(`broadcast - ${PAUSE}`);
-		this.status.forEach((action, id) => {
+		this.status.forEach((_, id) => {
 			const perso = this.store.get(id);
 			const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
-
 			media.pause();
-
-			// this.status.set(id, { ...action, action: PAUSE });
 		});
 	};
 	stop = () => {
@@ -93,7 +96,6 @@ export class Media {
 				}
 				case P.VIDEO:
 					(perso as PersoVideo).media.pause();
-
 					break;
 
 				default:
@@ -104,15 +106,14 @@ export class Media {
 	};
 
 	seek(delta: number) {
-		this.status.forEach(({ action, initial }, id) => {
-			const perso = this.store.get(id);
-			const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
+		this.status.forEach(({ initial }, id) => {
+			const media = this.getMedia(id);
 			media.currentTime = (delta - initial) / MS;
 		});
 	}
 
 	action = {
-		start: (id: string, update) => {
+		start: (id: string, update: Income) => {
 			const { delta = 0, time = 0 } = update;
 			console.log(`broadcast - ${START}`, id);
 			const perso = this.store.get(id);
@@ -146,10 +147,12 @@ export class Media {
 			console.log(`broadcast - ${STOP}`, id);
 			const perso = this.store.get(id);
 			switch (perso.type) {
-				case P.SOUND: {
-					perso.media.mediaElement.pause();
-					perso.media.my.disconnect();
-				}
+				case P.SOUND:
+					{
+						perso.media.mediaElement.pause();
+						perso.media.my.disconnect();
+					}
+					break;
 				case P.VIDEO:
 					!(perso as PersoVideo).media.paused && (perso as PersoVideo).media.pause();
 					break;
@@ -160,15 +163,13 @@ export class Media {
 			this.status.delete(id);
 		},
 		volume: (id: string, volume: number) => {
-			const perso = this.store.get(id);
-			const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
+			const media = this.getMedia(id);
 			media.volume = volume;
 		},
 	};
-	initTransition(id: string, transition: Transition) {
-		const perso = this.store.get(id);
-		const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
 
+	initTransition(id: string, transition: Transition) {
+		const media = this.getMedia(id);
 		const from = {};
 		for (const key in transition.to) {
 			from[key] = (transition && transition.from?.[key]) || media[key];
@@ -179,9 +180,7 @@ export class Media {
 	updateTransitions = (delta: number) => {
 		this.transitions.forEach((transition, id) => {
 			const update = transition.next(delta);
-			const perso = this.store.get(id);
-			const media = perso.type === P.SOUND ? perso.media.mediaElement : perso.media;
-
+			const media = this.getMedia(id);
 			for (const key in update.value) {
 				media[key] = update.value[key];
 			}
@@ -238,22 +237,3 @@ export class Media {
 		});
 	}
 }
-
-/* 
-switch (perso.type) {
-				case P.SOUND:
-					{
-					
-						}
-					}
-					break;
-					case P.VIDEO:
-						{
-						
-							}
-						}
-
-				default:
-					break;
-			}
-*/
