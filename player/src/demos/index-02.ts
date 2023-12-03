@@ -191,10 +191,9 @@ const text3 = {
 	type: P.TEXT,
 	initial: {
 		// move: { to: ROOT, order: 'last' },
-		content: 'Lancement',
+		content: 'automatique',
 		className: 'text3 item5',
 		style: {
-			'user-select': 'none',
 			padding: 16,
 			'font-size': 24,
 			x: 300,
@@ -205,6 +204,9 @@ const text3 = {
 		enter: {
 			move: { to: ROOT, order: 'last' },
 		},
+		// action01: {
+		// 	content: 'grande ligne semi-magnétique',
+		// },
 		action02: {
 			className: {
 				add: 'item6',

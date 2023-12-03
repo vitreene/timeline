@@ -6,5 +6,6 @@ const strapCollection = {
 };
 
 export function straps(type: string, initial: any) {
-	return new strapCollection[type](initial);
+	const strap = type in strapCollection && new strapCollection[type](initial);
+	return strap;
 }

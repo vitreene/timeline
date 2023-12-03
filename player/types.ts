@@ -41,11 +41,13 @@ export interface PersoLayerDef {
 	readonly type: PersoType.LAYER;
 	initial: Partial<Initial>;
 	actions?: Record<string, Action | boolean>;
+	emit?: Emit;
 }
 export interface PersoTextDef {
 	readonly type: PersoType.TEXT;
 	initial: Partial<Initial> & { content: string };
 	actions?: Record<string, Action | boolean>;
+	emit?: Emit;
 }
 
 export interface PersoImgDef {
@@ -53,6 +55,7 @@ export interface PersoImgDef {
 	initial: Partial<Initial> & { content: Img };
 	actions?: Record<string, ImgAction>;
 	media?: any;
+	emit?: Emit;
 }
 
 export interface PersoSoundDef {
@@ -60,6 +63,7 @@ export interface PersoSoundDef {
 	initial: { src: string };
 	actions?: Record<string, Partial<Action>>;
 	media?: My;
+	emit?: Emit;
 }
 
 export interface PersoVideoDef {
@@ -67,6 +71,7 @@ export interface PersoVideoDef {
 	initial: Partial<Initial> & { src: string };
 	actions?: Record<string, Partial<Action>>;
 	media?: any;
+	emit?: Emit;
 }
 
 export type PersoMediaDef = PersoVideoDef | PersoSoundDef;
@@ -168,15 +173,24 @@ export type Render = (update: MapAction) => void;
 
 // export type Store = Record<PersoId, Perso>;
 
-export interface BaseNode {
-	actions: PersoAction;
-	// emit?: { [prop in keyof Emit]: Partial<Eventime> };
+export type Emit = {
+	readonly [key in keyof GlobalEventHandlersEventMap]?: Eventime | Array<Eventime>;
+};
+
+export interface Eventime {
+	name?: string;
+	// startAt: number;
+	data?: any;
+	duration?: number;
+	events?: Eventime[];
 }
 
-export interface Perso extends BaseNode {
+export interface Perso {
 	id: string;
 	type: PersoType;
 	initial: Partial<Initial>;
+	actions: PersoAction;
+	emit?: Emit;
 }
 
 interface NodePerso extends Perso {
@@ -249,15 +263,6 @@ export interface Initial {
 export interface Vid {
 	src: string;
 }
-
-// voir Broadcast
-
-// export interface VidAction {
-// 	action: typeof START | typeof STOP;
-// 	volume: number;
-// 	playbackRate: number;
-// 	transition: Transition;
-// }
 
 // A revoir passer les props en style sauf src et img
 export interface Img {

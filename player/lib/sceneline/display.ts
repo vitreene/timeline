@@ -1,7 +1,3 @@
-/* 
-construire et stocker les persos
-alimenter le renderer, mettre en dependance?
-*/
 import { matrix } from '../common/matrix';
 
 import { createPersoBase } from '../display/base';

@@ -74,6 +74,8 @@ export class Actionner {
 		},
 
 		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {
+			console.log('STRAP', id, strap, up);
+
 			const perso = this.display.persos.get(id);
 			const key = { id, type: transitionType.STRAP };
 			this.straps({ perso, key, strap, delta: up.delta, seek: up.seek });
@@ -128,14 +130,12 @@ export class Actionner {
 		});
 	};
 
-	/* TODO
-	- register strap
-	- dispatch strap
-	- vérifier si le strap existe 
-	*/
 	straps = ({ key, strap: { type, initial }, delta, seek, perso }: StrapsProps) => {
 		const strap = straps(type, initial);
-		// const strap = new Counter(initial);
+		if (!strap) {
+			console.warn(`Le strap ${type} n'existe pas.`);
+			return;
+		}
 		if (seek) this.updateStrap(key, strap, delta);
 		this.transitions.set(key, strap);
 	};

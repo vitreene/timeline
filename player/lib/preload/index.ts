@@ -20,5 +20,14 @@ export async function preload(store: Store): Promise<Store> {
 	const st03 = await getPersoVideos(st01.persos);
 	console.log('LOAD VIDEOS');
 
-	return { ...st03.persos, ...st01.medias, ...st02.medias, ...st03.medias };
+	const persos01 = { ...st03.persos, ...st01.medias, ...st02.medias, ...st03.medias };
+
+	const persos = {};
+
+	// self action
+	Object.entries(persos01).map(([key, p]) => {
+		persos[key] = { ...p, actions: { ...p.actions, [key]: true } };
+	});
+
+	return persos;
 }

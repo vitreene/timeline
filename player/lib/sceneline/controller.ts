@@ -6,7 +6,7 @@ import { LoopEvent } from './loop-event';
 
 import { APP } from './constants';
 
-import type { DeltaFn, MapEvent, TimerCallback, Store } from '~/main';
+import type { DeltaFn, MapEvent, TimerCallback, Store, PersoId, PersoNode } from '~/main';
 import { PersoType as P } from '~/main';
 import { INITIAL } from '~/common/constants';
 import { Media } from './medias';
@@ -17,6 +17,7 @@ export class Controller {
 	loopEvent: LoopEvent = null;
 	display: Display;
 	medias = new Media();
+	handle: Handle;
 
 	constructor(store: Store, events: MapEvent) {
 		this.display = new Display(APP, store);
@@ -34,6 +35,8 @@ export class Controller {
 
 		this.registerEvents(events);
 		this.registerActions(store);
+
+		this.handle = new Handle(this.loopEvent.addEmitEvent, this.display.persos);
 	}
 
 	initMedias(store: Store) {
@@ -55,6 +58,8 @@ export class Controller {
 		this.loopEvent.add(events);
 		this.timer.handlers.store(this.loopEvent.update);
 	};
+
+	registerEmits() {}
 
 	registerActions = (store: Store) => {
 		for (const id in store) {
@@ -134,5 +139,44 @@ export class Controller {
 	log = () => {
 		console.log(this);
 		return this;
+	};
+}
+
+class Handle {
+	handler;
+	persos: Map<PersoId, PersoNode>;
+	constructor(handler, persos: Map<PersoId, PersoNode>) {
+		this.handler = handler;
+		this.persos = persos;
+		this.registerPersoEvents();
+	}
+
+	registerPersoEvents() {
+		this.persos.forEach((perso) => {
+			if (perso.emit) {
+				console.log('registerPersoEvents', perso.emit);
+
+				perso.node.dataset.id = perso.id;
+				for (const ev in perso.emit) {
+					perso.node.addEventListener(ev, this);
+				}
+			}
+		});
+	}
+	handleEvent = (event) => {
+		console.log(event.type);
+
+		const persoId = event.target.dataset.id;
+		const perso = this.persos.get(persoId);
+		const emit = perso.emit[event.type];
+
+		emit.name = persoId;
+
+		emit.data = {
+			...emit.data,
+			emit: { e: event, type: event.type, id: persoId },
+		};
+
+		this.handler(emit);
 	};
 }
