@@ -4,6 +4,7 @@ import { TweenStyle } from './tween';
 
 import { Strap, straps } from '../strap';
 import { Layer } from '../display/layer';
+import { APP } from './constants';
 
 import type {
 	Style,
@@ -18,6 +19,7 @@ import type {
 	PersoLayer,
 	Income,
 } from '~/main';
+import { Persos } from './perso-store';
 
 interface TransitionId {
 	id: string;
@@ -43,17 +45,19 @@ const transitionType = {
 };
 
 export class Actionner {
+	persos: Persos;
+	medias: Media;
 	display: Display;
+
 	seekMode = false;
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, TweenStyle | Strap>();
 
-	medias: Media;
+	constructor(persos: Persos, medias: Media) {
+		this.display = new Display(APP, persos);
 
-	constructor(display: Display, medias: Media) {
-		this.display = display;
-
+		this.persos = persos;
 		this.medias = medias;
 		for (const action in this.action) this.action[action] = this.action[action].bind(this);
 	}
@@ -66,7 +70,7 @@ export class Actionner {
 
 	action = {
 		transition(id: PersoId, transition: Action['transition'] = null, up: Income) {
-			const perso = this.display.persos.get(id);
+			const perso = this.persos.get(id);
 			const key = { id, type: transitionType.TRANSITION };
 			const tween = new TweenStyle({ perso, transition });
 			if (up.seek) this.updateTween(key, tween, up.delta);
@@ -76,7 +80,7 @@ export class Actionner {
 		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {
 			console.log('STRAP', id, strap, up);
 
-			const perso = this.display.persos.get(id);
+			const perso = this.persos.get(id);
 			const key = { id, type: transitionType.STRAP };
 			this.straps({ perso, key, strap, delta: up.delta, seek: up.seek });
 		},
@@ -172,7 +176,7 @@ export class Actionner {
 	}
 
 	move(id: PersoId, move: Action['move'], up: Income) {
-		const perso = this.display.persos.get(id);
+		const perso = this.persos.get(id);
 		const keepStyleProps = {
 			width: perso.style.width,
 			height: perso.style.height,
@@ -185,7 +189,7 @@ export class Actionner {
 
 		if (typeof move === 'boolean') {
 			const oldRect = perso.node.getBoundingClientRect();
-			this.display.render(perso, this.state.get(id));
+			this.display.render(id, this.state.get(id));
 
 			const newRect = perso.node.getBoundingClientRect();
 			const from = applyZoom(
@@ -198,7 +202,7 @@ export class Actionner {
 				1 / this.display.zoom
 			);
 
-			this.display.render(perso, { style: from });
+			this.display.render(id, { style: from });
 
 			const to = applyZoom(
 				{
@@ -230,7 +234,7 @@ export class Actionner {
 			//
 		} else {
 			const parentId = typeof move === 'string' ? move : move.to;
-			const parent = this.display.persos.get(parentId);
+			const parent = this.persos.get(parentId);
 			const layer = (parent as PersoLayer)?.child;
 
 			if (layer instanceof Layer) {
@@ -238,7 +242,7 @@ export class Actionner {
 				const order = typeof move === 'object' ? move.order : undefined;
 				layer.add(perso.node, order);
 				layer.update(layer.content);
-				up.seek && this.display.render(perso, this.state.get(id));
+				up.seek && this.display.render(id, this.state.get(id));
 			}
 		}
 	}

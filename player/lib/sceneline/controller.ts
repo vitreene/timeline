@@ -1,30 +1,28 @@
 import { Timer } from './timer';
 import { Ticker } from './ticker';
-import { Display } from './display';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
-
-import { APP } from './constants';
 
 import type { DeltaFn, MapEvent, TimerCallback, Store, PersoId, PersoNode } from '~/main';
 import { PersoType as P } from '~/main';
 import { INITIAL } from '~/common/constants';
 import { Media } from './medias';
+import { Persos } from './perso-store';
 
 export class Controller {
 	timer = new Timer();
 	ticker = new Ticker();
 	loopEvent: LoopEvent = null;
-	display: Display;
+
+	persos: Persos;
 	medias = new Media();
-	handle: Handle;
 
 	constructor(store: Store, events: MapEvent) {
-		this.display = new Display(APP, store);
+		this.persos = new Persos(store);
 
 		this.initMedias(store);
 
-		const actionner = new Actionner(this.display, this.medias);
+		const actionner = new Actionner(this.persos, this.medias);
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.medias.sync);
@@ -36,7 +34,7 @@ export class Controller {
 		this.registerEvents(events);
 		this.registerActions(store);
 
-		this.handle = new Handle(this.loopEvent.addEmitEvent, this.display.persos);
+		this.persos.addHandler(this.loopEvent.addEmitEvent);
 	}
 
 	initMedias(store: Store) {
@@ -139,44 +137,5 @@ export class Controller {
 	log = () => {
 		console.log(this);
 		return this;
-	};
-}
-
-class Handle {
-	handler;
-	persos: Map<PersoId, PersoNode>;
-	constructor(handler, persos: Map<PersoId, PersoNode>) {
-		this.handler = handler;
-		this.persos = persos;
-		this.registerPersoEvents();
-	}
-
-	registerPersoEvents() {
-		this.persos.forEach((perso) => {
-			if (perso.emit) {
-				console.log('registerPersoEvents', perso.emit);
-
-				perso.node.dataset.id = perso.id;
-				for (const ev in perso.emit) {
-					perso.node.addEventListener(ev, this);
-				}
-			}
-		});
-	}
-	handleEvent = (event) => {
-		console.log(event.type);
-
-		const persoId = event.target.dataset.id;
-		const perso = this.persos.get(persoId);
-		const emit = perso.emit[event.type];
-
-		emit.name = persoId;
-
-		emit.data = {
-			...emit.data,
-			emit: { e: event, type: event.type, id: persoId },
-		};
-
-		this.handler(emit);
 	};
 }
