@@ -90,10 +90,12 @@ export class Media {
 		this.status.forEach((_, id) => {
 			const perso = this.store.get(id);
 			switch (perso.type) {
-				case P.SOUND: {
-					perso.media.mediaElement.pause();
-					perso.media.my.disconnect();
-				}
+				case P.SOUND:
+					{
+						perso.media.mediaElement.pause();
+						perso.media.my.disconnect();
+					}
+					break;
 				case P.VIDEO:
 					(perso as PersoVideo).media.pause();
 					break;

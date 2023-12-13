@@ -11,7 +11,7 @@ const END_SEQUENCE = 7000;
 /* NOTE
 les formats de données sont issues du json  ; transformer les objets en map dans controller, pas dans le format de données -> meilleure portabilité 
 */
-
+let controller;
 // INIT
 const events: MapEvent = new Map([
 	[0, { name: 'enter' }],
@@ -87,9 +87,11 @@ const music01: PersoSoundDef = {
 			broadcast: {
 				type: STOP,
 			},
-			// func(){
-			// 	console.log("STOOP");
-			// }
+			// func n'est pas atteignable, cependant des actions en fin d'ecoute sont à intégrer
+			// onComplete
+			// func() {
+			// 	console.log('FINI');
+			// },
 		},
 	},
 } as const;
@@ -218,6 +220,10 @@ const text3 = {
 			event: { name: 'click01' },
 			data: {
 				id: 'telco',
+				func() {
+					console.log('****STOP*****');
+					controller.stop();
+				},
 				strap: {
 					type: 'toggle',
 					initial: {
@@ -285,7 +291,7 @@ const store: Store = {
 preload(store).then((store) => {
 	console.log('LOAD STORE', store);
 
-	const controller = new Controller(store, events);
+	controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
 	controller.start().play();
 	// controller.start();
