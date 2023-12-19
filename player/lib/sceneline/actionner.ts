@@ -44,6 +44,7 @@ const transitionType = {
 	STRAP: 'strap',
 };
 
+// Dispatcher
 export class Actionner {
 	persos: Persos;
 	medias: Media;
@@ -70,7 +71,7 @@ export class Actionner {
 
 	action = {
 		transition(id: PersoId, transition: Action['transition'] = null, up: Income) {
-			const perso = this.persos.get(id);
+			const perso = this.persos.store.get(id);
 			const key = { id, type: transitionType.TRANSITION };
 			const tween = new TweenStyle({ perso, transition });
 			if (up.seek) this.updateTween(key, tween, up.delta);
@@ -80,7 +81,7 @@ export class Actionner {
 		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {
 			console.log('STRAP', id, strap, up);
 
-			const perso = this.persos.get(id);
+			const perso = this.persos.store.get(id);
 			const key = { id, type: transitionType.STRAP };
 			this.straps({ perso, key, strap, delta: up.delta, seek: up.seek });
 		},
@@ -176,7 +177,7 @@ export class Actionner {
 	}
 
 	move(id: PersoId, move: Action['move'], up: Income) {
-		const perso = this.persos.get(id);
+		const perso = this.persos.store.get(id);
 		const keepStyleProps = {
 			width: perso.style.width,
 			height: perso.style.height,
@@ -234,7 +235,7 @@ export class Actionner {
 			//
 		} else {
 			const parentId = typeof move === 'string' ? move : move.to;
-			const parent = this.persos.get(parentId);
+			const parent = this.persos.store.get(parentId);
 			const layer = (parent as PersoLayer)?.child;
 
 			if (layer instanceof Layer) {

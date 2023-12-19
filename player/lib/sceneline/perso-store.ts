@@ -19,13 +19,14 @@ import type {
 	Store,
 } from '~/main';
 
-export class Persos extends Map<PersoId, PersoNode> {
+// extends Map<PersoId, PersoNode>
+export class Persos {
 	handler: (emit: any) => void = () => {
 		console.log('handler');
 	};
+	store = new Map<PersoId, PersoNode>();
 
 	constructor(store: Store) {
-		super();
 		this.addPersos(store);
 	}
 
@@ -33,13 +34,13 @@ export class Persos extends Map<PersoId, PersoNode> {
 		for (const id in store) {
 			if (store[id].type === P.SOUND) continue;
 			const perso = createPersoBase(id, store[id] as PersoDef);
-			this.set(id, perso);
+			this.store.set(id, perso);
 			this.render(id, perso.initial);
 			this.registerPersoEvents(perso);
 		}
 	}
 	renderAll(zoom: number) {
-		this.forEach((perso: PersoNode) => {
+		this.store.forEach((perso: PersoNode) => {
 			this.render(perso.id, { style: perso.style }, zoom);
 			// TODO appliquer le zoom sur les composants enfants
 			// if (perso.child.resize) perso.child.resize(this.zoom);
@@ -47,7 +48,7 @@ export class Persos extends Map<PersoId, PersoNode> {
 	}
 
 	render = (id: string, action: Action | ImgAction, zoom = 1) => {
-		const perso = this.get(id);
+		const perso = this.store.get(id);
 		if (!perso) return;
 
 		for (const attr in action) {
@@ -107,7 +108,7 @@ export class Persos extends Map<PersoId, PersoNode> {
 			return;
 		}
 		const persoId = event.target.dataset.id;
-		const perso = this.get(persoId);
+		const perso = this.store.get(persoId);
 		if (!perso) return;
 		const emit = perso.emit[event.type];
 

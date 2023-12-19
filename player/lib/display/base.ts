@@ -51,6 +51,7 @@ export function createPersoBase(id: PersoId, perso: PersoDef) {
 	persoNode.matrix = null;
 	node.id = id;
 	persoNode.node = node;
+	persoNode.content = new Set();
 
 	return persoNode;
 }

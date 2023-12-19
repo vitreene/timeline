@@ -53,7 +53,7 @@ export class Display {
 	resize = () => requestAnimationFrame(() => this.persos.renderAll(this.zoom));
 
 	root = () => {
-		const rootPerso = this.persos.get(ROOT);
+		const rootPerso = this.persos.store.get(ROOT);
 		this.persos.render(ROOT, rootPerso.initial, this.zoom);
 		this.app.appendChild(rootPerso.node);
 	};
@@ -69,7 +69,7 @@ export class Display {
 	}
 
 	reset = () => {
-		this.persos.forEach((perso, id) => {
+		this.persos.store.forEach((perso, id) => {
 			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));
 			perso.node.id = id;
 			perso.style = {};

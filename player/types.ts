@@ -193,44 +193,45 @@ export interface Perso {
 	emit?: Emit;
 }
 
-interface NodePerso extends Perso {
+interface PersoBase extends Perso {
 	parent: string;
 	node: HTMLElement | SVGElement;
 	style: Style;
 	transform: TransformProperty;
 	matrix: Matrix2D | [];
+	content: Set<PersoId>;
 }
 
-export interface PersoText extends NodePerso {
+export interface PersoText extends PersoBase {
 	type: PersoType.TEXT;
 	child: Txt;
 }
 
-export interface PersoLayer extends NodePerso {
+export interface PersoLayer extends PersoBase {
 	type: PersoType.LAYER;
 	child: Layer;
 }
 
-export interface PersoImg extends NodePerso {
+export interface PersoImg extends PersoBase {
 	type: PersoType.IMG;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
 }
 
-export interface PersoSprite extends NodePerso {
+export interface PersoSprite extends PersoBase {
 	type: PersoType.SPRITE;
 	initial: Partial<Initial> & Img;
 	update: (update: Partial<Initial> & Img) => void;
 }
 
-export interface PersoVideo extends NodePerso {
+export interface PersoVideo extends PersoBase {
 	type: PersoType.VIDEO;
 	initial: Partial<Initial> & Vid;
 	media: HTMLVideoElement | HTMLAudioElement;
 	update: (update: Partial<Broadcast>) => void;
 }
 
-export interface PersoSound extends NodePerso {
+export interface PersoSound extends PersoBase {
 	type: PersoType.SOUND;
 	initial: Partial<Initial> & Vid;
 	media: My;
