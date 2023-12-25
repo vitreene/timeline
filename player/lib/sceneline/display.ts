@@ -3,7 +3,7 @@ import { CONTAINER, ROOT, stage } from './constants';
 import type { Action, StateAction } from '~/main';
 
 import { Layer } from '~/display/layer';
-import type { Persos } from './perso-store';
+import type { Persos } from './perso';
 
 export class Display {
 	app: HTMLElement;

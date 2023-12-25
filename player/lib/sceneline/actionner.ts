@@ -19,7 +19,7 @@ import type {
 	PersoLayer,
 	Income,
 } from '~/main';
-import { Persos } from './perso-store';
+import type { Persos } from './perso';
 
 interface TransitionId {
 	id: string;

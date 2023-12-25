@@ -1,11 +1,11 @@
-import { matrix } from '../common/matrix';
+import { matrix } from '../../common/matrix';
 
 import { PersoType as P } from '~/main';
-import { createPersoBase } from '../display/base';
-import { addSuffix, toKebabCase } from '../common/utils';
+import { createPersoBase } from '../../display/base';
+import { addSuffix, toKebabCase } from '../../common/utils';
 
-import { transformAliases, transformKeys } from './transform-types';
-import type { Matrix2D } from './transform-types';
+import { transformAliases, transformKeys } from '../transform-types';
+import type { Matrix2D } from '../transform-types';
 import type {
 	PersoId,
 	PersoNode,
@@ -20,10 +20,8 @@ import type {
 } from '~/main';
 
 // extends Map<PersoId, PersoNode>
-export class Persos {
-	handler: (emit: any) => void = () => {
-		console.log('handler');
-	};
+
+class PersoBase {
 	store = new Map<PersoId, PersoNode>();
 
 	constructor(store: Store) {
@@ -35,10 +33,28 @@ export class Persos {
 			if (store[id].type === P.SOUND) continue;
 			const perso = createPersoBase(id, store[id] as PersoDef);
 			this.store.set(id, perso);
-			this.render(id, perso.initial);
-			this.registerPersoEvents(perso);
 		}
 	}
+}
+
+export class PersoRender extends PersoBase {
+	handler: (emit: any) => void = () => {
+		console.log('handler');
+	};
+
+	constructor(store: Store) {
+		super(store);
+	}
+
+	addPersos(store: Store) {
+		super.addPersos(store);
+
+		this.store.forEach((perso, id) => {
+			this.render(id, perso.initial);
+			this.registerPersoEvents(perso);
+		});
+	}
+
 	renderAll(zoom: number) {
 		this.store.forEach((perso: PersoNode) => {
 			this.render(perso.id, { style: perso.style }, zoom);

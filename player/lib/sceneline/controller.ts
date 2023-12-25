@@ -7,7 +7,7 @@ import type { DeltaFn, MapEvent, TimerCallback, Store, PersoId, PersoNode } from
 import { PersoType as P } from '~/main';
 import { INITIAL } from '~/common/constants';
 import { Media } from './medias';
-import { Persos } from './perso-store';
+import { Persos } from './perso';
 
 export class Controller {
 	timer = new Timer();
