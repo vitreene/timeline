@@ -24,8 +24,8 @@ cycle : si des insertions ont lieu plusieurs fois lors d'un meme cycle, il y a d
   )
 */
 
-import { PersoId, PersoNode, StateAction } from '~/main';
-import { PersoRender } from './perso-store';
+import { PersoId, StateAction } from '~/main';
+import { PersoHandler } from './perso-handler';
 
 interface MoveContentProps {
 	id: PersoId;
@@ -40,7 +40,7 @@ il doit avoir acces à la classe Perso
 Perso sera le nom de la classe finale 
 Perso-> Content-> Primo -> Deuxio
 */
-export class Content extends PersoRender {
+export class PersoContent extends PersoHandler {
 	positions = new Map<PersoId, Map<PersoId, Position>>();
 
 	move({ id, target, order, zoom, state }: MoveContentProps) {

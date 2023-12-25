@@ -1,59 +1,18 @@
 import { matrix } from '../../common/matrix';
 
 import { PersoType as P } from '~/main';
-import { createPersoBase } from '../../display/base';
 import { addSuffix, toKebabCase } from '../../common/utils';
 
+import { PersoBase } from './perso-base';
 import { transformAliases, transformKeys } from '../transform-types';
+
 import type { Matrix2D } from '../transform-types';
-import type {
-	PersoId,
-	PersoNode,
-	PersoDef,
-	Action,
-	ImgAction,
-	Img,
-	Content,
-	ActionClassList,
-	Style,
-	Store,
-} from '~/main';
-
-// extends Map<PersoId, PersoNode>
-
-class PersoBase {
-	store = new Map<PersoId, PersoNode>();
-
-	constructor(store: Store) {
-		this.addPersos(store);
-	}
-
-	addPersos(store: Store) {
-		for (const id in store) {
-			if (store[id].type === P.SOUND) continue;
-			const perso = createPersoBase(id, store[id] as PersoDef);
-			this.store.set(id, perso);
-		}
-	}
-}
+import type { PersoNode, Action, ImgAction, Img, Content, ActionClassList, Style } from '~/main';
 
 export class PersoRender extends PersoBase {
 	handler: (emit: any) => void = () => {
 		console.log('handler');
 	};
-
-	constructor(store: Store) {
-		super(store);
-	}
-
-	addPersos(store: Store) {
-		super.addPersos(store);
-
-		this.store.forEach((perso, id) => {
-			this.render(id, perso.initial);
-			this.registerPersoEvents(perso);
-		});
-	}
 
 	renderAll(zoom: number) {
 		this.store.forEach((perso: PersoNode) => {
@@ -102,40 +61,6 @@ export class PersoRender extends PersoBase {
 					break;
 			}
 		}
-	};
-
-	addHandler(handler) {
-		this.handler = handler;
-	}
-
-	registerPersoEvents(perso: PersoNode) {
-		if (perso.emit) {
-			console.log('registerPersoEvents', perso.emit);
-
-			perso.node.dataset.id = perso.id;
-			for (const ev in perso.emit) {
-				perso.node.addEventListener(ev, this); //perso à la place ?
-			}
-		}
-	}
-
-	handleEvent = (event: Event) => {
-		if (!(event.target instanceof HTMLElement)) {
-			return;
-		}
-		const persoId = event.target.dataset.id;
-		const perso = this.store.get(persoId);
-		if (!perso) return;
-		const emit = perso.emit[event.type];
-
-		emit.name = persoId;
-
-		emit.data = {
-			...emit.data,
-			emit: { e: event, type: event.type, id: persoId },
-		};
-
-		this.handler(emit);
 	};
 }
 
