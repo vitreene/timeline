@@ -177,10 +177,31 @@ export class Actionner {
 	}
 
 	move(id: PersoId, move: Action['move'], up: Income) {
+		let target = undefined;
+		let order = undefined;
+		switch (typeof move) {
+			case 'object':
+				target = move.to;
+				order = move.order;
+				break;
+			case 'string':
+			case 'boolean':
+				target = move;
+				break;
+
+			default:
+				break;
+		}
+		console.log(id, target);
+
+		this.persos.move({ id, target, order, zoom: this.display.zoom, state: this.state });
+	}
+
+	x__move(id: PersoId, move: Action['move'], up: Income) {
 		const perso = this.persos.store.get(id);
 		const keepStyleProps = {
-			width: perso.style.width,
-			height: perso.style.height,
+			width: perso.style?.width,
+			height: perso.style?.height,
 		};
 
 		const transform = {

@@ -4,8 +4,9 @@ import { preload } from '~/preload';
 import { createTelco } from './telco';
 
 const END_SEQUENCE = 7000;
+const LIST = 'list';
 ////////////
-// DEMO 5 //
+// DEMO List //
 ////////////
 
 /* NOTE
@@ -45,246 +46,54 @@ const root = {
 		},
 	},
 } as const;
-const sound01: PersoSoundDef = {
-	type: P.SOUND,
-	initial: { src: '/1_7b_e.mp3' },
-	actions: {
-		start_sound_fr: {
-			broadcast: {
-				type: START,
-			},
-		},
-		end_sound_fr: {
-			broadcast: {
-				type: STOP,
-			},
-		},
-	},
-} as const;
 
-const music01: PersoSoundDef = {
-	type: P.SOUND,
-	initial: { src: '/music02.m4a' },
-	actions: {
-		enter: {
-			broadcast: {
-				type: START,
-				transition: {
-					to: { volume: 0.2 },
-					duration: 1000,
-				},
-			},
-		},
-		action02: {
-			broadcast: {
-				transition: {
-					to: { volume: 1 },
-					duration: 1000,
-				},
-			},
-		},
-		end_music_fr: {
-			broadcast: {
-				type: STOP,
-			},
-			// func n'est pas atteignable, cependant des actions en fin d'ecoute sont à intégrer
-			// onComplete
-			// func() {
-			// 	console.log('FINI');
-			// },
-		},
-	},
-} as const;
-
-const video01: PersoVideoDef = {
-	type: P.VIDEO,
-	initial: { src: '/decollage.mp4', style: { opacity: 0.25, x: 0, scale: 1 } },
-	actions: {
-		action02: {
-			move: { to: ROOT, order: 10 },
-			broadcast: {
-				type: START,
-				transition: {
-					from: { volume: 0.2 },
-					to: { volume: 1 },
-					duration: 1000,
-				},
-			},
-			style: {
-				'grid-area': '15 / 35 / 70/ 110',
-				width: '100%',
-				height: '100%',
-				'object-fit': 'cover',
-				order: 10,
-			},
-			transition: {
-				to: { opacity: 1 },
-				duration: 1500,
-			},
-		},
-		action05: {
-			// broadcast: STOP,
-			// transition: {
-			// 	to: { x: 0, y: 100, opacity: 0, scale: 0.1 },
-			// 	duration: 1500,
-			// },
-		},
-	},
-} as const;
-
-const counter = {
-	type: P.TEXT,
+const list = {
+	type: P.LAYER,
 	initial: {
-		className: 'initial item2',
-		content: 'start',
-		style: {
-			backgroundColor: 'orangered',
-			padding: 8,
-			'font-size': 36,
-			'text-align': 'center',
-		},
+		tag: 'div',
+		className: 'container-list',
 	},
 	actions: {
 		enter: {
-			move: ROOT,
-			className: 'enter',
-
-			strap: {
-				type: 'counter',
-				initial: {
-					duration: 1500,
-					start: 0,
-					end: 50,
-				},
-			},
-		},
-		action01: {
-			className: 'action01',
-		},
-		action02: {
-			className: {
-				add: 'item4',
-				remove: 'item2',
-			},
-			move: true,
-			style: { 'font-weight': 'bold' },
-			strap: {
-				type: 'counter',
-				initial: {
-					duration: 2500,
-					start: 50,
-					end: 0,
-				},
-			},
-			transition: {
-				to: { 'font-size': 120 },
-				duration: 1500,
-			},
-		},
-		action03: {
-			style: {
-				color: 'blue',
-			},
+			move: { to: ROOT },
 		},
 	},
 } as const;
 
-const text3 = {
-	type: P.TEXT,
-	initial: {
-		// move: { to: ROOT, order: 'last' },
-		content: 'Lancement',
-		className: 'text3 item5',
-		style: {
-			'user-select': 'none',
-			padding: 16,
-			'font-size': 24,
-			x: 300,
-			order: 20,
+const items = Array.from(Array(5).keys()).map((index) => {
+	return {
+		type: P.TEXT,
+		id: `item_${index}`,
+		initial: {
+			className: 'list-item',
+			content: index,
 		},
-	},
-	actions: {
-		enter: {
-			move: { to: ROOT, order: 'last' },
-		},
-		action02: {
-			className: {
-				add: 'item6',
-				remove: 'item5',
-			},
-			move: true,
-		},
-	},
-	emit: {
-		click: {
-			event: { name: 'click01' },
-			data: {
-				id: 'telco',
-				func() {
-					console.log('****STOP*****');
-					controller.stop();
-				},
-				strap: {
-					type: 'toggle',
-					initial: {
-						valueA: 'on',
-						valueB: 'off',
-					},
-				},
+		actions: {
+			enter: {
+				move: { to: LIST },
 			},
 		},
-	},
-} as const;
+	};
+});
 
-const img1 = {
-	type: P.IMG,
-	initial: {
-		className: 'item1',
-		style: {
-			'background-color': 'oklch(0.42 0.19 328.37 / 1)',
-			'object-position': '0% 67%',
-			'object-fit': 'cover',
-		},
-		content: { src: '/mandrake.jpg' },
-	},
-	actions: {
-		enter: {
-			move: { to: ROOT, order: 11 },
-			transition: {
-				from: { scale: 0, opacity: 0 },
-				to: { scale: 1, opacity: 1 },
-				duration: 1000,
-			},
-			style: { order: 11 },
-		},
-		// action01: {
-		// 	className: 'action01-img1',
-		// },
-		action02: {
-			transition: {
-				to: {
-					'object-position': '50% 50%',
-					'background-color': 'oklch(0.42 0.19 328.37 / 0)',
-				},
-				duration: 1000,
-			},
+// @ts-ignore
+items[2].actions.action02 = { move: false };
+// delete items[3].actions.enter;
+// @ts-ignore
+// items[3].actions.action03 = { move: LIST };
+// items[3].actions.action03 = { move: { to: LIST } };
+// items[3].actions.action03 = { move: { order: 10 } };
+items[0].actions.action03 = { move: { to: ROOT, order: 'toto' } };
 
-			style: {
-				'object-fit': 'contain',
-			},
-			content: { src: '/old-television.webp' },
-		},
-	},
-} as const;
+const itemStore = {};
+items.forEach((item) => {
+	itemStore[item.id] = item;
+});
 
 const store: Store = {
 	[ROOT]: root,
-	// sound01,
-	music01,
-	video01,
-	img1,
-	counter,
-	text3,
+	[LIST]: list,
+	...itemStore,
 } as const;
 
 // PROCESS

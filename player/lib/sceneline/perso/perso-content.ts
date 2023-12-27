@@ -34,24 +34,26 @@ interface MoveContentProps {
 	zoom: number;
 	state: StateAction;
 }
-/* 
-si Content a accès à persos, pas besoin de le passer dans les méthodes.
-il doit avoir acces à la classe Perso
-Perso sera le nom de la classe finale 
-Perso-> Content-> Primo -> Deuxio
-*/
+
 export class PersoContent extends PersoHandler {
 	positions = new Map<PersoId, Map<PersoId, Position>>();
 
 	move({ id, target, order, zoom, state }: MoveContentProps) {
 		if (!this.store.has(id)) return;
-
+		const parent = typeof target === 'string' ? target : this.store.get(id).parent;
 		const oldPositions = this.#getSiblingPositions(id);
-		if (!oldPositions.size) return; // <- à verifier
+
+		// if (!oldPositions.size) return; // <- à verifier
 		this.#positionsRenderState(id, state);
 		this.#moveContent(id, target, order);
+
 		// update this.positions, render
-		this.#nodePositionsUpdate(id);
+
+		//temp
+
+		this.#nodePositionsUpdate(parent);
+		console.log(this.store.get(parent));
+
 		const newPositions = this.#getSiblingPositions(id);
 		// this._positionsInitTransitions(id, zoom, oldPositions, newPositions);
 	}
@@ -72,13 +74,11 @@ export class PersoContent extends PersoHandler {
 				} else {
 					this.#removeFromContent(id);
 				}
-				//transition
-
-				// target ?   move inside parent :  this.removeFromContent(id)
 				break;
 			case 'string':
 				this.#addToContent(id, target, order);
-				this.#removeFromContent(id);
+				if (perso.parent && perso.parent !== target) this.#removeFromContent(id);
+				perso.parent = target;
 				break;
 
 			default:
@@ -90,14 +90,18 @@ export class PersoContent extends PersoHandler {
 		const perso = this.store.get(id);
 		perso.parent = target;
 		const parent = this.store.get(target);
+		parent.content.delete(id);
 
 		switch (typeof order) {
 			case 'undefined':
 				parent.content.add(id);
+
 				break;
 			case 'number':
 				{
-					const newContent = Array.from(parent.content).splice(order, 0, id);
+					const place = Math.min(order, parent.content.size);
+					parent.content.delete(id);
+					const newContent = Array.from(parent.content).toSpliced(place, 0, id);
 					parent.content = new Set(newContent);
 				}
 				break;
@@ -108,16 +112,18 @@ export class PersoContent extends PersoHandler {
 						break;
 					case 'last':
 						parent.content.add(id);
+						console.log('addToContent last-2', parent.content);
 						break;
 					case 'middle':
 						{
 							const half = Math.ceil(parent.content.size / 2);
-							const newContent = Array.from(parent.content).splice(half, 0, id);
+							const newContent = Array.from(parent.content).toSpliced(half, 0, id);
 							parent.content = new Set(newContent);
 						}
 						break;
 
 					default:
+						parent.content.add(id);
 						break;
 				}
 
@@ -155,8 +161,12 @@ export class PersoContent extends PersoHandler {
 		parent.content.forEach((childId) => state.has(childId) && this.render(childId, state.get(childId)));
 	}
 
-	#nodePositionsUpdate(id: PersoId) {
-		const parent = this.store.get(id);
+	#nodePositionsUpdate(parentId: PersoId) {
+		const parent = this.store.get(parentId);
+		while (parent.node.firstChild) {
+			parent.node.removeChild(parent.node.firstChild);
+		}
+
 		let child: HTMLElement | SVGElement | DocumentFragment;
 
 		if (parent.content.size > 1) {
@@ -165,10 +175,12 @@ export class PersoContent extends PersoHandler {
 				const element = this.store.get(id);
 				child.appendChild(element.node);
 			});
-		} else {
-			child = parent.content.values().next().value;
+		} else if (parent.content.size === 1) {
+			const element = this.store.get(parent.content.values().next().value);
+			element && (child = element.node);
 		}
-		parent.node.appendChild(child);
+
+		if (child) parent.node.appendChild(child);
 
 		return;
 	}
