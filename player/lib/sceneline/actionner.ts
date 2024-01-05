@@ -192,10 +192,97 @@ export class Actionner {
 			default:
 				break;
 		}
-		console.log(id, target);
+		this.persos.atMove({ id, target, order });
+		// const keys = this.persos.move({ id, target, order, zoom: this.display.zoom, state: this.state });
 
-		this.persos.move({ id, target, order, zoom: this.display.zoom, state: this.state });
+		// this.initMoveTransitions(keys, up);
 	}
+
+	initMoveTransitions(keys, delta) {
+		if (!keys) return;
+		console.log('keys', keys);
+		keys.forEach((key, id) => {
+			const perso = this.persos.store.get(id);
+			const { from, to, keepStyleProps } = key;
+			const onComplete = () => {
+				const action = this.state.get(id);
+
+				this.state.set(id, {
+					...action,
+					style: { ...keepStyleProps, ...action?.style },
+				});
+			};
+			this.display.render(id, { style: from });
+
+			const tween = new TweenStyle({
+				perso,
+				transition: { from, to, duration: 1000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+			});
+
+			if (this.seekMode) this.updateTween(key, tween, delta);
+			this.transitions.set(key, tween);
+		});
+	}
+
+	flush = (delta: number) => {
+		const keys = this.persos.atTick(this.display.zoom, this.state);
+		this.initMoveTransitions(keys, delta);
+
+		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
+		// eviter le syndrome !important
+		if (this.state.size) {
+			this.display.renderer(this.state);
+			this.state.clear();
+		}
+	};
+	reset() {
+		this.state.clear();
+		this.transitions.clear();
+	}
+}
+
+function mergeClassList(action: Action, className: ActionClassList | string) {
+	// NOTE traiter ce cas en dehors du runtime
+	if (typeof className === 'string') {
+		className = { add: className.split(/\s+/).filter(Boolean) };
+	}
+	const persoNewClassName = action?.className || {};
+	for (const action in className) {
+		const persoClassName = persoNewClassName?.[action]
+			? typeof persoNewClassName[action] === 'string'
+				? [persoNewClassName[action]]
+				: persoNewClassName[action]
+			: [];
+		persoNewClassName[action] = persoClassName.concat(className[action]);
+	}
+	return { ...action, className: persoNewClassName };
+}
+
+function mergeStyle(styleA: Style, styleB: Style) {
+	return { ...styleA, ...styleB };
+}
+
+function mixActions(actionA: Action, actionB: Action): Action {
+	if (typeof actionA === 'boolean') return actionB;
+	const style = mergeStyle(actionA?.style, actionB?.style);
+	const action: Action = {
+		...actionB,
+		...actionA,
+		...(Object.keys(style).length > 0 && { style }),
+		className: mergeClassList(actionA, actionB?.className).className,
+	};
+	return action;
+}
+
+type KeyT<T extends Record<string, any>> = Record<keyof T, any>;
+
+function applyZoom<KeyT>(obj: KeyT, zoom: number): KeyT {
+	const zobj = {} as Record<keyof KeyT, any>;
+	for (const p in obj) typeof obj[p] === 'number' ? (zobj[p] = (obj[p] as number) * zoom) : (zobj[p] = obj[p]);
+	return zobj;
+}
+
+/* 
 
 	x__move(id: PersoId, move: Action['move'], up: Income) {
 		const perso = this.persos.store.get(id);
@@ -269,57 +356,5 @@ export class Actionner {
 		}
 	}
 
-	flush = () => {
-		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
-		// eviter le syndrome !important
-		if (this.state.size) {
-			this.display.renderer(this.state);
-			this.state.clear();
-		}
-	};
-	reset() {
-		this.state.clear();
-		this.transitions.clear();
-	}
-}
 
-function mergeClassList(action: Action, className: ActionClassList | string) {
-	// NOTE traiter ce cas en dehors du runtime
-	if (typeof className === 'string') {
-		className = { add: className.split(/\s+/).filter(Boolean) };
-	}
-	const persoNewClassName = action?.className || {};
-	for (const action in className) {
-		const persoClassName = persoNewClassName?.[action]
-			? typeof persoNewClassName[action] === 'string'
-				? [persoNewClassName[action]]
-				: persoNewClassName[action]
-			: [];
-		persoNewClassName[action] = persoClassName.concat(className[action]);
-	}
-	return { ...action, className: persoNewClassName };
-}
-
-function mergeStyle(styleA: Style, styleB: Style) {
-	return { ...styleA, ...styleB };
-}
-
-function mixActions(actionA: Action, actionB: Action): Action {
-	if (typeof actionA === 'boolean') return actionB;
-	const style = mergeStyle(actionA?.style, actionB?.style);
-	const action: Action = {
-		...actionB,
-		...actionA,
-		...(Object.keys(style).length > 0 && { style }),
-		className: mergeClassList(actionA, actionB?.className).className,
-	};
-	return action;
-}
-
-type KeyT<T extends Record<string, any>> = Record<keyof T, any>;
-
-function applyZoom<KeyT>(obj: KeyT, zoom: number): KeyT {
-	const zobj = {} as Record<keyof KeyT, any>;
-	for (const p in obj) typeof obj[p] === 'number' ? (zobj[p] = (obj[p] as number) * zoom) : (zobj[p] = obj[p]);
-	return zobj;
-}
+*/

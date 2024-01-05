@@ -1,0 +1,14 @@
+
+> @vitreene/player@0.2.0 dev
+> vite
+
+
+  VITE v4.5.0  ready in 165 ms
+
+  ➜  Local:   http://localhost:3003/
+  ➜  Network: use --host to expose
+  ➜  press h to show help
+npm ERR! Lifecycle script `dev` failed with error: 
+npm ERR! Error: command failed 
+npm ERR!   in workspace: @vitreene/player@0.2.0 
+npm ERR!   at location: /Users/Rve/Projets/2JP/timeline/player 

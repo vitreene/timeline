@@ -19,11 +19,18 @@ const events: MapEvent = new Map([
 	[1000, { name: 'start_sound_fr' }],
 	[1100, { name: 'action01' }],
 	[1500, { name: 'action02' }],
-	[3000, { name: 'action03', data: { style: { 'font-size': 100, 'background-color': 'cyan' } } }],
-	[3200, { name: 'action04' }],
+	[3000, { name: 'action03' /* data: { style: { 'font-size': 100, 'background-color': 'cyan' } } */ }],
+	[3500, { name: 'action04' }],
 	[4000, { name: 'action05' }],
 	[6500, { name: 'end_music_fr' }],
 ]);
+
+const zoomIn = {
+	from: { opacity: 0, scale: 0.1 },
+	to: { opacity: 1, scale: 1 },
+	duration: 800,
+	ease: 'backOut',
+};
 
 const root = {
 	type: P.LAYER,
@@ -69,21 +76,25 @@ const items = Array.from(Array(5).keys()).map((index) => {
 			content: index,
 		},
 		actions: {
-			enter: {
-				move: { to: LIST },
-			},
+			enter: { move: { to: LIST }, transition: zoomIn },
 		},
 	};
 });
 
 // @ts-ignore
-items[2].actions.action02 = { move: false };
+// items[3].actions.action02 = { move: false };
 // delete items[3].actions.enter;
 // @ts-ignore
-// items[3].actions.action03 = { move: LIST };
-// items[3].actions.action03 = { move: { to: LIST } };
+// items[3].actions.action03 = {
+// 	move: LIST,
+// 	transition: zoomIn,
+// };
+// items[4].actions.action03 = { move: { to: LIST } };
+// items[1].actions.action04 = { move: { to: LIST, order: 'middle' } };
+items[2].actions.action02 = { move: { to: ROOT, order: 'first' } };
+// items[2].actions.action05 = { move: { to: LIST, order: 'first' } };
 // items[3].actions.action03 = { move: { order: 10 } };
-items[0].actions.action03 = { move: { to: ROOT, order: 'toto' } };
+// items[0].actions.action03 = { move: { to: ROOT, order: 'toto' } };
 
 const itemStore = {};
 items.forEach((item) => {
@@ -144,4 +155,12 @@ tests events, actions
 /* FIXME
 - avec transform : matrix, le x/y est dépendant de l'échelle !! 
  - etablir et garantir l'ordre des éléments dans layer
+ */
+
+/* FIXME transition list
+ - avoir un argument : placer qui ne déclenche pas de transition;
+ -> si valeurs identiques ,pas de transtion -> voir la transition 
+ - le seek n'est pas conforme au play;
+ - les dimensions semble fantaisistes
+ la capture des dimensions peut se faire alors qu'une interpolation est déja en cours et bloquer 
  */

@@ -156,12 +156,12 @@ body {
 .container-list {
 	grid-area: 10 / 20 / span 70 / span 120;
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-start;
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem;
 	flex-wrap: nowrap;
-
+	position: relative;
 	border: thin white solid;
 }
 
@@ -172,6 +172,6 @@ body {
 	text-align: center;
 	border: thin solid;
 	line-height: 1;
-	width: 4rem;
+	width: 8rem;
 	aspect-ratio: 1/1;
 }

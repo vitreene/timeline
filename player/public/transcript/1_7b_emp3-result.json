@@ -1,0 +1,500 @@
+{
+    "text": " Vous l'avez donc vu, l'électricité présente des risques. Si nous connaissons ces risques, nous pouvons les prévenir. C'est pourquoi il est essentiel d'évaluer le risque électrique dans le travail que vous effectuez. Cette évaluation des risques en général, et du risque électrique en particulier, est obligatoire. Nous allons en parler.",
+    "segments": [
+        {
+            "id": 0,
+            "seek": 0,
+            "start": 0.0,
+            "end": 3.22,
+            "text": " Vous l'avez donc vu, l'électricité présente des risques.",
+            "tokens": [
+                50364,
+                10802,
+                287,
+                6,
+                25975,
+                5926,
+                9732,
+                11,
+                287,
+                6,
+                526,
+                38421,
+                5066,
+                11761,
+                1576,
+                730,
+                2253,
+                7519,
+                13,
+                50524
+            ],
+            "temperature": 0.0,
+            "avg_logprob": -0.13089864452679953,
+            "compression_ratio": 1.671497584541063,
+            "no_speech_prob": 0.00029411280411295593,
+            "words": [
+                {
+                    "word": " Vous",
+                    "start": 0.0,
+                    "end": 0.3,
+                    "probability": 0.9699300527572632
+                },
+                {
+                    "word": " l",
+                    "start": 0.3,
+                    "end": 0.42,
+                    "probability": 0.9945270419120789
+                },
+                {
+                    "word": "'avez",
+                    "start": 0.42,
+                    "end": 0.58,
+                    "probability": 0.9989802241325378
+                },
+                {
+                    "word": " donc",
+                    "start": 0.58,
+                    "end": 0.82,
+                    "probability": 0.9932659864425659
+                },
+                {
+                    "word": " vu,",
+                    "start": 0.82,
+                    "end": 1.06,
+                    "probability": 0.7814425230026245
+                },
+                {
+                    "word": " l",
+                    "start": 1.32,
+                    "end": 1.34,
+                    "probability": 0.9956045150756836
+                },
+                {
+                    "word": "'électricité",
+                    "start": 1.34,
+                    "end": 1.92,
+                    "probability": 0.9990757703781128
+                },
+                {
+                    "word": " présente",
+                    "start": 1.92,
+                    "end": 2.32,
+                    "probability": 0.9972084164619446
+                },
+                {
+                    "word": " des",
+                    "start": 2.32,
+                    "end": 2.52,
+                    "probability": 0.9979754090309143
+                },
+                {
+                    "word": " risques.",
+                    "start": 2.52,
+                    "end": 3.22,
+                    "probability": 0.9979070723056793
+                }
+            ]
+        },
+        {
+            "id": 1,
+            "seek": 0,
+            "start": 3.46,
+            "end": 6.02,
+            "text": " Si nous connaissons ces risques, nous pouvons les prévenir.",
+            "tokens": [
+                50524,
+                4909,
+                4666,
+                15477,
+                891,
+                892,
+                7879,
+                2253,
+                7519,
+                11,
+                4666,
+                29663,
+                892,
+                1512,
+                11127,
+                21955,
+                13,
+                50679
+            ],
+            "temperature": 0.0,
+            "avg_logprob": -0.13089864452679953,
+            "compression_ratio": 1.671497584541063,
+            "no_speech_prob": 0.00029411280411295593,
+            "words": [
+                {
+                    "word": " Si",
+                    "start": 3.46,
+                    "end": 3.62,
+                    "probability": 0.9960175156593323
+                },
+                {
+                    "word": " nous",
+                    "start": 3.62,
+                    "end": 3.82,
+                    "probability": 0.9980607628822327
+                },
+                {
+                    "word": " connaissons",
+                    "start": 3.82,
+                    "end": 4.3,
+                    "probability": 0.996733287970225
+                },
+                {
+                    "word": " ces",
+                    "start": 4.3,
+                    "end": 4.42,
+                    "probability": 0.9753722548484802
+                },
+                {
+                    "word": " risques,",
+                    "start": 4.42,
+                    "end": 4.9,
+                    "probability": 0.9984988272190094
+                },
+                {
+                    "word": " nous",
+                    "start": 5.04,
+                    "end": 5.12,
+                    "probability": 0.9983207583427429
+                },
+                {
+                    "word": " pouvons",
+                    "start": 5.12,
+                    "end": 5.38,
+                    "probability": 0.9985635578632355
+                },
+                {
+                    "word": " les",
+                    "start": 5.38,
+                    "end": 5.52,
+                    "probability": 0.9980345368385315
+                },
+                {
+                    "word": " prévenir.",
+                    "start": 5.52,
+                    "end": 6.02,
+                    "probability": 0.9987134039402008
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "seek": 0,
+            "start": 6.54,
+            "end": 10.72,
+            "text": " C'est pourquoi il est essentiel d'évaluer le risque électrique dans le travail que vous effectuez.",
+            "tokens": [
+                50679,
+                383,
+                6,
+                377,
+                19934,
+                1930,
+                871,
+                47056,
+                1187,
+                274,
+                6,
+                526,
+                3337,
+                5486,
+                476,
+                37574,
+                30996,
+                22343,
+                2680,
+                476,
+                18047,
+                631,
+                2630,
+                1802,
+                31221,
+                13,
+                50919
+            ],
+            "temperature": 0.0,
+            "avg_logprob": -0.13089864452679953,
+            "compression_ratio": 1.671497584541063,
+            "no_speech_prob": 0.00029411280411295593,
+            "words": [
+                {
+                    "word": " C",
+                    "start": 6.54,
+                    "end": 6.62,
+                    "probability": 0.9964876174926758
+                },
+                {
+                    "word": "'est",
+                    "start": 6.62,
+                    "end": 6.72,
+                    "probability": 0.999508410692215
+                },
+                {
+                    "word": " pourquoi",
+                    "start": 6.72,
+                    "end": 6.96,
+                    "probability": 0.992970883846283
+                },
+                {
+                    "word": " il",
+                    "start": 6.96,
+                    "end": 7.04,
+                    "probability": 0.9845713376998901
+                },
+                {
+                    "word": " est",
+                    "start": 7.04,
+                    "end": 7.26,
+                    "probability": 0.9995456337928772
+                },
+                {
+                    "word": " essentiel",
+                    "start": 7.26,
+                    "end": 7.72,
+                    "probability": 0.9977443516254425
+                },
+                {
+                    "word": " d",
+                    "start": 7.72,
+                    "end": 7.84,
+                    "probability": 0.9985336065292358
+                },
+                {
+                    "word": "'évaluer",
+                    "start": 7.84,
+                    "end": 8.18,
+                    "probability": 0.998851478099823
+                },
+                {
+                    "word": " le",
+                    "start": 8.18,
+                    "end": 8.36,
+                    "probability": 0.9944504499435425
+                },
+                {
+                    "word": " risque",
+                    "start": 8.36,
+                    "end": 8.62,
+                    "probability": 0.998206377029419
+                },
+                {
+                    "word": " électrique",
+                    "start": 8.62,
+                    "end": 9.04,
+                    "probability": 0.9976292550563812
+                },
+                {
+                    "word": " dans",
+                    "start": 9.04,
+                    "end": 9.22,
+                    "probability": 0.9968888163566589
+                },
+                {
+                    "word": " le",
+                    "start": 9.22,
+                    "end": 9.44,
+                    "probability": 0.999138355255127
+                },
+                {
+                    "word": " travail",
+                    "start": 9.44,
+                    "end": 9.68,
+                    "probability": 0.9994539618492126
+                },
+                {
+                    "word": " que",
+                    "start": 9.68,
+                    "end": 9.86,
+                    "probability": 0.9991612434387207
+                },
+                {
+                    "word": " vous",
+                    "start": 9.86,
+                    "end": 10.08,
+                    "probability": 0.9993313550949097
+                },
+                {
+                    "word": " effectuez.",
+                    "start": 10.08,
+                    "end": 10.72,
+                    "probability": 0.9880262315273285
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "seek": 0,
+            "start": 11.36,
+            "end": 16.02,
+            "text": " Cette évaluation des risques en général, et du risque électrique en particulier, est obligatoire.",
+            "tokens": [
+                50919,
+                25556,
+                1136,
+                46504,
+                730,
+                2253,
+                7519,
+                465,
+                27796,
+                11,
+                1030,
+                1581,
+                37574,
+                30996,
+                22343,
+                465,
+                40400,
+                11,
+                871,
+                9270,
+                45575,
+                13,
+                51184
+            ],
+            "temperature": 0.0,
+            "avg_logprob": -0.13089864452679953,
+            "compression_ratio": 1.671497584541063,
+            "no_speech_prob": 0.00029411280411295593,
+            "words": [
+                {
+                    "word": " Cette",
+                    "start": 11.36,
+                    "end": 11.52,
+                    "probability": 0.9955627918243408
+                },
+                {
+                    "word": " évaluation",
+                    "start": 11.52,
+                    "end": 11.98,
+                    "probability": 0.9941836297512054
+                },
+                {
+                    "word": " des",
+                    "start": 11.98,
+                    "end": 12.18,
+                    "probability": 0.9974542260169983
+                },
+                {
+                    "word": " risques",
+                    "start": 12.18,
+                    "end": 12.46,
+                    "probability": 0.9959453344345093
+                },
+                {
+                    "word": " en",
+                    "start": 12.46,
+                    "end": 12.6,
+                    "probability": 0.9711800813674927
+                },
+                {
+                    "word": " général,",
+                    "start": 12.6,
+                    "end": 13.02,
+                    "probability": 0.9862159490585327
+                },
+                {
+                    "word": " et",
+                    "start": 13.26,
+                    "end": 13.34,
+                    "probability": 0.9975576400756836
+                },
+                {
+                    "word": " du",
+                    "start": 13.34,
+                    "end": 13.48,
+                    "probability": 0.9930487871170044
+                },
+                {
+                    "word": " risque",
+                    "start": 13.48,
+                    "end": 13.74,
+                    "probability": 0.9963324666023254
+                },
+                {
+                    "word": " électrique",
+                    "start": 13.74,
+                    "end": 14.16,
+                    "probability": 0.9969722628593445
+                },
+                {
+                    "word": " en",
+                    "start": 14.16,
+                    "end": 14.46,
+                    "probability": 0.9831722974777222
+                },
+                {
+                    "word": " particulier,",
+                    "start": 14.46,
+                    "end": 14.84,
+                    "probability": 0.9982695579528809
+                },
+                {
+                    "word": " est",
+                    "start": 15.22,
+                    "end": 15.36,
+                    "probability": 0.9989708662033081
+                },
+                {
+                    "word": " obligatoire.",
+                    "start": 15.36,
+                    "end": 16.02,
+                    "probability": 0.9982040822505951
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "seek": 0,
+            "start": 16.66,
+            "end": 17.36,
+            "text": " Nous allons en parler.",
+            "tokens": [
+                51184,
+                15343,
+                34405,
+                465,
+                16421,
+                13,
+                51259
+            ],
+            "temperature": 0.0,
+            "avg_logprob": -0.13089864452679953,
+            "compression_ratio": 1.671497584541063,
+            "no_speech_prob": 0.00029411280411295593,
+            "words": [
+                {
+                    "word": " Nous",
+                    "start": 16.66,
+                    "end": 16.78,
+                    "probability": 0.9986074566841125
+                },
+                {
+                    "word": " allons",
+                    "start": 16.78,
+                    "end": 16.96,
+                    "probability": 0.9985125660896301
+                },
+                {
+                    "word": " en",
+                    "start": 16.96,
+                    "end": 17.16,
+                    "probability": 0.9975401163101196
+                },
+                {
+                    "word": " parler.",
+                    "start": 17.16,
+                    "end": 17.36,
+                    "probability": 0.9983848333358765
+                }
+            ]
+        }
+    ],
+    "language": ""
+}
