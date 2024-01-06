@@ -44,13 +44,20 @@ const transitionType = {
 	STRAP: 'strap',
 };
 
+const dims = {
+	width: undefined,
+	height: undefined,
+};
+
+const TRANSITION_DURATION = 1000;
 // Dispatcher
 export class Actionner {
 	persos: Persos;
 	medias: Media;
 	display: Display;
 
-	seekMode = false;
+	seekMode: boolean = false;
+	seekElapsed: number | null = null;
 	state: StateAction = new Map();
 	actions: PersosAction = new Map();
 	transitions = new Map<TransitionId, TweenStyle | Strap>();
@@ -61,6 +68,7 @@ export class Actionner {
 		this.persos = persos;
 		this.medias = medias;
 		for (const action in this.action) this.action[action] = this.action[action].bind(this);
+		this.initMoveTransitions = this.initMoveTransitions.bind(this);
 	}
 
 	add = (id: PersoId, actions: PersoAction) => {
@@ -95,7 +103,8 @@ export class Actionner {
 	};
 
 	update = (up: Income) => {
-		this.setSeekMode(up.seek);
+		this.setSeekMode(up);
+
 		this.actions.forEach((actions, id) => {
 			if (!actions[up.name]) return;
 			const currentAction = mixActions(actions[up.name] as Action, up.data);
@@ -111,16 +120,19 @@ export class Actionner {
 		});
 	};
 
-	private setSeekMode = (seek: boolean) => {
-		if (seek) {
+	private setSeekMode = (up: Income) => {
+		if (up.seek) {
+			this.seekElapsed = up.delta + up.time;
 			if (this.seekMode === false) {
 				this.seekMode = true;
 				this.transitions.clear();
 			}
 		}
-		if (this.seekMode && !seek) {
+		if (this.seekMode && !up.seek) {
 			this.seekMode = false;
+			this.seekElapsed = null;
 		}
+		console.log('INCOME', up, this.seekElapsed);
 	};
 
 	updateTransitions = (delta: number) => {
@@ -192,49 +204,61 @@ export class Actionner {
 			default:
 				break;
 		}
-		this.persos.atMove({ id, target, order });
-		// const keys = this.persos.move({ id, target, order, zoom: this.display.zoom, state: this.state });
-
-		// this.initMoveTransitions(keys, up);
+		this.persos.atMove({ id, target, order, delta: up.delta });
 	}
 
-	initMoveTransitions(keys, delta) {
+	initMoveTransitions() {
+		if (this.seekMode) {
+			console.log('----->initMoveTransitions<-------', this.persos.moves.size);
+		}
+
+		const keys = this.persos.atTick(this.display.zoom, this.state);
 		if (!keys) return;
-		console.log('keys', keys);
+		console.log('KEYS', keys);
+
 		keys.forEach((key, id) => {
 			const perso = this.persos.store.get(id);
 			const { from, to, keepStyleProps } = key;
+
 			const onComplete = () => {
 				const action = this.state.get(id);
 
-				this.state.set(id, {
+				const update = {
 					...action,
-					style: { ...keepStyleProps, ...action?.style },
-				});
+					style: { ...action?.style, ...keepStyleProps, ...dims },
+				};
+				console.log('complete', id);
+
+				this.state.set(id, update);
 			};
 			this.display.render(id, { style: from });
 
 			const tween = new TweenStyle({
 				perso,
-				transition: { from, to, duration: 1000, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+				transition: { from, to, duration: TRANSITION_DURATION, onComplete, ease: ['easeOut', { x: 'backOut' }] },
 			});
 
-			if (this.seekMode) this.updateTween(key, tween, delta);
+			if (this.seekMode) {
+				console.log('seekMode', key.from, key.to);
+
+				this.updateTween(key, tween, this.seekElapsed);
+			}
 			this.transitions.set(key, tween);
 		});
 	}
 
-	flush = (delta: number) => {
-		const keys = this.persos.atTick(this.display.zoom, this.state);
-		this.initMoveTransitions(keys, delta);
-
+	flush = () => {
 		// TODO ajouter un override pour garantir qu'un élément à ajouter/retirer en priorité le soit ? -> voir onComplete
 		// eviter le syndrome !important
 		if (this.state.size) {
 			this.display.renderer(this.state);
+			if (this.seekMode) {
+				this.initMoveTransitions();
+			}
 			this.state.clear();
 		}
 	};
+
 	reset() {
 		this.state.clear();
 		this.transitions.clear();

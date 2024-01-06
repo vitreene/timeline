@@ -28,6 +28,7 @@ export class Controller {
 		this.ticker.handlers.store(this.medias.sync);
 
 		this.ticker.handlers.store(this.timer.update);
+		this.ticker.handlers.store(actionner.initMoveTransitions);
 		this.ticker.handlers.store(actionner.updateTransitions);
 		this.ticker.framers.store(actionner.flush);
 

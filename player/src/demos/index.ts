@@ -82,7 +82,7 @@ const items = Array.from(Array(5).keys()).map((index) => {
 });
 
 // @ts-ignore
-// items[3].actions.action02 = { move: false };
+items[3].actions.action02 = { move: false };
 // delete items[3].actions.enter;
 // @ts-ignore
 // items[3].actions.action03 = {
@@ -91,8 +91,8 @@ const items = Array.from(Array(5).keys()).map((index) => {
 // };
 // items[4].actions.action03 = { move: { to: LIST } };
 // items[1].actions.action04 = { move: { to: LIST, order: 'middle' } };
-items[2].actions.action02 = { move: { to: ROOT, order: 'first' } };
-// items[2].actions.action05 = { move: { to: LIST, order: 'first' } };
+// items[4].actions.action02 = { move: { to: ROOT, order: 'last' } };
+// items[4].actions.action05 = { move: { to: LIST, order: 'middle' } };
 // items[3].actions.action03 = { move: { order: 10 } };
 // items[0].actions.action03 = { move: { to: ROOT, order: 'toto' } };
 
@@ -113,8 +113,8 @@ preload(store).then((store) => {
 
 	controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
-	controller.start().play();
-	// controller.start();
+	// controller.start().play();
+	controller.start().seek(1720);
 
 	createTelco(controller, duration);
 	// PLAY

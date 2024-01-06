@@ -2,8 +2,9 @@ import { CONTAINER, ROOT, stage } from './constants';
 
 import type { Action, StateAction } from '~/main';
 
-import { Layer } from '~/display/layer';
 import type { Persos } from './perso';
+
+// TODO integrer Display à Persos.
 
 export class Display {
 	app: HTMLElement;
@@ -69,16 +70,7 @@ export class Display {
 	}
 
 	reset = () => {
-		this.persos.store.forEach((perso, id) => {
-			[...perso.node.attributes].forEach((attr) => perso.node.removeAttribute(attr.name));
-			perso.node.id = id;
-			perso.style = {};
-			perso.transform = null;
-			if ('child' in perso && perso.child instanceof Layer) {
-				console.log('RESET', id);
-				perso.child.reset();
-			}
-		});
+		this.persos.reset();
 		this.root();
 	};
 }

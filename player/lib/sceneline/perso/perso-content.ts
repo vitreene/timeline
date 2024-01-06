@@ -38,12 +38,13 @@ interface MoveContentProps {
 	order?: string | number;
 	zoom: number;
 	state: StateAction;
+	delta: number;
 }
 export class PersoContent2 extends PersoHandler {
 	moves = new Map<PersoId, Set<PersoId>>();
 
 	// set changes list
-	atMove({ id, target, order }: Partial<MoveContentProps>) {
+	atMove({ id, target, order, delta }: Partial<MoveContentProps>) {
 		const perso = this.store.get(id);
 		if (!perso) return;
 		const parent = typeof target === 'string' ? target : perso.parent;
@@ -82,8 +83,9 @@ export class PersoContent2 extends PersoHandler {
 
 		origin && perso.parent && this.moves.set(perso.parent, origin);
 		destination && parent && this.moves.set(parent, destination);
-		console.log(id, { origin, destination });
-		console.log('MOVES', ...this.moves);
+
+		// console.log(id, { origin, destination });
+		// console.log('MOVES', ...this.moves);
 	}
 
 	// oldPositions
@@ -106,13 +108,14 @@ export class PersoContent2 extends PersoHandler {
 
 		oldPositions.forEach((_, id) => {
 			state.has(id) && this.render(id, state.get(id));
+			// state.delete(id);
 		});
 
 		this.moves.forEach((content, parentId) => {
 			this.__nodePositionsUpdate(parentId, content);
 			content.forEach((id) => {
 				const position = this.__getPosition(id, zoom);
-				position && newPositions.set(id, this.__getPosition(id, zoom));
+				position && newPositions.set(id, position);
 			});
 		});
 
@@ -151,10 +154,6 @@ export class PersoContent2 extends PersoHandler {
 		return;
 	}
 
-	/* 
-	ne garde que le dernier id du content ? 
-	
-	*/
 	__getPosition(id: PersoId, zoom: number) {
 		const perso = this.store.get(id);
 		if (!perso.parent) return null;
@@ -167,6 +166,8 @@ export class PersoContent2 extends PersoHandler {
 			y: perso.style?.y * zoom || 0,
 		};
 		const rect = perso.node.getBoundingClientRect();
+		console.log(id, rect.x, rect.y);
+
 		return { rect, transform, keepStyleProps };
 	}
 
@@ -183,8 +184,10 @@ export class PersoContent2 extends PersoHandler {
 		oldPositions.forEach((position, childId) => {
 			const newPosition = newPositions.get(childId);
 			if (!newPosition) return;
+			// console.log('__positionsInitTransitions', childId, position, newPosition);
+
 			const { from, to } = positionsFromTo(childId, zoom, position, newPosition);
-			this.render(childId, { style: from });
+			// this.render(childId, { style: from });
 			keys.set(childId, {
 				id: childId,
 				from,
@@ -473,8 +476,6 @@ function applyZoom<KeyT>(obj: KeyT, zoom: number): KeyT {
 }
 
 function positionsFromTo(id: PersoId, zoom: number, oldPosition: Position, newPosition: Position) {
-	// console.log({ id, oldPosition, newPosition });
-
 	const from = applyZoom(
 		{
 			x: oldPosition.rect.x - newPosition.rect.x + oldPosition.transform.x,
@@ -494,5 +495,8 @@ function positionsFromTo(id: PersoId, zoom: number, oldPosition: Position, newPo
 		},
 		1 / zoom
 	);
+
+	console.log({ id, oldPosition, newPosition, from });
+
 	return { from, to };
 }

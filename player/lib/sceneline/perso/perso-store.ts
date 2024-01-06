@@ -10,9 +10,9 @@ import type { Matrix2D } from '../transform-types';
 import type { PersoNode, Action, ImgAction, Img, Content, ActionClassList, Style } from '~/main';
 
 export class PersoRender extends PersoBase {
-	handler: (emit: any) => void = () => {
-		console.log('handler');
-	};
+	// handler: (emit: any) => void = () => {
+	// 	console.log('handler');
+	// };
 
 	renderAll(zoom: number) {
 		this.store.forEach((perso: PersoNode) => {

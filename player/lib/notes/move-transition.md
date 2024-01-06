@@ -54,3 +54,28 @@ Au raf :
 - lancer les interpolations ;
 
 Envoyer les valeurs au mixeur sur un canal distinct qui prend le prend le pas sur les autres valeurs
+
+## a fixer
+
+le seek se déroule mal.
+des transitions sont engagées pour tous les élements lorsque une action est requise - retrait, déplacement - chaque élément perd sa position
+
+la méthode initMoveTransitions est appelée une seule fois, ce nest peut-etre pas suffisant ?
+-> les transitions sont toutes appelées en meme temps, meme si en logique elles devraient etre terminées. -> les transitions ne sont pas appelées au bon temps.
+
+au moins, il faudrait qu'elle soit appele une fois par cycle ou "move" a été demandé.
+
+echec des tests.
+Le déroulement du seek n'est pas identique au deroulement régulier.
+Il faut revoir la façon de réaliser l'opération.
+
+Il faudrait tester l'hypothèse ou la méthode ontick n'est appelée qu'une seule fois.
+toutes les modifs du onMove sont enregistrées, onTick n'est joué qu'une seule fois.
+
+Il y a un décalage entre le moment ou se calculent les transitions et le moment ou elles devraient se déclencher.
+en cacluant seulement les moves, je perds à quel moment ils ont lieu et si il faut effectuer des transitions.
+-> il faut passer le delta avec chaque move
+
+il faut passer le delta avec this.moves Map<parentid, Map<delta: content>>
+par souci d'efficacité, il faudrait eviter les lectures du DOM inutiles. Il faut donc éliminer les transitions achevées = elapsed > delta+ duration
+duration n'existe pas encore, il faudrait l'ajouter comme paramtre optionel de move
