@@ -116,6 +116,7 @@ export interface StrapType {
 export interface moveAction {
 	to: string;
 	order?: string | number;
+	duration?: number;
 }
 
 export type Content = string;

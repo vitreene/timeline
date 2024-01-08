@@ -191,10 +191,12 @@ export class Actionner {
 	move(id: PersoId, move: Action['move'], up: Income) {
 		let target = undefined;
 		let order = undefined;
+		let duration = undefined;
 		switch (typeof move) {
 			case 'object':
 				target = move.to;
 				order = move.order;
+				duration = move.duration;
 				break;
 			case 'string':
 			case 'boolean':
@@ -204,7 +206,7 @@ export class Actionner {
 			default:
 				break;
 		}
-		this.persos.atMove({ id, target, order, delta: up.delta });
+		this.persos.atMove({ id, target, order, delta: up.delta, duration });
 	}
 
 	initMoveTransitions() {

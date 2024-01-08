@@ -39,12 +39,13 @@ interface MoveContentProps {
 	zoom: number;
 	state: StateAction;
 	delta: number;
+	duration: number;
 }
-export class PersoContent2 extends PersoHandler {
+export class PersoContent extends PersoHandler {
 	moves = new Map<PersoId, Set<PersoId>>();
 
 	// set changes list
-	atMove({ id, target, order, delta }: Partial<MoveContentProps>) {
+	atMove({ id, target, order, duration, delta }: Partial<MoveContentProps>) {
 		const perso = this.store.get(id);
 		if (!perso) return;
 		const parent = typeof target === 'string' ? target : perso.parent;
@@ -81,11 +82,13 @@ export class PersoContent2 extends PersoHandler {
 				break;
 		}
 
+		/* 
+		items : set<id>
+		delta: number -> commun ; il peut y en avoir plusieurs si mode = seek
+		duration: number -> personnalisé par id
+		*/
 		origin && perso.parent && this.moves.set(perso.parent, origin);
 		destination && parent && this.moves.set(parent, destination);
-
-		// console.log(id, { origin, destination });
-		// console.log('MOVES', ...this.moves);
 	}
 
 	// oldPositions
@@ -265,191 +268,6 @@ export class PersoContent2 extends PersoHandler {
 		}
 
 		return { origin, destination };
-	}
-}
-
-export class PersoContent extends PersoContent2 {
-	positions = new Map<PersoId, Map<PersoId, Position>>();
-
-	move({ id, target, order, zoom, state }: MoveContentProps) {
-		if (!this.store.has(id)) return;
-		const parent = typeof target === 'string' ? target : this.store.get(id).parent;
-
-		const oldPositions = this.#getSiblingPositions(id, parent, zoom);
-		this.#positionsRenderState(id, state);
-		this.#moveContent(id, target, order);
-		this.#nodePositionsUpdate(parent);
-
-		const newPositions = this.#getSiblingPositions(id, parent, zoom);
-
-		return oldPositions.size ? this.#positionsInitTransitions(parent, zoom, oldPositions, newPositions) : null;
-	}
-
-	#moveContent(id: PersoId, target: undefined | boolean | PersoId, order?: string | number) {
-		const perso = this.store.get(id);
-		switch (typeof target) {
-			case 'undefined':
-				// move sans transition
-				this.#removeFromContent(id);
-				this.#addToContent(id, perso.parent, order);
-				return;
-
-			case 'boolean':
-				if (target) {
-					this.#removeFromContent(id);
-					this.#addToContent(id, perso.parent, order);
-				} else {
-					this.#removeFromContent(id);
-				}
-				break;
-			case 'string':
-				this.#addToContent(id, target, order);
-				if (perso.parent && perso.parent !== target) this.#removeFromContent(id);
-				perso.parent = target;
-				break;
-
-			default:
-				break;
-		}
-	}
-
-	#addToContent(id: PersoId, target: PersoId, order?: string | number) {
-		const perso = this.store.get(id);
-		perso.parent = target;
-		const parent = this.store.get(target);
-		parent.content.delete(id);
-
-		switch (typeof order) {
-			case 'undefined':
-				parent.content.add(id);
-
-				break;
-			case 'number':
-				{
-					const place = Math.min(order, parent.content.size);
-					parent.content.delete(id);
-					const newContent = Array.from(parent.content).toSpliced(place, 0, id);
-					parent.content = new Set(newContent);
-				}
-				break;
-			case 'string':
-				switch (order) {
-					case 'first':
-						parent.content = new Set([id, ...parent.content]);
-						break;
-					case 'last':
-						parent.content.add(id);
-						console.log('addToContent last-2', parent.content);
-						break;
-					case 'middle':
-						{
-							const half = Math.ceil(parent.content.size / 2);
-							const newContent = Array.from(parent.content).toSpliced(half, 0, id);
-							parent.content = new Set(newContent);
-						}
-						break;
-
-					default:
-						parent.content.add(id);
-						break;
-				}
-
-				break;
-			default:
-				break;
-		}
-	}
-
-	#removeFromContent(id: PersoId) {
-		const perso = this.store.get(id);
-		if (perso.parent) {
-			const parent = this.store.get(perso.parent);
-			parent.content.delete(perso.id);
-
-			// remove node
-		}
-	}
-
-	#getSiblingPositions(id: PersoId, target: PersoId, zoom: number) {
-		const parent = this.store.get(target);
-
-		const positions = new Map<string, Position>();
-		if (parent.content.size) {
-			parent.content.forEach((childId) => {
-				const perso = this.store.get(childId);
-				const keepStyleProps = {
-					width: perso.style?.width,
-					height: perso.style?.height,
-				};
-
-				const transform = {
-					x: perso.style?.x * zoom || 0,
-					y: perso.style?.y * zoom || 0,
-				};
-				const rect = perso.node.getBoundingClientRect();
-				positions.set(childId, { rect, transform, keepStyleProps });
-			});
-		}
-		return positions;
-	}
-
-	#positionsRenderState(id: PersoId, state: StateAction) {
-		state.has(id) && this.render(id, state.get(id));
-		const parent = this.store.get(id);
-		parent.content.forEach((childId) => state.has(childId) && this.render(childId, state.get(childId)));
-	}
-
-	#nodePositionsUpdate(parentId: PersoId) {
-		const parent = this.store.get(parentId);
-		while (parent.node.firstChild) {
-			parent.node.removeChild(parent.node.firstChild);
-		}
-
-		let child: HTMLElement | SVGElement | DocumentFragment;
-
-		if (parent.content.size > 1) {
-			child = document.createDocumentFragment();
-			parent.content.forEach((id) => {
-				const element = this.store.get(id);
-				child.appendChild(element.node);
-			});
-		} else if (parent.content.size === 1) {
-			const element = this.store.get(parent.content.values().next().value);
-			element && (child = element.node);
-		}
-
-		if (child) parent.node.appendChild(child);
-
-		return;
-	}
-
-	#positionsInitTransitions(
-		targetId: PersoId,
-		zoom: number,
-		oldPositions: Map<PersoId, Position>,
-		newPositions: Map<PersoId, Position>
-	) {
-		// const parent = this.store.get(targetId);
-		const keys = new Map<
-			PersoId,
-			{ id: PersoId; from: Point & Size; to: Point & Size; keepStyleProps: Size; type: string; name: string }
-		>();
-
-		oldPositions.forEach((position, childId) => {
-			const newPosition = newPositions.get(childId);
-			if (!newPosition) return;
-			const { from, to } = positionsFromTo(childId, zoom, position, newPosition);
-			this.render(childId, { style: from });
-			keys.set(childId, {
-				id: childId,
-				from,
-				to,
-				keepStyleProps: position.keepStyleProps,
-				type: transitionType.TRANSITION,
-				name: 'move',
-			});
-		});
-		return keys;
 	}
 }
 

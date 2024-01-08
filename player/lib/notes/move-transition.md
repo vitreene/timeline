@@ -79,3 +79,23 @@ en cacluant seulement les moves, je perds à quel moment ils ont lieu et si il f
 il faut passer le delta avec this.moves Map<parentid, Map<delta: content>>
 par souci d'efficacité, il faudrait eviter les lectures du DOM inutiles. Il faut donc éliminer les transitions achevées = elapsed > delta+ duration
 duration n'existe pas encore, il faudrait l'ajouter comme paramtre optionel de move
+
+atTick
+
+- elaguer les moves qui sont achevés :
+
+  - comparer seekElapsed et delta + duration = nDelta
+  - si seekElapsed > (delta + duration) , la transition est finie
+    - placer les elements mais ne pas créer de transitions
+  - sinon,
+
+- s'il reste plusieurs moves, les traiter dans l'ordre temporel.
+  - prendre les mesures,
+  - updater les elements,
+  - poser l'element,
+  - reprendre les mesures
+- renvoyer la collection de moves
+  - garder le delta, qui permettra de calculer le step de la transition
+
+Limite : l'ordre dans lequel les mesures sont faites est important : il faut que l'élément parent existe dans le DOM pour que la mesure puisse se faire.
+-> Si le parent n'est pas dans le DOM, il n'y a pas de transition de position à faire (les transitions d'apparition se font autrement)
