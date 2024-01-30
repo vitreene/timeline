@@ -32,6 +32,14 @@ const transitionType = {
 	STRAP: 'strap',
 };
 
+interface AddContentProps {
+	id: PersoId;
+	parent: PersoId;
+	order?: string | number;
+	delta: number;
+	duration: number;
+}
+
 interface MoveContentProps {
 	id: PersoId;
 	target: undefined | boolean | PersoId;
@@ -41,20 +49,27 @@ interface MoveContentProps {
 	delta: number;
 	duration: number;
 }
+
+interface DeltaMove {
+	id: PersoId;
+	delta: number;
+	duration: number;
+}
 export class PersoContent extends PersoHandler {
-	moves = new Map<PersoId, Set<PersoId>>();
+	moves = new Map<PersoId, Set<DeltaMove>>();
 
 	// set changes list
-	atMove({ id, target, order, duration, delta }: Partial<MoveContentProps>) {
+	atMove({ id, target, order, duration = 0, delta = 0 }: Partial<MoveContentProps>) {
 		const perso = this.store.get(id);
 		if (!perso) return;
 		const parent = typeof target === 'string' ? target : perso.parent;
-		let origin: Set<PersoId>;
-		let destination = new Set<PersoId>();
+
+		let origin: Set<DeltaMove>;
+		let destination = new Set<DeltaMove>();
 		switch (typeof target) {
 			case 'undefined': // move sans transition
 				{
-					const addToContent = this.__addToContent({ id, parent, order: undefined });
+					const addToContent = this.__addToContent({ id, parent, order: undefined, duration, delta });
 					origin = addToContent.origin;
 					destination = addToContent.destination;
 				}
@@ -62,17 +77,18 @@ export class PersoContent extends PersoHandler {
 
 			case 'boolean': // forcer ajout / retrait
 				if (target) {
-					const addToContent = this.__addToContent({ id, parent, order: undefined });
+					const addToContent = this.__addToContent({ id, parent, order: undefined, duration, delta });
 					origin = addToContent.origin;
 					destination = addToContent.destination;
 				} else {
 					origin = this.__deleteFromContent(id, parent);
 					destination = origin;
+					console.log('DELETE', id, origin);
 				}
 				break;
 			case 'string': // destination désignée
 				{
-					const addToContent = this.__addToContent({ id, parent, order });
+					const addToContent = this.__addToContent({ id, parent, order, duration, delta });
 					origin = addToContent.origin;
 					destination = addToContent.destination;
 				}
@@ -98,27 +114,27 @@ export class PersoContent extends PersoHandler {
 	// return from-to
 	atTick(zoom: number, state: StateAction) {
 		if (!this.moves.size) return;
+		console.log('atTick MOVES', ...this.moves);
 
 		const oldPositions = new Map<string, Position>();
 		const newPositions = new Map<string, Position>();
 
 		this.moves.forEach((content) => {
-			content.forEach((id) => {
+			content.forEach(({ id, delta, duration }) => {
 				const position = this.__getPosition(id, zoom);
-				position && oldPositions.set(id, position);
+				position && oldPositions.set(id, { ...position, delta, duration });
 			});
 		});
 
 		oldPositions.forEach((_, id) => {
 			state.has(id) && this.render(id, state.get(id));
-			// state.delete(id);
 		});
 
 		this.moves.forEach((content, parentId) => {
 			this.__nodePositionsUpdate(parentId, content);
-			content.forEach((id) => {
+			content.forEach(({ id, delta, duration }) => {
 				const position = this.__getPosition(id, zoom);
-				position && newPositions.set(id, position);
+				position && newPositions.set(id, { ...position, delta, duration });
 			});
 		});
 
@@ -128,7 +144,7 @@ export class PersoContent extends PersoHandler {
 		return keys;
 	}
 
-	__nodePositionsUpdate(parentId: PersoId, content: Set<PersoId>) {
+	__nodePositionsUpdate(parentId: PersoId, content: Set<DeltaMove>) {
 		const parent = this.store.get(parentId);
 
 		while (parent.node.firstChild) {
@@ -138,13 +154,13 @@ export class PersoContent extends PersoHandler {
 		let child: HTMLElement | SVGElement | DocumentFragment;
 		if (content.size > 1) {
 			child = document.createDocumentFragment();
-			content.forEach((id) => {
-				const element = this.store.get(id);
+			content.forEach((move) => {
+				const element = this.store.get(move.id);
 				element.parent = parentId;
 				child.appendChild(element.node);
 			});
 		} else if (content.size === 1) {
-			const element = this.store.get(content.values().next().value);
+			const element = this.store.get(content.values().next().value.id);
 			if (element) {
 				child = element.node;
 				element.parent = parentId;
@@ -152,14 +168,16 @@ export class PersoContent extends PersoHandler {
 		}
 
 		if (child) parent.node.appendChild(child);
-		parent.content = content;
+		const parentContent = new Set<PersoId>();
+		content.forEach((move) => parentContent.add(move.id));
+		parent.content = parentContent;
 
 		return;
 	}
 
 	__getPosition(id: PersoId, zoom: number) {
 		const perso = this.store.get(id);
-		if (!perso.parent) return null;
+		if (!perso.parent || !perso.node.isConnected) return null;
 		const keepStyleProps = {
 			width: perso.style?.width,
 			height: perso.style?.height,
@@ -181,7 +199,16 @@ export class PersoContent extends PersoHandler {
 	) {
 		const keys = new Map<
 			PersoId,
-			{ id: PersoId; from: Point & Size; to: Point & Size; keepStyleProps: Size; type: string; name: string }
+			{
+				id: PersoId;
+				from: Point & Size;
+				to: Point & Size;
+				keepStyleProps: Size;
+				type: string;
+				name: string;
+				delta: number;
+				duration: number;
+			}
 		>();
 
 		oldPositions.forEach((position, childId) => {
@@ -198,55 +225,70 @@ export class PersoContent extends PersoHandler {
 				keepStyleProps: position.keepStyleProps,
 				type: transitionType.TRANSITION,
 				name: 'move',
+				delta: position.delta,
+				duration: position.duration,
 			});
 		});
 		return keys;
 	}
 
+	getMovesFromParent(parent: PersoId) {
+		const content = new Set<DeltaMove>();
+		this.store.get(parent)?.content.forEach((id) => content.add({ id, duration: 0, delta: 0 }));
+		return content;
+	}
+
 	__deleteFromContent(id: PersoId, parent: PersoId) {
-		const content: Set<PersoId> = this.moves.has(parent)
+		const content: Set<DeltaMove> = this.moves.has(parent)
 			? this.moves.get(parent)
-			: this.store.get(parent)?.content;
+			: this.getMovesFromParent(parent);
 		if (!content) return null;
 
 		const origin = new Set(content);
-		origin.delete(id);
+		origin.forEach((element) => element.id === id && origin.delete(element));
 		this.store.get(id).parent = null;
 		return origin;
 	}
 
-	__addToContent({ id, parent, order }) {
+	__addToContent({ id, parent, order, duration, delta }: AddContentProps) {
 		const perso = this.store.get(id);
-		let origin: Set<PersoId> | undefined;
-		let destination = new Set<PersoId>();
+		const persoMove = { id, duration, delta };
+
+		let origin: Set<DeltaMove> | undefined;
+		let destination = new Set<DeltaMove>();
 
 		const isInContent = perso.parent === parent;
-		const content = new Set<PersoId>(
-			this.moves.get(parent) || this.store.get(parent)?.content || new Set<PersoId>()
+		const content = new Set<DeltaMove>(
+			this.moves.get(parent) || this.getMovesFromParent(parent) || new Set<DeltaMove>()
 		);
-		isInContent && content.delete(id);
+		isInContent && content.forEach((element) => element.id === id && content.delete(element));
 
 		if (perso.parent && !isInContent) {
 			origin = this.__deleteFromContent(id, perso.parent);
 			parent && (perso.parent = parent);
 		}
 
+		if (parent && !perso.parent) {
+			perso.parent = parent;
+			// persoMove.duration = -1;
+		}
+
 		switch (typeof order) {
 			case 'number': {
 				const place = Math.min(order, content.size);
-				const newContent = Array.from(content).toSpliced(place, 0, id);
+				const newContent = Array.from(content).toSpliced(place, 0, persoMove);
 				destination = new Set(newContent);
 			}
 
 			case 'string': {
 				switch (order) {
 					case 'first':
-						destination = new Set([id, ...content]);
+						destination = new Set(content).add(persoMove);
 						break;
 					case 'middle':
 						{
 							const half = Math.ceil(content.size / 2);
-							const newContent = Array.from(content).toSpliced(half, 0, id);
+							const newContent = Array.from(content).toSpliced(half, 0, persoMove);
 							destination = new Set(newContent);
 						}
 						break;
@@ -254,8 +296,8 @@ export class PersoContent extends PersoHandler {
 					case 'last':
 					default:
 						destination = new Set(content);
-						if (isInContent) destination.delete(id);
-						destination.add(id);
+						if (isInContent) destination.forEach((element) => element.id === id && destination.delete(element));
+						destination.add(persoMove);
 						break;
 				}
 				break;
@@ -263,7 +305,7 @@ export class PersoContent extends PersoHandler {
 			case 'undefined':
 			default:
 				destination = new Set(content);
-				destination.add(id);
+				destination.add(persoMove);
 				break;
 		}
 
@@ -283,6 +325,8 @@ interface Position {
 	rect: Point & Size;
 	transform: Point;
 	keepStyleProps: Size;
+	delta: number;
+	duration: number;
 }
 
 type KeyT<T extends Record<string, any>> = Record<keyof T, any>;

@@ -132,7 +132,6 @@ export class Actionner {
 			this.seekMode = false;
 			this.seekElapsed = null;
 		}
-		console.log('INCOME', up, this.seekElapsed);
 	};
 
 	updateTransitions = (delta: number) => {
@@ -189,6 +188,7 @@ export class Actionner {
 	}
 
 	move(id: PersoId, move: Action['move'], up: Income) {
+		console.log('INCOME', up, this.seekElapsed);
 		let target = undefined;
 		let order = undefined;
 		let duration = undefined;
@@ -233,18 +233,24 @@ export class Actionner {
 
 				this.state.set(id, update);
 			};
-			this.display.render(id, { style: from });
 
+			this.display.render(id, { style: from });
 			const tween = new TweenStyle({
 				perso,
-				transition: { from, to, duration: TRANSITION_DURATION, onComplete, ease: ['easeOut', { x: 'backOut' }] },
+				transition: {
+					from,
+					to,
+					duration: key.duration || TRANSITION_DURATION,
+					onComplete,
+					ease: ['easeOut', { x: 'backOut' }],
+				},
 			});
 
 			if (this.seekMode) {
-				console.log('seekMode', key.from, key.to);
-
-				this.updateTween(key, tween, this.seekElapsed);
+				console.log('seekMode', key.from, key.to, key);
+				this.updateTween(key, tween, this.seekElapsed - key.delta);
 			}
+
 			this.transitions.set(key, tween);
 		});
 	}
