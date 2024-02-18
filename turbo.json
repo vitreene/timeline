@@ -2,14 +2,24 @@
 	"$schema": "https://turbo.build/schema.json",
 	"pipeline": {
 		"build": {
-			"outputs": ["dist/**"]
+			"outputs": [
+				"dist/**"
+			]
 		},
 		"dev": {
-			"inputs": ["src/**", "public/**"]
+			"inputs": [
+				"src/**",
+				"public/**"
+			]
 		},
-		"dev:demos": {
-			"dependsOn": ["^build"],
-			"inputs": ["src/**", "public/**"],
+		"dev:editor": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"src/**",
+				"public/**"
+			],
 			"cache": false,
 			"persistent": true
 		},

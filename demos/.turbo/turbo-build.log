@@ -1,0 +1,26 @@
+
+
+> demos@0.1.0 build
+> vite build
+
+[36mvite v4.5.2 [32mbuilding for production...[36m[39m
+[2K[1Gtransforming (1) [2mindex.html[22m[2K[1G[32m✓[39m 4 modules transformed.
+[32m✓ built in 59ms[39m
+[31m[commonjs--resolver] Failed to resolve entry for package "@vitreene/player". The package may have incorrect main/module/exports specified in its package.json.[39m
+[31merror during build:
+Error: Failed to resolve entry for package "@vitreene/player". The package may have incorrect main/module/exports specified in its package.json.
+    at packageEntryFailure (file:///Users/Rve/Projets/2JP/timeline/node_modules/vite/dist/node/chunks/dep-52909643.js:28725:11)
+    at resolvePackageEntry (file:///Users/Rve/Projets/2JP/timeline/node_modules/vite/dist/node/chunks/dep-52909643.js:28722:5)
+    at tryNodeResolve (file:///Users/Rve/Projets/2JP/timeline/node_modules/vite/dist/node/chunks/dep-52909643.js:28453:20)
+    at Object.resolveId (file:///Users/Rve/Projets/2JP/timeline/node_modules/vite/dist/node/chunks/dep-52909643.js:28212:28)
+    at file:///Users/Rve/Projets/2JP/timeline/node_modules/rollup/dist/es/shared/node-entry.js:25544:40
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PluginDriver.hookFirstAndGetPlugin (file:///Users/Rve/Projets/2JP/timeline/node_modules/rollup/dist/es/shared/node-entry.js:25444:28)
+    at async resolveId (file:///Users/Rve/Projets/2JP/timeline/node_modules/rollup/dist/es/shared/node-entry.js:24117:26)
+    at async ModuleLoader.resolveId (file:///Users/Rve/Projets/2JP/timeline/node_modules/rollup/dist/es/shared/node-entry.js:24531:15)
+    at async Object.resolveId (file:///Users/Rve/Projets/2JP/timeline/node_modules/vite/dist/node/chunks/dep-52909643.js:7910:10)[39m
+[37;40mnpm[0m [0m[31;40mERR![0m [0m[35mLifecycle script `build` failed with error:[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35mError: command failed[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35m  in workspace: demos@0.1.0[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35m  at location: /Users/Rve/Projets/2JP/timeline/demos[0m 
+[0m

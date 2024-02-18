@@ -1,0 +1,33 @@
+
+
+> @vitreene/player@0.2.0 build
+> tsc && vite build --watch
+
+[96msrc/demos/index01.ts[0m:[93m1[0m:[93m22[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../player/src/sceneline/constants' or its corresponding type declarations.
+
+[7m1[0m import { ROOT } from '../../../../player/src/sceneline/constants';
+[7m [0m [91m                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/demos/index01.ts[0m:[93m2[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../player/src/sceneline/controller' or its corresponding type declarations.
+
+[7m2[0m import { Controller } from '../../../../player/src/sceneline/controller';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/demos/index01.ts[0m:[93m4[0m:[93m34[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../player/src/sceneline/types' or its corresponding type declarations.
+
+[7m4[0m import { PersosTypes as P } from '../../../../player/src/sceneline/types';
+[7m [0m [91m                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/demos/index01.ts[0m:[93m6[0m:[93m56[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../player/src/sceneline/types' or its corresponding type declarations.
+
+[7m6[0m import type { MapEvent, PersoStore, TimeOptions } from '../../../../player/src/sceneline/types';
+[7m [0m [91m                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Found 4 errors in the same file, starting at: src/demos/index01.ts[90m:1[0m
+
+[37;40mnpm[0m [0m[31;40mERR![0m [0m[35mLifecycle script `build` failed with error:[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35mError: command failed[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35m  in workspace: @vitreene/player@0.2.0[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35m  at location: /Users/Rve/Projets/2JP/timeline/player[0m 
+[0m

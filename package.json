@@ -6,12 +6,14 @@
 	"license": "ISC",
 	"workspaces": [
 		"player",
-		"demos"
+		"editor"
 	],
 	"scripts": {
 		"dev": "turbo run dev",
 		"dev:demos": "turbo run dev:demos",
+		"dev:editor": "turbo run dev:editor",
 		"build": "turbo run build",
+		"build:player": "turbo run build:player",
 		"lint": "tsc",
 		"preview": "vite preview",
 		"test": "vitest",
@@ -20,8 +22,8 @@
 	"devDependencies": {
 		"@types/three": "^0.158.1",
 		"happy-dom": "12.10.3",
-		"turbo": "^1.11.3",
-		"typescript": "^5.2.2",
+		"turbo": "^1.12.4",
+		"typescript": "5.3.3",
 		"vite": "^4.5",
 		"vitest": "^0.34.6"
 	},

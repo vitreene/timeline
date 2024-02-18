@@ -2,6 +2,7 @@ import type { PersoNode } from '~/main';
 import { PersoRender } from './perso-store';
 
 export class PersoHandler extends PersoRender {
+	handler;
 	addHandler(handler) {
 		this.handler = handler;
 	}
