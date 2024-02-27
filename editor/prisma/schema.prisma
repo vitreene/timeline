@@ -7,21 +7,65 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model Scene {
+  id       Int          @id @default(autoincrement())
+  capsules Capsule[]
+  medias   SceneMedia[]
 }
 
-model Post {
+model SceneMedia {
+  id      Int    @id @default(autoincrement())
+  order   Int
+  events  String // JSON
+  mediaId Int    @map("media_id")
+  media   Media  @relation(fields: [mediaId], references: [id])
+  sceneId Int    @map("scene_id")
+  scene   Scene  @relation(fields: [sceneId], references: [id])
+
+  @@map("scene_media")
+}
+
+// enum TypeMedia {
+//   img
+//   txt
+//   son
+//   video
+//   capsule
+// }
+
+model Media {
+  id             Int              @id @default(autoincrement())
+  type           String
+  path           String?
+  content        String?
+  sceneMedia     SceneMedia[]
+  capsuleElement CapsuleElement[]
+}
+
+model Capsule {
+  id       Int              @id @default(autoincrement())
+  type     String
+  elements CapsuleElement[]
+  sceneId  Int              @map("scene_id")
+  scene    Scene            @relation(fields: [sceneId], references: [id])
+}
+
+model CapsuleElement {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  viewCount Int      @default(0)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  order     Int
+  events    Event[]
+  mediaId   Int      @map("media_id")
+  media     Media    @relation(fields: [mediaId], references: [id])
+  capsuleId Int      @map("capsule_id")
+  capsule   Capsule? @relation(fields: [capsuleId], references: [id])
+}
+
+model Event {
+  id      Int    @id @default(autoincrement())
+  name    String
+  action  String
+  startAt Float  @map("start_at")
+
+  elementId Int?            @map("element_id")
+  element   CapsuleElement? @relation(fields: [elementId], references: [id])
 }

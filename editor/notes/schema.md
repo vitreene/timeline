@@ -17,17 +17,18 @@ la bdd décrit l'éditeur, la publication compilera les données
 Scene
 
 - id
-- sceneMedias
-- capsules
+- capsules : liste d'éléments présentés
+- sceneMedias : liste des supports sonores
 
 3. SceneMedia
 
-- id
 - refScene
 - refMedia
 - ordre
 - events : json
   une liste d'évents {label: temps} associé à un media créées par whisper
+  Plusieurs sons possibles par scene.
+  Les sons s'enchainent les uns après les autres.
 
 Media
 
