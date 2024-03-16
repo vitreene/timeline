@@ -9,8 +9,11 @@ datasource db {
 
 model Scene {
   id       Int          @id @default(autoincrement())
+  title    String       @default("Scène")
   capsules Capsule[]
   medias   SceneMedia[]
+
+  @@map("scene")
 }
 
 model SceneMedia {
@@ -38,8 +41,11 @@ model Media {
   type           String
   path           String?
   content        String?
+  lang           String?
   sceneMedia     SceneMedia[]
   capsuleElement CapsuleElement[]
+
+  @@map("media")
 }
 
 model Capsule {
@@ -48,6 +54,8 @@ model Capsule {
   elements CapsuleElement[]
   sceneId  Int              @map("scene_id")
   scene    Scene            @relation(fields: [sceneId], references: [id])
+
+  @@map("capsule")
 }
 
 model CapsuleElement {
@@ -58,14 +66,18 @@ model CapsuleElement {
   media     Media    @relation(fields: [mediaId], references: [id])
   capsuleId Int      @map("capsule_id")
   capsule   Capsule? @relation(fields: [capsuleId], references: [id])
+
+  @@map("capsule_element")
 }
 
 model Event {
-  id      Int    @id @default(autoincrement())
-  name    String
-  action  String
-  startAt Float  @map("start_at")
+  id       Int    @id @default(autoincrement())
+  name     String
+  action   String
+  duration Int?
 
   elementId Int?            @map("element_id")
   element   CapsuleElement? @relation(fields: [elementId], references: [id])
+
+  @@map("event")
 }

@@ -27,3 +27,11 @@ Les listes sont des générateurs associé à une interface.
 une liste peut recevoir des composants plus complexes, comme des cartes (associant une image et des textes) ou encore des layers pour des compositions complexes.
 
 A chaque layer correspond une div parente.
+
+TODOs :
+
+- completer les transactions database ;
+- créer le layout de base
+- créer le layout et logique d'une capsule
+- intéraction mots-images
+- import de medias
