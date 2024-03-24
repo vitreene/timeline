@@ -5,6 +5,10 @@
 </script>
 
 <div>
+	<form id="text-time" method="POST" action="?/transition">
+		<button type="reset">reset</button>
+	</form>
+
 	{#if capsules.length == 0}
 		<h2>CAPSULEs</h2>
 	{:else}

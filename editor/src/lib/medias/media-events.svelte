@@ -4,10 +4,10 @@
 	export let events: Array<TextTime>;
 </script>
 
-<ul>
+<ul class="text-in-time">
 	{#each events as event}
 		<li class="text-in-time-item">
-			<input type="radio" id={event.id} name="text-in-time" value={event.id} />
+			<input form="text-time" type="radio" id={event.id} name="text-in-time" value={event.id} />
 			<label for={event.id}>
 				{event.text}
 			</label>
@@ -16,14 +16,23 @@
 </ul>
 
 <style>
+	.text-in-time {
+		margin: 0;
+		padding: 0;
+	}
+
 	.text-in-time-item {
-		margin: 0.4rem 0.2rem;
+		font-size: 0.8rem;
+		margin: 0.5em 0.25em;
 		display: inline-block;
 	}
 	.text-in-time-item label {
 		background-color: aliceblue;
-		border-radius: 1rem;
-		padding: 0.25rem 0.5rem;
+		border-radius: 1em;
+		padding: 0.25em 0.5em;
+	}
+	.text-in-time-item label:hover {
+		background-color: coral;
 	}
 	.text-in-time-item input:checked + label {
 		background-color: brown;

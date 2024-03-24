@@ -9,14 +9,13 @@
 
 <style>
 	.app {
+		/* position: absolute; */
 		background-color: beige;
-		min-height: 100%;
-		min-width: 100%;
-		height: auto !important;
-		height: 100%;
 		width: 100%;
-		display: grid;
-		grid-area: 1 /1;
+		height: 100vh;
+		min-height: 100vh;
+		max-height: 100vh;
 		padding: 2rem;
+		overflow-y: scroll;
 	}
 </style>

@@ -6,15 +6,22 @@
 	console.log(medias);
 </script>
 
-<div class="medias">Médias</div>
-<ul>
-	{#each medias as media}
-		<li class="scene-media-list-item"><MediaEvents {media} /></li>
-	{/each}
-</ul>
+<div class="medias">
+	<h4>Médias</h4>
+	<ul>
+		{#each medias as media}
+			<li class="scene-media-list-item"><MediaEvents {media} /></li>
+		{/each}
+	</ul>
+</div>
 
 <style>
 	.scene-media-list-item {
 		position: relative;
+	}
+	.medias ul,
+	.medias li {
+		margin: 0;
+		padding: 0;
 	}
 </style>
