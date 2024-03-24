@@ -4,8 +4,8 @@
 	export let capsule: CapsuleComp;
 </script>
 
-<details open>
-	<summary class="bold">{capsule.type} </summary>
+<details class="capsule" open>
+	<summary class="capsule-type">{capsule.type} </summary>
 
 	{#each capsule.elements as element}
 		<Media {element} />
@@ -13,7 +13,16 @@
 </details>
 
 <style>
-	.bold {
+	.capsule {
+		margin: 1rem 0;
+		padding: 0 0.25rem 2rem;
+		border: thin solid gray;
+		background-color: bisque;
+	}
+	.capsule-type {
+		margin: 0.5rem 0;
 		font-weight: bold;
+		font-size: 0.85rem;
+		font-variant: small-caps;
 	}
 </style>

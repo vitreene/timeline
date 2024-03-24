@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import path from 'node:path';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -84,6 +86,8 @@ async function main() {
 		newCapsuleElements.push(nce);
 	}
 
+	addSoundToScene(newScene.id);
+
 	console.log(`Seeding finished.`);
 }
 
@@ -96,3 +100,42 @@ main()
 		await prisma.$disconnect();
 		process.exit(1);
 	});
+
+export interface TextTime {
+	id: string;
+	text: string;
+	start: number;
+	end: number;
+}
+
+async function addSoundToScene(sceneId = 1) {
+	const sound = '/assets/1_7b_e.mp3';
+
+	const response = await fs.readFile(`${process.cwd()}/static/assets/custom_transcript.json`, {
+		encoding: 'utf8',
+	});
+
+	const eventsSound: Array<TextTime> = await JSON.parse(response);
+
+	const media = await prisma.media.create({
+		data: {
+			type: 'sound',
+			path: sound,
+			lang: 'fr',
+		},
+	});
+
+	const sceneMedia = await prisma.sceneMedia.create({
+		data: {
+			order: 1,
+			events: JSON.stringify(
+				eventsSound.map((e, index) => ({
+					...e,
+					id: `${media.id}-${index.toString().padStart(3, '0')}-${e.text.trim().replace(/[(?:\W)]+/g, '')}`,
+				}))
+			),
+			sceneId,
+			mediaId: media.id,
+		},
+	});
+}

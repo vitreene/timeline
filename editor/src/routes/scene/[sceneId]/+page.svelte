@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Capsules from '$lib/capsules/capsules.svelte';
+	import Medias from '$lib/medias/medias.svelte';
 	export let data: PageData;
 	console.log('page data', data);
 	const scene = data.scene;
-	console.log('page scene', scene);
 
 	// console.log(scene.capsules[0].elements);
 </script>
@@ -16,7 +16,7 @@
 			<div class="live">2</div>
 			<div class="capsule"><Capsules capsules={scene.capsules} /></div>
 			<div class="controle">controle</div>
-			<div class="media">media</div>
+			<div class="media"><Medias medias={scene.medias} /></div>
 		</main>
 	{/if}
 </div>

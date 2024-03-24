@@ -13,12 +13,17 @@
 <style>
 	section {
 		margin-bottom: 0.5rem;
+		border: thin gray solid;
 	}
 	p {
 		margin: 0;
+		padding: 0.25rem 0.5rem;
+		font-size: 0.85rem;
+		font-variant: small-caps;
 	}
 	.vignette {
 		margin: 0;
+		padding: 0;
 		object-fit: contain;
 		max-width: 100%;
 		aspect-ratio: 4/3;
