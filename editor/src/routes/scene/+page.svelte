@@ -3,8 +3,6 @@
 
 	export let data: PageData;
 	const scene = data.scene;
-	console.log('page scene', scene);
-	// console.log(scene.capsules[0].elements);
 </script>
 
 <div>

@@ -11,7 +11,7 @@ export async function GET({ request }) {
 	const sceneId = 1;
 
 	const scene = await db.getScene(sceneId);
-	console.log('+scene : ', scene);
+	// 	console.log('+scene : ', scene);
 
 	return json({ scene });
 	// return json({ response: 'KO' });

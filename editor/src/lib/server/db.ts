@@ -49,6 +49,7 @@ export async function getScene(sceneId: number): Promise<SceneComp> {
 					elements: {
 						include: {
 							media: true,
+							events: true,
 						},
 					},
 				},
@@ -85,4 +86,16 @@ export async function createCapsule({ sceneId, type }: { sceneId: number; type: 
 
 export async function deleteCapsule(id: number) {
 	return await prisma.capsule.delete({ where: { id } });
+}
+
+export async function addEventtoMedia(name: string, action: string, duration: number, elementId: number) {
+	const event = await prisma.event.create({
+		data: {
+			name,
+			action,
+			duration,
+			element: { connect: { id: elementId } },
+		},
+	});
+	return event;
 }

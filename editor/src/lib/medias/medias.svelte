@@ -3,7 +3,6 @@
 	import type { SceneMedia } from '$lib/server/db';
 
 	export let medias: Array<SceneMedia>;
-	console.log(medias);
 </script>
 
 <div class="medias">

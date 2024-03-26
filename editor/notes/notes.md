@@ -35,3 +35,18 @@ TODOs :
 - créer le layout et logique d'une capsule
 - intéraction mots-images
 - import de medias
+
+-> 25/03
+réactions à l'envoi du form "transition"
+
+- enregistrement bdd
+  - créer event
+- mise à jour de l'ui
+
+  - coloration du TextTime == count name dans events
+  - voir l'event dans la capsule
+  - pouvoir effacer l'event
+
+  dans le modele d'event, il n'y a rien qui me permette directement de filtrer les events d'une scene !
+  si un meme son est employé dans pllusieurs scenes, alors le compte sera faussé.
+  scene-> capsules-> elements -> events

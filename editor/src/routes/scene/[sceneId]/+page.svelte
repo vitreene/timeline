@@ -3,7 +3,6 @@
 	import Capsules from '$lib/capsules/capsules.svelte';
 	import Medias from '$lib/medias/medias.svelte';
 	export let data: PageData;
-	console.log('page data', data);
 	const scene = data.scene;
 </script>
 
