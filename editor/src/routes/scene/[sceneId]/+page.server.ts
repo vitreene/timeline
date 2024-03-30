@@ -9,16 +9,20 @@ export const load = async ({ params }) => {
 
 export const actions: Actions = {
 	transition: async ({ request }) => {
-		console.log('transition =>');
 		const data = await request.formData();
 		const [action, elementId] = (data.get('action') as string).split('/');
 		const name = data.get('text-in-time') as string;
 		const duration = 0;
 		if (name) {
-			db.addEventtoMedia(name, action, duration, Number(elementId));
+			return db.addEventtoMedia(name, action, duration, Number(elementId));
 		}
-		console.log(actions);
-		console.log(data);
+	},
+
+	'delete-transition': async ({ request }) => {
+		console.log('delete-transition');
+		const data = await request.formData();
+		const [action, elementId] = (data.get('action') as string).split('/');
+		return db.removeEventFromMedia(action, Number(elementId));
 	},
 };
 

@@ -1,7 +1,11 @@
 <script lang="ts">
-	import type { CapsuleComp } from '$lib/server/db';
+	import type { CapsuleComp, SceneMedia } from '$lib/server/db';
 	import Capsule from './capsule.svelte';
+
 	export let capsules: Array<CapsuleComp>;
+	export let medias: Array<SceneMedia>;
+
+	const mediasEvents = new Map(medias.flatMap((m) => m.events).map((e) => [e.id, e]));
 </script>
 
 <div>
@@ -13,7 +17,7 @@
 		<h2>CAPSULEs</h2>
 	{:else}
 		{#each capsules as capsule}
-			<Capsule {capsule} />
+			<Capsule {capsule} {mediasEvents} />
 		{/each}
 	{/if}
 </div>

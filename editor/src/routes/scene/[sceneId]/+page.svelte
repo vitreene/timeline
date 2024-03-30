@@ -4,15 +4,16 @@
 	import Medias from '$lib/medias/medias.svelte';
 	export let data: PageData;
 	const scene = data.scene;
+	const { medias, capsules } = scene;
 </script>
 
 {#if scene !== null}
 	<main class="scene">
 		<div class="chutier">1</div>
 		<div class="live">2</div>
-		<div class="capsule"><Capsules capsules={scene.capsules} /></div>
+		<div class="capsule"><Capsules {medias} {capsules} /></div>
 		<div class="controle">controle</div>
-		<div class="media"><Medias medias={scene.medias} /></div>
+		<div class="media"><Medias {medias} /></div>
 	</main>
 {/if}
 

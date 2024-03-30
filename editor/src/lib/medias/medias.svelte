@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MediaEvents from './scene-medias.svelte';
+	import SceneMediaEvents from './scene-medias.svelte';
 	import type { SceneMedia } from '$lib/server/db';
 
 	export let medias: Array<SceneMedia>;
@@ -9,7 +9,7 @@
 	<h4>Médias</h4>
 	<ul>
 		{#each medias as media}
-			<li class="scene-media-list-item"><MediaEvents {media} /></li>
+			<li class="scene-media-list-item"><SceneMediaEvents {media} /></li>
 		{/each}
 	</ul>
 </div>

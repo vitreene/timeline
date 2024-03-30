@@ -71,13 +71,13 @@ model CapsuleElement {
 }
 
 model Event {
-  id       Int    @id @default(autoincrement())
   name     String
   action   String
   duration Int?
 
-  elementId Int?            @map("element_id")
-  element   CapsuleElement? @relation(fields: [elementId], references: [id])
+  elementId Int            @map("element_id")
+  element   CapsuleElement @relation(fields: [elementId], references: [id])
 
+  @@id([elementId, action])
   @@map("event")
 }

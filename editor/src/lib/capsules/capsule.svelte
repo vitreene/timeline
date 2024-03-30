@@ -1,14 +1,17 @@
 <script lang="ts">
-	import type { CapsuleComp } from '$lib/server/db';
-	import Media from './media.svelte';
+	import type { CapsuleComp, TextTime } from '$lib/server/db';
+	import Media from './capsule-media.svelte';
 	export let capsule: CapsuleComp;
+	export let mediasEvents: Map<string, TextTime>;
+	const noTextTime: TextTime = { id: '', start: 0, end: 0, text: '' };
+	const getTextTime = (id: string) => mediasEvents.get(id) ?? noTextTime;
 </script>
 
 <details class="capsule" open>
 	<summary class="capsule-type">{capsule.type} </summary>
 
 	{#each capsule.elements as element}
-		<Media {element} />
+		<Media {element} {getTextTime} />
 	{/each}
 </details>
 
