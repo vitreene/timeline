@@ -13,7 +13,7 @@
 		<div class="live">2</div>
 		<div class="capsule"><Capsules {medias} {capsules} /></div>
 		<div class="controle">controle</div>
-		<div class="media"><Medias {medias} /></div>
+		<div class="media"><Medias {medias} {capsules} /></div>
 	</main>
 {/if}
 
