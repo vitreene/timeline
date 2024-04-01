@@ -17,8 +17,8 @@
 			"~public/*": ["public/*"]
 		}
 	},
-	"include": ["lib", "src", "public"],
-	"references": [{ "path": "./tsconfig.node.json" }],
-
+	// "include": ["lib", "src", "public"],
+	"include": ["src/**/*.ts", "lib/**/*.ts"],
 	"exclude": ["node_modules"]
+	// "references": [{ "path": "./tsconfig.node.json" }],
 }

@@ -8,6 +8,7 @@
 		},
 		"dev": {
 			"inputs": [
+				"lib/**",
 				"src/**",
 				"public/**"
 			]
