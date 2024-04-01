@@ -113,8 +113,8 @@ preload(store).then((store) => {
 
 	controller = new Controller(store, events);
 	const duration = END_SEQUENCE;
-	// controller.start().play();
-	controller.start().seek(1550);
+	controller.start().play();
+	// controller.start().seek(1550);
 
 	createTelco(controller, duration);
 	// PLAY

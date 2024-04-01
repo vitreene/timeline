@@ -35,10 +35,10 @@
   },
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^5.10.2"
+    "@prisma/client": "^5.10.2",
+    "@vitreene/player": "*"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts",
-    "@vitreene/player": "*"
+    "seed": "tsx prisma/seed.ts"
   }
 }

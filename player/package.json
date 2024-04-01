@@ -4,20 +4,8 @@
 	"description": "",
 	"author": "vitreene",
 	"license": "ISC",
-	"type": "module",
-	"files": [
-		"dist"
-	],
-	"module": "./dist/player.js",
-	"sideEffects": false,
-	"main": "./dist/player.umd.cjs",
-	"types": "./dist/player.d.ts",
 	"exports": {
-		".": {
-			"import": "./dist/player.js",
-			"require": "./dist/player.umd.js",
-			"types": "./dist/player.d.ts"
-		}
+		".": "./lib/main.ts"
 	},
 	"scripts": {
 		"dev": "vite",

@@ -11,7 +11,7 @@ const END_SEQUENCE = 7000;
 /* NOTE
 les formats de données sont issues du json  ; transformer les objets en map dans controller, pas dans le format de données -> meilleure portabilité 
 */
-let controller;
+let controller: Controller;
 // INIT
 const events: MapEvent = new Map([
 	[0, { name: 'enter' }],

@@ -5,7 +5,12 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	resolve: {
-		alias: [{ find: '~', replacement: path.resolve(__dirname, 'lib') }],
+		alias: {
+			'~': path.resolve(__dirname, 'lib'),
+			'~src': path.resolve(__dirname, 'src'),
+			'~public': path.resolve(__dirname, 'public'),
+		},
+		// alias: [{ find: '~', replacement: path.resolve(__dirname, 'lib') }],
 	},
 	base: './',
 	server: {

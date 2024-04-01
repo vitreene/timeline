@@ -12,7 +12,7 @@ import { Persos } from './perso';
 export class Controller {
 	timer = new Timer();
 	ticker = new Ticker();
-	loopEvent: LoopEvent = null;
+	loopEvent: LoopEvent;
 
 	persos: Persos;
 	medias = new Media();
@@ -64,7 +64,7 @@ export class Controller {
 		for (const id in store) {
 			const perso = store[id];
 			const actions = perso.type === P.SOUND ? perso.actions : { [INITIAL]: perso.initial, ...perso.actions };
-			this.loopEvent.actionner.add(id, actions);
+			this.loopEvent.actionner.add(id, actions!);
 		}
 	};
 
@@ -124,7 +124,7 @@ export class Controller {
 		const abortTimer = waitTicker.handlers.store(waitTimer.update);
 		waitTimer.handlers.store(({ options }) => {
 			const { time } = options;
-			if (time >= wait) {
+			if (time! >= wait) {
 				abortTimer();
 				waitTicker.stop();
 				this.play();

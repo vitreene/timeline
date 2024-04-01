@@ -1,9 +1,8 @@
-import { ROOT } from '../../../../player/src/sceneline/constants';
-import { Controller } from '../../../../player/src/sceneline/controller';
+// @ts-nocheck
+import { Controller } from '~/main';
+import { ROOT } from '~/common/constants';
 
-import { PersosTypes as P } from '../../../../player/src/sceneline/types';
-
-import type { MapEvent, PersoStore, TimeOptions } from '../../../../player/src/sceneline/types';
+import type { PersoType as P, MapEvent, PersoStore, TimeOptions } from '~/main';
 
 ////////////
 // DEMO 4 //

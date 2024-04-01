@@ -2,14 +2,19 @@
 	import type { TextTime } from '$lib/server/db';
 
 	export let events: Array<TextTime>;
-	console.log(events);
+	export let activeCue: string;
+	console.log('MediaEvents', { activeCue });
 </script>
 
 <ul class="text-in-time">
 	{#each events as event}
 		<li class="text-in-time-item">
 			<input form="text-time" type="radio" id={event.id} name="text-in-time" value={event.id} />
-			<label class={event.count ? `color-${event.count > 3 ? 3 : event.count}` : 'color-0'} for={event.id}>
+			<label
+				class:active={activeCue == event.id}
+				class={event.count ? `color-${event.count > 3 ? 3 : event.count}` : 'color-0'}
+				for={event.id}
+			>
 				{event.text}
 			</label>
 		</li>
@@ -28,6 +33,7 @@
 		display: inline-block;
 	}
 	.text-in-time-item label {
+		display: inline-block;
 		border-radius: 1em;
 		padding: 0.25em 0.5em;
 	}
@@ -41,6 +47,11 @@
 	.text-in-time-item input {
 		visibility: hidden;
 		position: absolute;
+	}
+	.text-in-time-item label.active {
+		background-color: orangered;
+		color: aliceblue;
+		transform: scale(1.25);
 	}
 	.color-0 {
 		background-color: aliceblue;

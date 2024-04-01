@@ -2,7 +2,7 @@ import * as CSS from 'csstype';
 import { Layer } from './lib/display/layer';
 import { Txt } from './lib/display/text';
 import { Matrix2D, TransformProperty } from './lib/sceneline/transform-types';
-import { START, PAUSE, STOP } from '~/common/constants';
+import { START, PAUSE, STOP } from './lib/common/constants';
 
 interface CSSTransformSpecialParam<T> {
 	x: number;

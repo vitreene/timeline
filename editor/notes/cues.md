@@ -1,3 +1,4 @@
+FAIT
 en parallèle à l'intégration du player pour jouer les séquences, je voudrais tester l'utilisation des cues de la piste son pour envoyer des events.
 à l'affichage :
 
