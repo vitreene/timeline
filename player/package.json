@@ -5,7 +5,6 @@
 	"author": "vitreene",
 	"license": "ISC",
 	"main": "./lib/main.ts",
-	"types": "./lib/main.d.ts",
 	"exports": {
 		".": "./lib/main.ts"
 	},

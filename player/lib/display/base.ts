@@ -1,5 +1,5 @@
 import { Txt } from './text';
-import { PersoType } from '../../types';
+import { PersoType } from '../types';
 
 import type {
 	PersoDef,
@@ -10,7 +10,7 @@ import type {
 	PersoSprite,
 	PersoText,
 	PersoVideo,
-} from '../../types';
+} from '../types';
 import { Layer } from './layer';
 import { Sprite } from './sprite';
 import { Video } from './video';
