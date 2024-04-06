@@ -1,5 +1,16 @@
 import { START, STOP } from '~/common/constants';
-import { ROOT, Controller, MapEvent, PersoType as P, PersoVideoDef, PersoSoundDef, Store } from '~/main';
+import {
+	ROOT,
+	Controller,
+	MapEvent,
+	PersoType as P,
+	PersoVideoDef,
+	PersoSoundDef,
+	Store,
+	Perso,
+	PersoVideo,
+	PersoImgDef,
+} from '~/main';
 import { preload } from '~/preload';
 import { createTelco } from './telco';
 
@@ -236,7 +247,7 @@ const text3 = {
 	},
 } as const;
 
-const img1 = {
+const img1: PersoImgDef = {
 	type: P.IMG,
 	initial: {
 		className: 'item1',
