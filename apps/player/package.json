@@ -1,0 +1,24 @@
+{
+	"name": "player",
+	"private": true,
+	"license": "ISC",
+	"version": "0.0.1",
+	"description": "",
+	"type": "module",
+	"main": "./src/index.ts",
+	"scripts": {
+		"dev:player": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@vitreene/sceneline": "*"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "*",
+		"@repo/typescript-config": "*",
+		"eslint": "^8.57.0",
+		"typescript": "^5.3.3",
+		"vite": "^5.1.4"
+	}
+}

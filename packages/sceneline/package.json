@@ -1,0 +1,21 @@
+{
+	"name": "@vitreene/sceneline",
+	"version": "0.2.0",
+	"description": "",
+	"author": "vitreene",
+	"license": "ISC",
+	"type": "module",
+	"exports": {
+		".": "./main.ts",
+		"./types": "./types.d.ts"
+	},
+	"dependencies": {
+		"csstype": "3.1.2"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "*",
+		"@repo/typescript-config": "*",
+		"eslint": "^8.57.0",
+		"typescript": "^5.3.3"
+	}
+}

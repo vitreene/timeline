@@ -1,16 +1,18 @@
 {
 	"name": "vitreene-timeline",
+	"private": true,
 	"version": "0.1.0",
 	"description": "",
 	"author": "vitreene",
 	"license": "ISC",
 	"workspaces": [
-		"player",
-		"editor"
+		"packages/*",
+		"apps/*"
 	],
 	"scripts": {
 		"dev": "turbo run dev",
 		"dev:demos": "turbo run dev:demos",
+		"dev:player": "turbo run dev:player",
 		"dev:editor": "turbo run dev:editor",
 		"build": "turbo run build",
 		"build:player": "turbo run build:player",
@@ -20,13 +22,19 @@
 		"test:run": "vitest run"
 	},
 	"devDependencies": {
+		"@repo/eslint-config": "*",
+		"eslint": "^8.57.0",
 		"@types/three": "^0.158.1",
 		"happy-dom": "12.10.3",
-		"turbo": "^1.13.0",
-		"typescript": "latest",
+		"turbo": "latest",
+		"typescript": "^5.3.3",
 		"vite": "^4.5",
 		"vitest": "^0.34.6"
 	},
+	"engines": {
+		"node": ">=18"
+	},
+	"packageManager": "npm@10.4.0",
 	"prettier": {
 		"trailingComma": "es5",
 		"tabWidth": 1,

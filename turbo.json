@@ -2,28 +2,18 @@
 	"$schema": "https://turbo.build/schema.json",
 	"pipeline": {
 		"build": {
+			"dependsOn": [
+				"^build"
+			],
 			"outputs": [
 				"dist/**"
 			]
 		},
+		"lint": {},
 		"dev": {
-			"inputs": [
-				"lib/**",
-				"src/**",
-				"public/**"
-			]
-		},
-		"dev:editor": {
-			"dependsOn": [
-				"^build"
-			],
-			"inputs": [
-				"src/**",
-				"public/**"
-			],
 			"cache": false,
 			"persistent": true
 		},
-		"lint": {}
+		"type-check": {}
 	}
 }
