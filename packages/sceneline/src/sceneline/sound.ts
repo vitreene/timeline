@@ -1,7 +1,7 @@
 import { Tween } from './tween';
 import { START, STOP, PLAY, PAUSE, SEEK } from '../common/constants';
 
-import type { PersoSoundDef, SoundAction, Transition } from '../../types';
+import type { PersoSoundDef, SoundAction, Transition } from '../types';
 // import { Ticker } from './ticker';
 
 const TIME_THRESHOLD = 10;

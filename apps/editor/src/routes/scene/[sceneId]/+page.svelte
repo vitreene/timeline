@@ -2,15 +2,26 @@
 	import type { PageData } from './$types';
 	import Capsules from '$lib/capsules/capsules.svelte';
 	import Medias from '$lib/medias/medias.svelte';
+	import Stage from '$lib/stage/stage.svelte';
+	// import { buildPlay } from '$lib/player/build-play';
+	import { onMount } from 'svelte';
 	export let data: PageData;
 	const scene = data.scene;
 	const { medias, capsules } = scene;
+
+	onMount(async () => {
+		const module = await import('$lib/player/build-play');
+		const { buildPlay } = module;
+
+		const play = buildPlay(scene);
+		console.log({ scene, play });
+	});
 </script>
 
 {#if scene !== null}
 	<main class="scene">
 		<div class="chutier">1</div>
-		<div class="live">2</div>
+		<div class="stage"><Stage /></div>
 		<div class="capsule"><Capsules {medias} {capsules} /></div>
 		<div class="controle">controle</div>
 		<div class="media"><Medias {medias} {capsules} /></div>
@@ -22,7 +33,7 @@
 		display: grid;
 		grid-area: 1 / 1;
 		grid-template-areas:
-			'chutier scene capsule'
+			'chutier stage capsule'
 			'chutier controle capsule'
 			'media media capsule';
 		gap: 10px;
@@ -42,8 +53,8 @@
 		grid-area: chutier;
 	}
 
-	.scene {
-		grid-area: scene;
+	.stage {
+		grid-area: stage;
 	}
 
 	.capsule {

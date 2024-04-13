@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { Style } from '../../types';
+import { Style } from '../types';
 import { exceptions, whiteListCssProps } from './constants';
 
 export function keyToLowercase(obj: Style) {

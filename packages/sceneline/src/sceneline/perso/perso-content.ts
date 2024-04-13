@@ -24,7 +24,7 @@ cycle : si des insertions ont lieu plusieurs fois lors d'un meme cycle, il y a d
   )
 */
 
-import { PersoId, StateAction } from '../../../types';
+import { PersoId, StateAction } from '../../types';
 import { PersoHandler } from './perso-handler';
 
 const transitionType = {
@@ -275,6 +275,7 @@ export class PersoContent extends PersoHandler {
 		switch (typeof order) {
 			case 'number': {
 				const place = Math.min(order, content.size);
+				// @ts-ignore
 				const newContent = Array.from(content).toSpliced(place, 0, persoMove);
 				destination = new Set(newContent);
 			}
@@ -287,6 +288,7 @@ export class PersoContent extends PersoHandler {
 					case 'middle':
 						{
 							const half = Math.ceil(content.size / 2);
+							// @ts-ignore
 							const newContent = Array.from(content).toSpliced(half, 0, persoMove);
 							destination = new Set(newContent);
 						}

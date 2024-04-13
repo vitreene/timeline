@@ -1,8 +1,8 @@
 import * as CSS from 'csstype';
-import { Layer } from './src/display/layer';
-import { Txt } from './src/display/text';
-import { Matrix2D, TransformProperty } from './src/sceneline/transform-types';
-import { START, PAUSE, STOP } from './src/common/constants';
+import { Layer } from '../display/layer';
+import { Txt } from '../display/text';
+import { Matrix2D, TransformProperty } from '../sceneline/transform-types';
+import { START, PAUSE, STOP } from '../common/constants';
 
 interface CSSTransformSpecialParam<T> {
 	x: number;

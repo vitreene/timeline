@@ -1,4 +1,4 @@
-import type { PersoNode } from '../../../types';
+import type { PersoNode } from '../../types';
 import { PersoRender } from './perso-store';
 
 export class PersoHandler extends PersoRender {

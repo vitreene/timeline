@@ -1,7 +1,7 @@
 import { Actionner } from './actionner';
 import { INITIAL } from '../common/constants';
 
-import type { MapEvent } from '../../types';
+import type { MapEvent } from '../types';
 
 export class LoopEvent {
 	events: MapEvent = new Map();
@@ -16,6 +16,7 @@ export class LoopEvent {
 	}
 
 	add(events: MapEvent) {
+		// @ts-ignore-
 		this.events = new Map([...this.events, ...events]);
 	}
 	addEmitEvent(emit) {

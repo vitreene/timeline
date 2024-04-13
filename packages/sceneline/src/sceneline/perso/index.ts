@@ -1,4 +1,4 @@
-import { Store } from '../../../types';
+import { Store } from '../../types';
 import { PersoContent } from './perso-content';
 
 export class Persos extends PersoContent {

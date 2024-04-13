@@ -1,5 +1,5 @@
 import { Store } from './store';
-import type { TimerCallback } from '../../types';
+import type { TimerCallback } from '../types';
 
 /*
 Timer update chaque 1/100s (rafraichissement raf)

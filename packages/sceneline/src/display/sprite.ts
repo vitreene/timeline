@@ -1,4 +1,4 @@
-import { Img, Initial, PersoImgDef } from '../../types';
+import { Img, Initial, PersoImgDef } from '../types';
 
 export class Sprite {
 	node = document.createElement('img');

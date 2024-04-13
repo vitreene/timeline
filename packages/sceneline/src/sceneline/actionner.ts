@@ -16,7 +16,7 @@ import type {
 	StrapType,
 	PersoNode,
 	Income,
-} from '../../types';
+} from '../types';
 import type { Persos } from './perso';
 
 interface TransitionId {

@@ -1,6 +1,6 @@
 import { CONTAINER, ROOT, stage } from './constants';
 
-import type { Action, StateAction } from '../../types';
+import type { Action, StateAction } from '../types';
 
 import type { Persos } from './perso';
 

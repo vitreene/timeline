@@ -1,4 +1,4 @@
-import { My, PersoSoundDef, Store, PersoType, PersoDef } from '../../types';
+import { My, PersoSoundDef, Store, PersoType, PersoDef } from '../types';
 
 const audioContext = new AudioContext();
 

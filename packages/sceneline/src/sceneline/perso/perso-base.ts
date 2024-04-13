@@ -1,8 +1,8 @@
-import { PersoType as P } from '../../../types';
+import { PersoType as P } from '../../types';
 import { Layer } from '../../display/layer';
 import { createPersoBase } from '../../display/base';
 
-import type { PersoDef, PersoId, PersoNode, Store } from '../../../types';
+import type { PersoDef, PersoId, PersoNode, Store } from '../../types';
 
 export class PersoBase {
 	store = new Map<PersoId, PersoNode>();

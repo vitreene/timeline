@@ -1,13 +1,13 @@
 import { matrix } from '../../common/matrix';
 
-import { PersoType as P } from '../../../types';
+import { PersoType as P } from '../../types';
 import { addSuffix, toKebabCase } from '../../common/utils';
 
 import { PersoBase } from './perso-base';
 import { transformAliases, transformKeys } from '../transform-types';
 
 import type { Matrix2D } from '../transform-types';
-import type { PersoNode, Action, ImgAction, Img, Content, ActionClassList, Style } from '../../../types';
+import type { PersoNode, Action, ImgAction, Img, Content, ActionClassList, Style } from '../../types';
 
 export class PersoRender extends PersoBase {
 	// handler: (emit: any) => void = () => {

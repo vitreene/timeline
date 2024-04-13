@@ -1,11 +1,10 @@
 import * as db from '$lib/server/db.js';
 import type { Actions } from '@sveltejs/kit';
-import { buildPlay } from '../../../lib/player/build-play';
 
 export const load = async ({ params }) => {
 	const sceneId = Number(params.sceneId);
 	const scene = await db.getScene(sceneId);
-	const play = buildPlay(scene);
+	// const play = buildPlay(scene);
 	return { scene };
 };
 

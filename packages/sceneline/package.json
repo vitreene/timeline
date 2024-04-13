@@ -5,17 +5,23 @@
 	"author": "vitreene",
 	"license": "ISC",
 	"type": "module",
+	"module": "./src/main.ts",
+	"main": "./src/main.ts",
 	"exports": {
-		".": "./main.ts",
-		"./types": "./types.d.ts"
+		".": "./src/main.ts"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build:sceneline": "vite build   && tsc --emitDeclarationOnly --declaration",
+		"preview": "vite preview"
 	},
 	"dependencies": {
+		"typescript": "^5.3.3",
 		"csstype": "3.1.2"
 	},
 	"devDependencies": {
 		"@repo/eslint-config": "*",
 		"@repo/typescript-config": "*",
-		"eslint": "^8.57.0",
-		"typescript": "^5.3.3"
+		"eslint": "^8.57.0"
 	}
 }

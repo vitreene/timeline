@@ -1,4 +1,4 @@
-import { Action, PersoVideoDef } from '../../types';
+import { Action, PersoVideoDef } from '../types';
 
 // Il n'ya pas besoin de spécificité de video, tout est géré ailleurs
 // TODO gestion des tracks

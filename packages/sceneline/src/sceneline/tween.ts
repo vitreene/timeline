@@ -2,7 +2,7 @@ import { has } from '../common/utils';
 import * as ease from '../tween/easing';
 import { extractNumbersFromString, mixNumbersInArray } from '../tween/array-pattern';
 
-import type { Transition, Style, PersoNode, StyleEntry, LerpStringStyle } from '../../types';
+import type { Transition, Style, PersoNode, StyleEntry, LerpStringStyle } from '../types';
 
 /* 
 spérar en deux classes, 

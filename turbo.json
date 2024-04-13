@@ -6,7 +6,8 @@
 				"^build"
 			],
 			"outputs": [
-				"dist/**"
+				"dist/**",
+				".svelte-kit/**"
 			]
 		},
 		"lint": {},
@@ -14,6 +15,7 @@
 			"cache": false,
 			"persistent": true
 		},
-		"type-check": {}
+		"type-check": {},
+		"dev:editor": {}
 	}
 }

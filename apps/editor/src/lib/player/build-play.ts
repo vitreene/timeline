@@ -1,8 +1,11 @@
-import type { ElementComp, SceneComp } from '$lib/server/db';
-import type { ImgAction, MapEvent, PersoImgDef } from '@vitreene/sceneline/types';
-import { PersoType as P } from '@vitreene/sceneline/types';
+import { PersoType as P } from '@vitreene/sceneline';
+import type { ElementComp, SceneComp, TextTime } from '$lib/server/db';
+
+import type { ImgAction, MapEvent, PersoImgDef } from '@vitreene/sceneline';
+import type { Event as MediaEvent } from '@prisma/client';
 
 const defaultPathImage = '';
+const ROOT = 'root';
 
 export function buildPlay(scene: SceneComp) {
 	const events: MapEvent = new Map();
@@ -10,17 +13,31 @@ export function buildPlay(scene: SceneComp) {
 	const mediasEvents = new Map(scene.medias.flatMap((m) => m.events).map((e) => [e.id, e]));
 
 	const sceneEvents = new Map();
-	const actionElements = new Map();
+	const persos = new Map();
+
 	for (const capsule of scene.capsules) {
 		for (const element of capsule.elements) {
+			const prefix = `${element.capsuleId}_${element.id}`;
 			element.events.forEach((e) => {
-				sceneEvents.set(e.name, mediasEvents.get(e.action));
-				actionElements.set(`${element.capsuleId}_${element.id}_${e.action}`, e.name);
+				const [start, action] = createEvent(e, prefix, mediasEvents);
+				if (start != undefined) {
+					if (sceneEvents.has(start)) {
+						const actions = sceneEvents.get(start);
+						Array.isArray(actions) ? actions.push(action) : sceneEvents.set(start, [actions, action]);
+					} else sceneEvents.set(start, action);
+				}
+				persos.set(element.id, createBackgroundImage(element));
 			});
 		}
 	}
 
-	console.log({ sceneEvents, actionElements });
+	persos.forEach((p, id) => console.log(id, p.initial, p.actions));
+	return { events: sceneEvents, persos };
+}
+
+function createEvent(elementEvent: MediaEvent, prefix: string, mediasEvents: Map<string, TextTime>) {
+	const mEvent = mediasEvents.get(elementEvent.name);
+	return mEvent ? [mEvent.start * 1000, { name: `${prefix}_${elementEvent.action}` }] : [];
 }
 
 function createBackgroundImage(element: ElementComp): PersoImgDef {

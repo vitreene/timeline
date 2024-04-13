@@ -1,14 +1,12 @@
-import { START, STOP } from './constants';
-import {
-	ROOT,
-	Controller,
-	MapEvent,
-	PersoType as P,
-	PersoVideoDef,
-	PersoSoundDef,
-	Store,
-} from '@vitreene/sceneline';
-import { preload } from '@vitreene/sceneline';
+import { START, STOP, ROOT } from '@vitreene/sceneline';
+import type { MapEvent, Store } from '@vitreene/sceneline';
+import { PersoType as P } from '@vitreene/sceneline';
+
+/* 
+le chemin est enfin bon, mais les types ne sont plus générés...
+*/
+
+import { Controller, preload } from '@vitreene/sceneline';
 import { createTelco } from './telco';
 
 const END_SEQUENCE = 7000;

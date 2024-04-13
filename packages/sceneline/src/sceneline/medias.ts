@@ -1,8 +1,8 @@
 import { Tween } from './tween';
-import { PersoType as P } from '../../types';
+import { PersoType as P } from '../types';
 import { PAUSE, PLAY, SEEK, START, STOP } from '../common/constants';
 
-import type { Broadcast, Transition, PersoSound, PersoVideo, Income } from '../../types';
+import type { Broadcast, Transition, PersoSound, PersoVideo, Income } from '../types';
 
 const TIME_THRESHOLD = 10;
 const MS = 1000;

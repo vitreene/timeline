@@ -2,7 +2,7 @@ import { getPersoSounds } from './audio';
 import { getPersoImages } from './ikono';
 import { getPersoVideos } from './video';
 
-import type { SoundNode, Store } from '../../types';
+import type { SoundNode, Store } from '../types';
 
 export interface OptionalMediasStoreProps {
 	audio: Record<string, SoundNode>;

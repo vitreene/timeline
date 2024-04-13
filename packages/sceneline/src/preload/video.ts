@@ -1,4 +1,4 @@
-import { Store, PersoType, PersoDef, PersoVideoDef } from '../../types';
+import { Store, PersoType, PersoDef, PersoVideoDef } from '../types';
 
 export async function getPersoVideos(store: Store) {
 	const medias = {} as Record<string, PersoVideoDef>;

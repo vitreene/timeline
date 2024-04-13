@@ -1,4 +1,4 @@
-import { Img, PersoDef, PersoType, PersoImgDef } from '../../types';
+import { Img, PersoDef, PersoType, PersoImgDef } from '../types';
 
 type Srcs = string[];
 

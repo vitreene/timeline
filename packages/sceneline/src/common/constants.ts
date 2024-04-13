@@ -1,5 +1,3 @@
-import { stringToLowercase } from './utils';
-
 export const ROOT = 'root';
 
 export const INITIAL = '_initial_';
@@ -94,3 +92,7 @@ const whiteListCss = [
 
 export const whiteListCssPropsCC = new Set(whiteListCss);
 export const whiteListCssProps = new Set(whiteListCss.map(stringToLowercase));
+
+function stringToLowercase(str: string) {
+	return exceptions.has(str) ? str : str.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`);
+}

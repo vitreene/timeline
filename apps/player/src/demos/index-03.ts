@@ -1,16 +1,9 @@
 import { START, STOP } from './constants';
 
-import {
-	ROOT,
-	Controller,
-	MapEvent,
-	PersoType as P,
-	PersoVideoDef,
-	PersoSoundDef,
-	Store,
-	PersoImgDef,
-} from '@vitreene/sceneline';
-import { preload } from '@vitreene/sceneline';
+import type { MapEvent, PersoVideoDef, PersoSoundDef, Store, PersoImgDef } from '@vitreene/sceneline/';
+import { PersoType as P } from '@vitreene/sceneline';
+
+import { ROOT, Controller, preload } from '@vitreene/sceneline';
 import { createTelco } from './telco';
 
 const END_SEQUENCE = 7000;

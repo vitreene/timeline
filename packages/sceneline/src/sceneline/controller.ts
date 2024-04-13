@@ -3,9 +3,9 @@ import { Ticker } from './ticker';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
 
-import type { DeltaFn, MapEvent, TimerCallback, Store } from '../../types';
-import { PersoType as P } from '../../types';
 import { INITIAL } from '../common/constants';
+import type { DeltaFn, MapEvent, TimerCallback, Store } from '../types';
+import { PersoType as P } from '../types';
 import { Media } from './medias';
 import { Persos } from './perso';
 
@@ -65,7 +65,7 @@ export class Controller {
 			const perso = store[id];
 			if (perso) {
 				const actions = perso.type === P.SOUND ? perso.actions : { [INITIAL]: perso.initial, ...perso.actions };
-				this.loopEvent.actionner.add(id, actions!);
+				this.loopEvent.actionner!.add(id, actions!);
 			}
 		}
 	};
