@@ -1,43 +1,56 @@
 import { PersoType as P } from '@vitreene/sceneline';
 import type { ElementComp, SceneComp, TextTime } from '$lib/server/db';
-
-import type { ImgAction, MapEvent, PersoImgDef } from '@vitreene/sceneline';
+import { assets, base, resolveRoute } from '$app/paths';
+import type { ImgAction, MapEvent, Perso, PersoImgDef, Store } from '@vitreene/sceneline';
 import type { Event as MediaEvent } from '@prisma/client';
 
 const defaultPathImage = '';
 const ROOT = 'root';
+const LIST = 'list';
+
+export type BuildPlayType = ReturnType<typeof buildPlay>;
 
 export function buildPlay(scene: SceneComp) {
 	const events: MapEvent = new Map();
 
 	const mediasEvents = new Map(scene.medias.flatMap((m) => m.events).map((e) => [e.id, e]));
 
-	const sceneEvents = new Map();
-	const persos = new Map();
+	const sceneEvents: MapEvent = new Map();
+	const persos = {} as Store;
 
 	for (const capsule of scene.capsules) {
 		for (const element of capsule.elements) {
 			const prefix = `${element.capsuleId}_${element.id}`;
 			element.events.forEach((e) => {
 				const [start, action] = createEvent(e, prefix, mediasEvents);
-				if (start != undefined) {
+				if (start != undefined && action != undefined) {
 					if (sceneEvents.has(start)) {
 						const actions = sceneEvents.get(start);
-						Array.isArray(actions) ? actions.push(action) : sceneEvents.set(start, [actions, action]);
+						if (actions != undefined) {
+							if (Array.isArray(actions)) actions.push(action);
+							else sceneEvents.set(start, [actions, action]);
+						}
 					} else sceneEvents.set(start, action);
 				}
-				persos.set(element.id, createBackgroundImage(element));
+				persos[element.id] = createBackgroundImage(element);
+				persos[ROOT] = root;
+				persos[LIST] = list;
 			});
 		}
 	}
 
-	persos.forEach((p, id) => console.log(id, p.initial, p.actions));
+	console.log({ sceneEvents });
+
 	return { events: sceneEvents, persos };
 }
 
-function createEvent(elementEvent: MediaEvent, prefix: string, mediasEvents: Map<string, TextTime>) {
+function createEvent(
+	elementEvent: MediaEvent,
+	prefix: string,
+	mediasEvents: Map<string, TextTime>
+): [number, { name: string }] | [] {
 	const mEvent = mediasEvents.get(elementEvent.name);
-	return mEvent ? [mEvent.start * 1000, { name: `${prefix}_${elementEvent.action}` }] : [];
+	return mEvent ? [Math.round(mEvent.start * 10) * 100, { name: `${prefix}_${elementEvent.action}` }] : [];
 }
 
 function createBackgroundImage(element: ElementComp): PersoImgDef {
@@ -46,11 +59,12 @@ function createBackgroundImage(element: ElementComp): PersoImgDef {
 	for (const e of element.events) {
 		actions[`${element.capsuleId}_${element.id}_${e.action}`] = backgroundImageTransition[e.action];
 	}
+
 	return {
 		type: P.IMG,
 		initial: {
-			className: 'background-carousel',
-			content: { src: element.media.path ?? defaultPathImage },
+			className: 'background-carousel-item',
+			content: { src: `/${element.media.path ?? defaultPathImage}` },
 		},
 		actions,
 	};
@@ -58,18 +72,55 @@ function createBackgroundImage(element: ElementComp): PersoImgDef {
 
 const backgroundImageTransition: Record<string, ImgAction> = {
 	intro: {
+		move: { to: LIST },
 		transition: {
-			from: { x: '-100%', opacity: 0 },
+			from: { x: -1000, opacity: 0 },
 			to: { x: 0, opacity: 1 },
 		},
 	},
 	outro: {
 		transition: {
 			from: { x: 0, opacity: 1 },
-			to: { x: '-100%', opacity: 0 },
+			to: { x: 1000, opacity: 0 },
 		},
 	},
 };
+
+const root = {
+	type: P.LAYER,
+	initial: {
+		tag: 'div',
+		className: 'container-grid',
+		style: {
+			position: 'relative',
+			backgroundColor: 'lch(52.2% 72.2 50 / 1)',
+		},
+	},
+	actions: {
+		[ROOT]: true,
+		'1_1_intro': {
+			transition: {
+				from: { backgroundColor: 'lch(52.2% 72.2 50 / 0.5)' },
+				to: { backgroundColor: 'lch(56% 63.61 262.73 / 1)' },
+				duration: 1500,
+			},
+		},
+	},
+} as const;
+
+const list = {
+	type: P.LAYER,
+	initial: {
+		tag: 'div',
+		className: 'background-carousel',
+	},
+	actions: {
+		'1_1_intro': {
+			move: { to: ROOT },
+		},
+	},
+} as const;
+
 /* 
 const img1 = {
 	type: P.IMG,

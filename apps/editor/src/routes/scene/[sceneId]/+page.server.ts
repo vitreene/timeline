@@ -4,7 +4,6 @@ import type { Actions } from '@sveltejs/kit';
 export const load = async ({ params }) => {
 	const sceneId = Number(params.sceneId);
 	const scene = await db.getScene(sceneId);
-	// const play = buildPlay(scene);
 	return { scene };
 };
 

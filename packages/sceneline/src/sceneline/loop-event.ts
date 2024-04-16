@@ -24,10 +24,11 @@ export class LoopEvent {
 		this.emitEvent.push(emit);
 	}
 
-	update = ({ options }) => {
+	update = ({ options }: { options: { time: number } }) => {
 		this.emitEvent.length && console.log(this.emitEvent);
 
 		const { time } = options;
+
 		for (const emit of this.emitEvent) {
 			console.log('emitEvent', emit);
 
@@ -37,8 +38,11 @@ export class LoopEvent {
 		this.emitEvent = [];
 
 		if (this.events.has(time)) {
-			console.log('EVENT', time, this.events.get(time));
-			this.actionner.update({ ...this.events.get(time), delta: 0, time });
+			const events = this.events.get(time);
+			console.log('EVENT', time, events);
+			(Array.isArray(events) ? events : [events]).forEach((e) => {
+				this.actionner.update({ ...e, delta: 0, time });
+			});
 		}
 	};
 

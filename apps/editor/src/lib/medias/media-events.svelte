@@ -14,6 +14,7 @@
 				class:active={activeCue == event.id}
 				class={event.count ? `color-${event.count > 3 ? 3 : event.count}` : 'color-0'}
 				for={event.id}
+				title={String(event.start)}
 			>
 				{event.text}
 			</label>

@@ -24,7 +24,7 @@
 </script>
 
 <div class="media-scene-item-content">
-	<details class="media-scene-item" open>
+	<details class="media-scene-item">
 		<summary class="media-scene-item-name">{name} </summary>
 		<!-- svelte-ignore a11y-media-has-caption -->
 		<video bind:this={video} src={media.path} controls autoplay muted> </video>

@@ -1,15 +1,38 @@
 <script lang="ts">
-	// import { Controller } from '@vitreene/sceneline';
-	// const controller = new Controller();
-
 	import { onMount } from 'svelte';
 
-	onMount(async () => {
-		const module = await import('@vitreene/sceneline');
-		const { Controller } = module;
+	import type { BuildPlayType } from '$lib/player/build-play';
+	import type { Controller } from '@vitreene/sceneline';
 
-		// use module here...
+	import './style.css';
+	import type { SceneComp } from '$lib/server/db';
+
+	export let scene: SceneComp;
+	let controller: Controller;
+
+	onMount(async () => {
+		const { buildPlay } = await import('$lib/player/build-play');
+		const { Controller, preload } = await import('@vitreene/sceneline');
+
+		const stage = buildPlay(scene);
+
+		if (stage) {
+			preload(stage.persos).then((store) => {
+				console.log('LOAD STORE', store);
+
+				controller = new Controller(stage.persos, stage.events);
+
+				controller.start().play();
+				console.log(document.getElementById('app'));
+
+				console.log(stage?.persos);
+				console.log(controller);
+				setTimeout(() => {
+					controller.stop();
+				}, 7000);
+			});
+		}
 	});
 </script>
 
-<div>STAGE</div>
+<div id="app"></div>

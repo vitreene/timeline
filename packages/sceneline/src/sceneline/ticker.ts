@@ -41,6 +41,7 @@ export class Ticker {
 	};
 
 	tick = (timestamp: number) => {
+		this.cancelRaf.clear();
 		if (this.playing === false) this.paused = true;
 		if (this.playing) {
 			if (this.paused === true) {
@@ -52,6 +53,7 @@ export class Ticker {
 			this.timeElapsed = elapsed;
 			this.handlers.update(delta * this.timeScale);
 		}
+		// this.cancelRaf.forEach(cancelAnimationFrame);
 		this.raf((tm) => Promise.resolve(this.tick(tm)));
 	};
 

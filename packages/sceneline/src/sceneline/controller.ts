@@ -36,6 +36,7 @@ export class Controller {
 		this.registerActions(store);
 
 		this.persos.addHandler(this.loopEvent.addEmitEvent);
+		console.log(this.persos);
 	}
 
 	initMedias(store: Store) {

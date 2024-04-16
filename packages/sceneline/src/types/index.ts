@@ -166,7 +166,7 @@ export type PersoStore = Record<PersoId, PersoDef>;
 export type PersoAction = Record<ActionId, Action | boolean | SoundAction | ImgAction>;
 
 // types en interne
-export type MapEvent = Map<number, any>;
+export type MapEvent = Map<number, Eventime | Eventime[]>;
 export type MapAction = Map<ActionId, Action>;
 export type StateAction = Map<PersoId, Action>;
 export type PersosAction = Map<PersoId, PersoAction>;
