@@ -213,9 +213,12 @@ export class PersoContent extends PersoHandler {
 		oldPositions.forEach((position, childId) => {
 			const newPosition = newPositions.get(childId);
 			if (!newPosition) return;
-			// console.log('__positionsInitTransitions', childId, position, newPosition);
 
 			const { from, to } = positionsFromTo(childId, zoom, position, newPosition);
+			const idem = Object.keys(from).every((prop) => from[prop] == to[prop]);
+			// console.log({ idem, from, to, position, newPosition });
+
+			if (idem) return;
 			// this.render(childId, { style: from });
 			keys.set(childId, {
 				id: childId,

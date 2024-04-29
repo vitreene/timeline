@@ -20,12 +20,9 @@
 			preload(stage.persos).then((store) => {
 				console.log('LOAD STORE', store);
 
-				controller = new Controller(stage.persos, stage.events);
+				controller = new Controller(store, stage.events);
 
 				controller.start().play();
-				console.log(document.getElementById('app'));
-
-				console.log(stage?.persos);
 				console.log(controller);
 				setTimeout(() => {
 					controller.stop();

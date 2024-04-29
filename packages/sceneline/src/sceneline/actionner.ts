@@ -65,7 +65,11 @@ export class Actionner {
 
 		this.persos = persos;
 		this.medias = medias;
-		for (const action in this.action) this.action[action] = this.action[action].bind(this);
+
+		Object.keys(this.action).forEach(
+			(action: string) => (this.action[action] = this.action[action].bind(this))
+		);
+
 		this.initMoveTransitions = this.initMoveTransitions.bind(this);
 	}
 
@@ -82,6 +86,9 @@ export class Actionner {
 			const tween = new TweenStyle({ perso, transition });
 			if (up.seek) this.updateTween(key, tween, up.delta);
 			this.transitions.set(key, tween);
+
+			console.log('START TRANSITION');
+			for (const values of this.transitions.values()) console.log(values);
 		},
 
 		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {
@@ -167,6 +174,8 @@ export class Actionner {
 		const update = transition.next(delta);
 		this.mixStyle(key.id, update.value);
 		if (update.done) {
+			console.log('transition complete', key, this.transitions.has(key));
+			Array.from(this.transitions.keys()).forEach((k) => console.log(k));
 			this.transitions.delete(key);
 			transition.onComplete && transition.onComplete();
 		}
@@ -176,6 +185,7 @@ export class Actionner {
 	mixStyle(id: PersoId, styleB: Style) {
 		const action = this.state.get(id);
 		const style = mergeStyle(action?.style, styleB);
+
 		this.state.set(id, { ...action, style });
 	}
 
@@ -186,7 +196,7 @@ export class Actionner {
 	}
 
 	move(id: PersoId, move: Action['move'], up: Income) {
-		console.log('INCOME', up, this.seekElapsed);
+		console.log('MOVE : income', up, this.seekElapsed);
 		let target = undefined;
 		let order = undefined;
 		let duration = undefined;
@@ -204,9 +214,11 @@ export class Actionner {
 			default:
 				break;
 		}
+
 		this.persos.atMove({ id, target, order, delta: up.delta, duration });
 	}
 
+	// cette methode est jouée à chaque tick
 	initMoveTransitions() {
 		if (this.seekMode) {
 			console.log('----->initMoveTransitions<-------', this.persos.moves.size);
@@ -214,7 +226,17 @@ export class Actionner {
 
 		const keys = this.persos.atTick(this.display.zoom, this.state);
 		if (!keys) return;
-		console.log('KEYS', keys);
+		console.log('initMoveTransitions KEYS', keys);
+
+		/* 
+	une transition auto interrompt une autre qui se lance :
+	- les deux devraient se cumuler ?
+	- y a t'il des cas ou il faudrait faire une moyenne plutot qu'une addition ?
+	- y'a t'il des cas ou il faut annuler les transitions précédentes 
+	- il faut fusionner valeur par valeur, et non pas sur une transition entière
+	- si from est defini, prend-t-il le pas sur auto ?
+
+		*/
 
 		keys.forEach((key, id) => {
 			const perso = this.persos.store.get(id);
@@ -249,7 +271,7 @@ export class Actionner {
 				this.updateTween(key, tween, this.seekElapsed - key.delta);
 			}
 
-			this.transitions.set(key, tween);
+			this.transitions.set({ id: key.id, type: transitionType.TRANSITION, name: 'move' }, tween);
 		});
 	}
 
@@ -289,7 +311,19 @@ function mergeClassList(action: Action, className: ActionClassList | string) {
 }
 
 function mergeStyle(styleA: Style, styleB: Style) {
-	return { ...styleA, ...styleB };
+	// console.log({ styleA, styleB });
+	const style: Style = {};
+	if (!styleA) return styleB || style;
+
+	for (const prop in styleA) {
+		if (typeof styleB[prop] == 'number') style[prop] = styleA[prop] + styleB[prop];
+		else style[prop] = styleB[prop] || styleA[prop];
+	}
+	for (const prop in styleB) {
+		if (!(prop in styleA)) style[prop] = styleB[prop];
+	}
+
+	return style;
 }
 
 function mixActions(actionA: Action, actionB: Action): Action {

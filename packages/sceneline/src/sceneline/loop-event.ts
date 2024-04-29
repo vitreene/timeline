@@ -7,7 +7,8 @@ export class LoopEvent {
 	events: MapEvent = new Map();
 	actionner: Actionner | null = null;
 	resetPersos; //this.display.reset
-	emitEvent = [];
+	//definir le contenu de emit
+	emitEvent: any[] = [];
 
 	constructor(actionner: Actionner) {
 		this.actionner = actionner;
@@ -19,12 +20,12 @@ export class LoopEvent {
 		// @ts-ignore-
 		this.events = new Map([...this.events, ...events]);
 	}
-	addEmitEvent(emit) {
+	addEmitEvent(emit: any) {
 		console.log('addEmitEvent', emit);
 		this.emitEvent.push(emit);
 	}
 
-	update = ({ options }: { options: { time: number } }) => {
+	update = ({ options }: { options: { time?: number } }) => {
 		this.emitEvent.length && console.log(this.emitEvent);
 
 		const { time } = options;
@@ -32,17 +33,22 @@ export class LoopEvent {
 		for (const emit of this.emitEvent) {
 			console.log('emitEvent', emit);
 
-			this.actionner.update({ ...emit, delta: 0, time });
+			this.actionner!.update({ ...emit, delta: 0, time });
 			if (emit.keep) this.add(new Map([time, emit]));
 		}
 		this.emitEvent = [];
 
-		if (this.events.has(time)) {
+		if (time != undefined && this.events.has(time)) {
 			const events = this.events.get(time);
 			console.log('EVENT', time, events);
-			(Array.isArray(events) ? events : [events]).forEach((e) => {
-				this.actionner.update({ ...e, delta: 0, time });
-			});
+			(Array.isArray(events) ? events : [events]).forEach((e) =>
+				this.actionner!.update({
+					...e,
+					time,
+					delta: 0,
+					seek: false,
+				})
+			);
 		}
 	};
 
@@ -54,7 +60,13 @@ export class LoopEvent {
 		range.forEach((event, time) => {
 			const delta = seek - time;
 			console.log('SEEK EVENT', time, this.events.get(time));
-			this.actionner.update({ ...event, delta, time, seek: true });
+			this.actionner.update({
+				...event,
+				delta,
+				time,
+				seek: true,
+				name: '',
+			});
 		});
 	};
 }

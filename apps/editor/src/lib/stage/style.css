@@ -88,18 +88,17 @@ body {
 
 #app .background-carousel {
 	display: grid;
-	grid-template: 1/1;
-
 	grid-area: 10 / 20 / span 70 / span 120;
 	position: relative;
 	border: thin white solid;
+
+	place-content: center;
+	overflow: hidden;
 }
 
 #app .background-carousel-item {
-	position: absolute;
-	object-fit: contain;
+	grid-area: 1 / 1;
 	width: 100%;
-	max-height: 100%;
 }
 
 /* AUTRES */

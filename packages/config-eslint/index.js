@@ -3,8 +3,14 @@ module.exports = {
 		node: true,
 	},
 	parser: '@typescript-eslint/parser',
-	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-	plugins: ['@typescript-eslint'],
+	extends: [
+		'plugin:import/recommended',
+		'eslint:recommended',
+		'plugin:@typescript-eslint/recommended',
+		'prettier',
+	],
+
+	plugins: ['@typescript-eslint', 'import'],
 	parserOptions: {
 		sourceType: 'module',
 		ecmaVersion: 2022,

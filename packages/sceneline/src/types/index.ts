@@ -179,7 +179,7 @@ export type Emit = {
 };
 
 export interface Eventime {
-	name?: string;
+	name: string;
 	// startAt: number;
 	data?: any;
 	duration?: number;

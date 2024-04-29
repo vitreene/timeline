@@ -1,7 +1,6 @@
 import { PersoType as P } from '@vitreene/sceneline';
 import type { ElementComp, SceneComp, TextTime } from '$lib/server/db';
-import { assets, base, resolveRoute } from '$app/paths';
-import type { ImgAction, MapEvent, Perso, PersoImgDef, Store } from '@vitreene/sceneline';
+import type { ImgAction, MapEvent, PersoImgDef, Store } from '@vitreene/sceneline';
 import type { Event as MediaEvent } from '@prisma/client';
 
 const defaultPathImage = '';
@@ -74,14 +73,14 @@ const backgroundImageTransition: Record<string, ImgAction> = {
 	intro: {
 		move: { to: LIST },
 		transition: {
-			from: { x: -1000, opacity: 0 },
+			from: { x: -400, opacity: 0 },
 			to: { x: 0, opacity: 1 },
 		},
 	},
 	outro: {
 		transition: {
 			from: { x: 0, opacity: 1 },
-			to: { x: 1000, opacity: 0 },
+			to: { x: 400, opacity: 0 },
 		},
 	},
 };
