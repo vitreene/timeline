@@ -1,11 +1,12 @@
 import { PersoType as P } from '@vitreene/sceneline';
-import type { ElementComp, SceneComp, TextTime } from '$lib/server/db';
-import type { ImgAction, MapEvent, PersoImgDef, Store } from '@vitreene/sceneline';
+import type { ElementComp, SceneComp, SceneMedia, TextTime } from '$lib/server/db';
+import type { ImgAction, MapEvent, PersoImgDef, PersoMediaDef, Store } from '@vitreene/sceneline';
 import type { Event as MediaEvent } from '@prisma/client';
 
 const defaultPathImage = '';
 const ROOT = 'root';
 const LIST = 'list';
+const START = 'start';
 
 export type BuildPlayType = ReturnType<typeof buildPlay>;
 
@@ -15,6 +16,8 @@ export function buildPlay(scene: SceneComp) {
 	const mediasEvents = new Map(scene.medias.flatMap((m) => m.events).map((e) => [e.id, e]));
 
 	const sceneEvents: MapEvent = new Map();
+	sceneEvents.set(0, { name: 'go' });
+
 	const persos = {} as Store;
 
 	for (const capsule of scene.capsules) {
@@ -37,6 +40,13 @@ export function buildPlay(scene: SceneComp) {
 			});
 		}
 	}
+
+	scene.medias.forEach((media) => {
+		if (media.type == 'sound') {
+			const perso = createVideoPerso(media);
+			persos[media.id] = perso;
+		}
+	});
 
 	console.log({ sceneEvents });
 
@@ -119,6 +129,24 @@ const list = {
 		},
 	},
 } as const;
+
+function createVideoPerso(media: SceneMedia): PersoMediaDef {
+	return {
+		type: P.VIDEO,
+		initial: {
+			src: media.path || defaultPathImage,
+			attr: { controls: 'true', autoplay: 'true', muted: true },
+		},
+		actions: {
+			go: {
+				move: { to: ROOT },
+				broadcast: {
+					type: START,
+				},
+			},
+		},
+	};
+}
 
 /* 
 const img1 = {

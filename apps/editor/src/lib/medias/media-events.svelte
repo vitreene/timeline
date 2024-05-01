@@ -3,7 +3,7 @@
 
 	export let events: Array<TextTime>;
 	export let activeCue: string;
-	console.log('MediaEvents', { activeCue });
+	// console.log('MediaEvents', { activeCue });
 </script>
 
 <ul class="text-in-time">

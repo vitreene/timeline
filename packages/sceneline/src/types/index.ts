@@ -106,6 +106,7 @@ export interface Action {
 	move?: true | string | moveAction;
 	strap?: StrapType;
 	broadcast?: Broadcast;
+	attr?: Record<string, any>;
 }
 
 export interface StrapType {

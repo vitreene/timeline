@@ -54,6 +54,12 @@ export class PersoRender extends PersoBase {
 				case 'className':
 					updateClassList(perso.node, action.className);
 					break;
+				case 'attr':
+					for (const prop in action.attr) {
+						perso.node.setAttribute(prop, action.attr[prop]);
+					}
+
+					break;
 				case 'func':
 					typeof action[attr] === 'function' && action[attr]();
 					break;

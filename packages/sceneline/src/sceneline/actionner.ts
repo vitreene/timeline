@@ -174,7 +174,7 @@ export class Actionner {
 		const update = transition.next(delta);
 		this.mixStyle(key.id, update.value);
 		if (update.done) {
-			console.log('transition complete', key, this.transitions.has(key));
+			// console.log('transition complete', key, this.transitions.has(key));
 			Array.from(this.transitions.keys()).forEach((k) => console.log(k));
 			this.transitions.delete(key);
 			transition.onComplete && transition.onComplete();
@@ -226,7 +226,7 @@ export class Actionner {
 
 		const keys = this.persos.atTick(this.display.zoom, this.state);
 		if (!keys) return;
-		console.log('initMoveTransitions KEYS', keys);
+		// console.log('initMoveTransitions KEYS', keys);
 
 		/* 
 	une transition auto interrompt une autre qui se lance :
