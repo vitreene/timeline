@@ -87,8 +87,8 @@ export class Actionner {
 			if (up.seek) this.updateTween(key, tween, up.delta);
 			this.transitions.set(key, tween);
 
-			console.log('START TRANSITION');
-			for (const values of this.transitions.values()) console.log(values);
+			// console.log('START TRANSITION');
+			// for (const values of this.transitions.values()) console.log(values);
 		},
 
 		strap(id: PersoId, strap: Action['strap'] = null, up: Income) {

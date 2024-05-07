@@ -3,6 +3,7 @@
 	import Capsules from '$lib/capsules/capsules.svelte';
 	import Medias from '$lib/medias/medias.svelte';
 	import Stage from '$lib/stage/stage.svelte';
+	import Controle from '$lib/controle/controle.svelte';
 
 	export let data: PageData;
 	const scene = data.scene;
@@ -12,9 +13,9 @@
 {#if scene !== null}
 	<main class="scene">
 		<div class="chutier">1</div>
-		<div class="stage"><Stage {scene} /></div>
+		<div class="stage"><Stage /></div>
 		<div class="capsule"><Capsules {medias} {capsules} /></div>
-		<div class="controle">controle</div>
+		<div class="controle"><Controle {scene} /></div>
 		<div class="media"><Medias {medias} {capsules} /></div>
 	</main>
 {/if}

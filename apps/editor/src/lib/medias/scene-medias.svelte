@@ -34,6 +34,11 @@
 	<MediaEvents events={media.events} activeCue={$activeCue} />
 </div>
 
+<!-- TODO
+le son doit demarrer avec une interaction -> cliquer sur un bouton pour demarrer la sequence
+
+ -->
+
 <style>
 	.media-scene-item {
 		margin-bottom: 0.5rem;

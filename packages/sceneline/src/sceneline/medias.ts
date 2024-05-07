@@ -50,12 +50,12 @@ export class Media {
 				break;
 		}
 
-		broadcast.volume && this.action.volume(id, broadcast.volume);
+		broadcast.volume !== undefined && this.action.volume(id, broadcast.volume);
 		broadcast.transition && this.initTransition(id, broadcast.transition);
 	}
 
 	start = () => {
-		console.log(`broadcast - ${START}`);
+		console.log(`broadcast -> ${START}`);
 		this.status.forEach((action, id) => {
 			const perso = this.store.get(id);
 			switch (perso.type) {
@@ -114,6 +114,9 @@ export class Media {
 		});
 	}
 
+	/* 
+	la fonction de sync n'est pas satisfaisante ; tenter de gerer la sync par un event timeupdate sur la video
+	*/
 	action = {
 		start: (id: string, update: Income) => {
 			const { delta = 0, time = 0 } = update;
@@ -164,8 +167,11 @@ export class Media {
 			}
 			this.status.delete(id);
 		},
+
 		volume: (id: string, volume: number) => {
 			const media = this.getMedia(id);
+			console.log('VOLUME', media, volume);
+
 			media.volume = volume;
 		},
 	};
@@ -195,7 +201,8 @@ export class Media {
 	};
 
 	sync(delta: number) {
-		this.status.forEach(({ action, elapsed }, id) => {
+		this.status.forEach(({ action, elapsed: e }, id) => {
+			let elapsed = e;
 			const perso = this.store.get(id);
 			const status = this.status.get(id);
 			switch (perso.type) {
@@ -221,12 +228,22 @@ export class Media {
 						perso.media.currentTime = elapsed / MS;
 						perso.media.play();
 					} else {
-						elapsed += delta;
 						const diff = perso.media.currentTime * MS - elapsed;
-						if (diff > TIME_THRESHOLD) {
-							perso.media.currentTime = elapsed / MS;
-							console.log('VIDEO TIME_THRESHOLD', diff);
+						// console.log('video DIFF', diff);
+
+						if (Math.abs(diff) > TIME_THRESHOLD) {
+							if (flag) {
+								flag = false;
+								console.log(perso.media);
+								// perso.media.currentTime = perso.media.currentTime + 60 / MS;
+							}
+							// console.log('!DIFF->>', diff);
+
+							// perso.media.currentTime = elapsed / MS;
 						}
+						// console.log('VIDEO TIME_THRESHOLD', delta, perso.media.currentTime, elapsed / MS, diff);
+
+						elapsed += delta;
 						this.status.set(id, { ...status, action, elapsed });
 					}
 				}
@@ -239,3 +256,5 @@ export class Media {
 		});
 	}
 }
+
+let flag = true;
