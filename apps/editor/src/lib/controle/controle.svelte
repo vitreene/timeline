@@ -5,11 +5,12 @@
 	import type { Controller } from '@vitreene/sceneline';
 
 	import type { SceneComp } from '$lib/server/db';
-	import { addCuesToVideo, cueTimer } from '$lib/player/cues';
+	import { addCuesToVideo } from '$lib/player/cues';
 
 	export let scene: SceneComp;
 	let controller: Controller;
 	let canPlay: boolean = false;
+	let buttonInfo = 'PLAY';
 	const removes: Array<() => void> = [];
 	onDestroy(() => removes.forEach((r) => r()));
 
@@ -29,8 +30,7 @@
 					const perso = controller.persos.store.get(String(media.id));
 					if (perso) {
 						const video = perso.node as HTMLVideoElement;
-						// removes.push(addCuesToVideo(video, media));
-						removes.push(cueTimer(video));
+						removes.push(addCuesToVideo(video, media));
 					}
 				}
 				canPlay = true;
@@ -39,12 +39,16 @@
 	});
 
 	function play() {
-		controller.start().play();
-		console.log(controller);
-		setTimeout(() => {
+		if (controller.isPlaying) {
+			// controller.seek(0);
 			controller.stop();
-		}, 7000);
+			buttonInfo = 'PLAY';
+		} else {
+			buttonInfo = 'STOP';
+			controller.start().play();
+			console.log(controller);
+		}
 	}
 </script>
 
-<button on:click={play} disabled={!canPlay}>PLAY</button>
+<button on:click={play} disabled={!canPlay}>{buttonInfo}</button>

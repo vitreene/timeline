@@ -29,6 +29,7 @@ export class LoopEvent {
 		this.emitEvent.length && console.log(this.emitEvent);
 
 		const { time } = options;
+		// console.log(time);
 
 		for (const emit of this.emitEvent) {
 			console.log('emitEvent', emit);

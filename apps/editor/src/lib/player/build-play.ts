@@ -135,14 +135,14 @@ function createVideoPerso(media: SceneMedia): PersoMediaDef {
 		type: P.VIDEO,
 		initial: {
 			src: media.path || defaultPathImage,
-			attr: { controls: 'true', autoplay: 'true' /* , muted: true */ },
+			attr: { controls: 'true' /* autoplay: 'true' , muted: true */ },
 		},
 		actions: {
 			go: {
 				move: { to: ROOT },
 				broadcast: {
 					type: START,
-					volume: 0.1,
+					volume: 0,
 				},
 			},
 		},

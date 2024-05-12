@@ -12,7 +12,9 @@
 
 {#if scene !== null}
 	<main class="scene">
-		<div class="chutier">1</div>
+		<div class="chutier">
+			<p id="message">./.</p>
+		</div>
 		<div class="stage"><Stage /></div>
 		<div class="capsule"><Capsules {medias} {capsules} /></div>
 		<div class="controle"><Controle {scene} /></div>

@@ -4,26 +4,26 @@ import type { SceneMedia } from '$lib/server/db';
 
 export const activeCue = writable<string>('');
 
-export function addCuesToVideo(video: HTMLVideoElement, media: SceneMedia) {
-	const track = video.addTextTrack('metadata', 'meta', 'fr');
-	media.events.forEach((e) => {
-		const cue = new VTTCue(e.start, e.end, e.text);
-		cue.id = e.id;
-		track.addCue(cue);
-	});
-	const change = onChange(video);
-	track.addEventListener('cuechange', change);
+// export function addCuesToVideo(video: HTMLVideoElement, media: SceneMedia) {
+// 	const track = video.addTextTrack('metadata', 'meta', 'fr');
+// 	media.events.forEach((e) => {
+// 		const cue = new VTTCue(e.start, e.end, e.text);
+// 		cue.id = e.id;
+// 		track.addCue(cue);
+// 	});
+// 	const change = onChange(video);
+// 	track.addEventListener('cuechange', change);
 
-	return () => track.removeEventListener('cuechange', change);
-}
+// 	return () => track.removeEventListener('cuechange', change);
+// }
 
-const onChange = (video: HTMLVideoElement) => (event: any) => {
-	//
+// const onChange = (video: HTMLVideoElement) => (event: any) => {
+// 	//
 
-	console.log('CUE |-->', event?.target?.activeCues[0]?.id, 'time', video.currentTime);
+// 	console.log('CUE |-->', event?.target?.activeCues[0]?.id, 'time', video.currentTime);
 
-	activeCue.set(event?.target?.activeCues[0]?.id);
-};
+// 	activeCue.set(event?.target?.activeCues[0]?.id);
+// };
 
 // export const timer = writable<number>(0);
 
@@ -36,22 +36,34 @@ const onChange = (video: HTMLVideoElement) => (event: any) => {
 - mettre le timer à disposition
 
 */
-export function cueTimer(video: HTMLVideoElement) {
+export function addCuesToVideo(video: HTMLVideoElement, media: SceneMedia) {
+	const track = video.addTextTrack('metadata', 'meta', 'en');
+
+	const cue = new VTTCue(0, 0, String(0));
+	track.addCue(cue);
+
+	media.events.forEach((e) => {
+		const cue = new VTTCue(e.start, e.end, e.text);
+		cue.id = e.id;
+		track.addCue(cue);
+	});
+
 	let timer = 0;
-	const track = video.addTextTrack('metadata', 'meta', 'fr');
 
 	const onChange = (event: any) => {
 		const cue = new VTTCue(timer, 0, String(timer));
 		track.addCue(cue);
 		timer == 0 && console.log('CUE |-->', event?.target?.activeCues[0]?.start);
 
-		console.log(
-			`CUE |-->' time : ${Math.round(video.currentTime * 1000)}, timer : ${Math.round(timer * 1000)}, diff : ${Math.abs((video.currentTime - timer) * 1000)}`
-		);
+		// console.log(
+		// 	`CUE |-->' ${event?.target?.activeCues[0]?.id} time : ${Math.round(video.currentTime * 1000)}, timer : ${Math.round(timer * 1000)}, diff : ${Math.abs((video.currentTime - timer) * 1000)}`
+		// );
+
+		activeCue.set(event?.target?.activeCues[0]?.id);
 
 		timer += 0.01;
 	};
-	onChange(null);
+	// onChange(null);
 	console.log(track);
 
 	track.addEventListener('cuechange', onChange);

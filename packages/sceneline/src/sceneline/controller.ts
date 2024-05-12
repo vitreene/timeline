@@ -2,6 +2,7 @@ import { Timer } from './timer';
 import { Ticker } from './ticker';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
+import { TimeProvider } from '../sceneline/time-provider';
 
 import { INITIAL } from '../common/constants';
 import type { DeltaFn, MapEvent, TimerCallback, Store } from '../types';
@@ -10,7 +11,8 @@ import { Media } from './medias';
 import { Persos } from './perso';
 
 export class Controller {
-	timer = new Timer();
+	timer = new TimeProvider();
+	// timer = new Timer();
 	ticker = new Ticker();
 	loopEvent: LoopEvent;
 
@@ -27,7 +29,7 @@ export class Controller {
 
 		this.ticker.handlers.store(this.medias.sync);
 
-		this.ticker.handlers.store(this.timer.update);
+		// this.ticker.handlers.store(this.timer.update);
 		this.ticker.handlers.store(actionner.initMoveTransitions);
 		this.ticker.handlers.store(actionner.updateTransitions);
 		this.ticker.framers.store(actionner.flush);
@@ -83,21 +85,30 @@ export class Controller {
 		this.ticker.reset();
 		return this;
 	};
+
+	isPlaying = false;
+	timeProvider: TimeProvider;
 	play = () => {
+		this.timer.start();
 		console.log('PLAY');
 		this.ticker.play();
+		this.isPlaying = true;
 		return this;
 	};
 	pause = () => {
 		console.log('PAUSE');
 		this.ticker.pause();
 		this.medias.pause();
-
+		this.isPlaying = false;
+		this.timer.video.pause();
 		return this;
 	};
 	stop = () => {
 		this.ticker.stop();
 		this.medias.stop();
+		this.isPlaying = false;
+		this.timer.video.pause();
+
 		return this;
 	};
 	start = () => {

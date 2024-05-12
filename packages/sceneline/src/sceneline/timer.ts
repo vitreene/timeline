@@ -27,6 +27,9 @@ export class Timer {
 		const elapsed = Math.round(this.elapsed / TIME_LEAP) * TIME_LEAP;
 		const consumed = (elapsed - this.time) / TIME_LEAP;
 
+		// TODO
+		// simplifier en reunissant au préalable tous les intervalles dans un meme index
+		// ex : [2300,2310,2340] -> 2300
 		for (let t = 0; t <= consumed; t++) {
 			this.time % TIMER_UPDATE === 0 &&
 				Promise.resolve(this.handlers.update({ delta, options: { time: this.time } }));
