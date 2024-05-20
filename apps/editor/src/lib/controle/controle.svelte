@@ -49,6 +49,13 @@
 			console.log(controller);
 		}
 	}
+
+	function keyPlay(e: any) {
+		e.preventDefault();
+		console.log(e);
+
+		e.keyCode == '32' || (e.key == 'space' && play());
+	}
 </script>
 
-<button on:click={play} disabled={!canPlay}>{buttonInfo}</button>
+<button on:click={play} on:keydown={keyPlay} disabled={!canPlay}>{buttonInfo}</button>

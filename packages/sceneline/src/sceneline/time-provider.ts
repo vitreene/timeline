@@ -81,7 +81,6 @@ export class TimeProvider {
 
 		this.video.oncanplaythrough = () => {
 			this.cueTimer(this.video);
-
 			this.video.play();
 		};
 
@@ -89,6 +88,7 @@ export class TimeProvider {
 	};
 
 	cueTimer(video: HTMLVideoElement) {
+		let count = 0;
 		// fréquence chaque 1/10e seconde
 		// valeur en ms
 		this.time = 0;
@@ -97,7 +97,8 @@ export class TimeProvider {
 
 		this.cue = new VTTCue(0, 0, String(this.time));
 		track.addCue(this.cue);
-
+		console.log('first cue :', this.cue);
+		setTimeout(() => {}, 0);
 		// for (let i = 0; i < 50; i++) {
 		// 	const t = (i * 100 + 5) * 0.001;
 		// 	const cue = new VTTCue(t, t, `frame_${i}`);
@@ -105,14 +106,16 @@ export class TimeProvider {
 		// 	track.addCue(cue);
 		// }
 
-		const onChange = () => {
+		const onChange = async () => {
 			// console.log('TRACK', track, this.cue);
-
+			count++;
+			setTimeout(() => {}, 0);
 			this.cue && track.removeCue(this.cue);
 			const t = this.time * 0.001;
 			this.cue = new VTTCue(t, 0, String(this.time));
 
 			track.addCue(this.cue);
+			console.log(count, this.cue);
 
 			this.handlers.update({ delta: TIME_LEAP, options: { time: this.time } });
 			//
