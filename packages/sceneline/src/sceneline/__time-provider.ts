@@ -115,7 +115,7 @@ export class TimeProvider {
 			this.cue = new VTTCue(t, 0, String(this.time));
 
 			track.addCue(this.cue);
-			console.log(count, this.cue);
+			// console.log(count, this.cue);
 
 			this.handlers.update({ delta: TIME_LEAP, options: { time: this.time } });
 			//
@@ -135,10 +135,6 @@ export class TimeProvider {
 		// cet appel declenche l'animation, et active le onchange sur l'audio.
 		// par contre rien ensuite pour ce onchange
 		onChange();
-
-		setTimeout(() => {
-			console.log('cueTimer track', track);
-		}, 2000);
 
 		return () => track.removeEventListener('cuechange', onChange);
 	}

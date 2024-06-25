@@ -1,18 +1,16 @@
-import { Timer } from './timer';
+import { Media } from './medias';
+import { Persos } from './perso';
 import { Ticker } from './ticker';
 import { Actionner } from './actionner';
 import { LoopEvent } from './loop-event';
-import { TimeProvider } from '../sceneline/time-provider';
+import { PersoType as P } from '../types';
+import { TimeProvider } from './time-worker-provider';
 
 import { INITIAL } from '../common/constants';
 import type { DeltaFn, MapEvent, TimerCallback, Store } from '../types';
-import { PersoType as P } from '../types';
-import { Media } from './medias';
-import { Persos } from './perso';
 
 export class Controller {
 	timer = new TimeProvider();
-	// timer = new Timer();
 	ticker = new Ticker();
 	loopEvent: LoopEvent;
 
@@ -28,10 +26,9 @@ export class Controller {
 		this.loopEvent = new LoopEvent(actionner);
 
 		this.ticker.handlers.store(this.medias.sync);
-
-		// this.ticker.handlers.store(this.timer.update);
 		this.ticker.handlers.store(actionner.initMoveTransitions);
 		this.ticker.handlers.store(actionner.updateTransitions);
+
 		this.ticker.framers.store(actionner.flush);
 
 		this.registerEvents(events);
@@ -100,14 +97,14 @@ export class Controller {
 		this.ticker.pause();
 		this.medias.pause();
 		this.isPlaying = false;
-		this.timer.video.pause();
+		// this.timer.pause();
 		return this;
 	};
 	stop = () => {
 		this.ticker.stop();
 		this.medias.stop();
 		this.isPlaying = false;
-		this.timer.video.pause();
+		this.timer.stop();
 
 		return this;
 	};
@@ -130,7 +127,7 @@ export class Controller {
 
 	// FIXME marche pas
 	// pourrait etre delayed action wait(time, event) ?
-	wait = (wait = 0) => {
+	/* wait = (wait = 0) => {
 		console.log('WAIT', wait);
 
 		const waitTimer = new Timer();
@@ -147,7 +144,7 @@ export class Controller {
 		waitTicker.start();
 		waitTicker.play();
 		return this.pause();
-	};
+	}; */
 
 	log = () => {
 		console.log(this);

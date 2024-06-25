@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 
-	import type { BuildPlayType } from '$lib/player/build-play';
 	import type { Controller } from '@vitreene/sceneline';
 
 	import type { SceneComp } from '$lib/server/db';
@@ -39,23 +38,38 @@
 	});
 
 	function play() {
+		// setTimeout(() => {
+		// 	console.log('setTimeout terminate');
+		// 	counter.terminate();
+		// }, 4000);
+
 		if (controller.isPlaying) {
 			// controller.seek(0);
 			controller.stop();
+			// counter.postMessage('stop');
+
 			buttonInfo = 'PLAY';
 		} else {
 			buttonInfo = 'STOP';
 			controller.start().play();
+			// counter.postMessage('start');
+
 			console.log(controller);
 		}
 	}
-
-	function keyPlay(e: any) {
-		e.preventDefault();
+	/* TODO connecter cet emetteur au systeme de tickers comme time provider
+	let counter: Worker;
+	try {
+		counter = new Worker(new URL('../utils/worker-timer.ts', import.meta.url));
+		
+		counter.onmessage = (e) => {
+			console.log(e.data);
+			// if (e.data % 1000 == 0) console.log(e.data);
+		};
+	} catch (e) {
 		console.log(e);
-
-		e.keyCode == '32' || (e.key == 'space' && play());
 	}
+	*/
 </script>
 
-<button on:click={play} on:keydown={keyPlay} disabled={!canPlay}>{buttonInfo}</button>
+<button on:click={play} disabled={!canPlay}>{buttonInfo}</button>
