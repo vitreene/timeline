@@ -37,6 +37,7 @@ export interface SceneMedia extends Omit<Media, 'sceneId'> {
 export interface SceneComp extends Scene {
 	capsules: Array<CapsuleComp>;
 	medias: Array<SceneMedia>;
+	sources: Array<Media>;
 }
 // SCENE
 
@@ -68,10 +69,25 @@ export async function getScene(sceneId: number): Promise<SceneComp> {
 		events: JSON.parse(m.events),
 	}));
 	const capsules = sceneDB?.capsules || [];
-
-	return { ...sceneDB!, capsules, medias };
+	const sources = await getMedias(sceneId);
+	return { ...sceneDB!, capsules, medias, sources };
 }
 
+// MEDIAS
+
+export async function getMedias(sceneId: number) {
+	return await prisma.media.findMany({
+		where: {
+			capsuleElement: {
+				every: {
+					capsule: {
+						sceneId,
+					},
+				},
+			},
+		},
+	});
+}
 // CAPSULE
 export async function getCapsules(sceneId: number) {
 	return await prisma.capsule.findMany({ where: { sceneId } });

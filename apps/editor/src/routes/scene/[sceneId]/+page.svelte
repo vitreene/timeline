@@ -4,16 +4,18 @@
 	import Medias from '$lib/medias/medias.svelte';
 	import Stage from '$lib/stage/stage.svelte';
 	import Controle from '$lib/controle/controle.svelte';
+	import Chutier from '$lib/chutier/liste.svelte';
 
 	export let data: PageData;
 	const scene = data.scene;
-	const { medias, capsules } = scene;
+	const { sources, medias, capsules } = scene;
 </script>
 
 {#if scene !== null}
 	<main class="scene">
 		<div class="chutier">
 			<p id="message">./.</p>
+			<Chutier {sources} />
 		</div>
 		<div class="stage"><Stage /></div>
 		<div class="capsule"><Capsules {medias} {capsules} /></div>
